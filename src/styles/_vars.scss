@@ -1,0 +1,39 @@
+// Theme Colours
+$color-base: #ededed;
+$color-cream: #faf1e7;
+
+$color-primary: #232122;
+$color-secondary: #ef4039;
+$color-tertiary: #25aee4;
+$color-quaternary: #00b481;
+$color-quinary: #ffc847;
+
+$color-white: #fff;
+
+
+
+
+.bg-custom-black {
+    background-color: $color-primary;
+}
+
+.bg-custom-white {
+    background-color: $color-base;
+}
+
+.bg-custom-cream {
+    background-color: $color-cream;
+}
+
+
+.text-custom-black {
+    color: $color-primary;
+}
+
+.text-custom-white {
+    color: $color-base;
+}
+
+.text-custom-cream {
+    color: $color-cream;
+}
