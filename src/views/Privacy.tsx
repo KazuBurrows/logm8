@@ -1,7 +1,7 @@
-import React from "react";
+// import React from "react";
 import { useNavigate } from "react-router-dom";
 
-import { Section } from "../componets/Section";
+// import { Section } from "../componets/Section";
 // import logmateLogo from "../assets/logmate-logo.png";
 
 export default function Privacy() {
@@ -13,16 +13,18 @@ export default function Privacy() {
 
   return (
     <div className="max-w-3xl mx-auto p-6 bg-white shadow-md rounded-lg">
-      <a
+      <button
         onClick={handleRedirect}
-        className="text-rose-500 hover:underline cursor-pointer"
+        className="text-rose-500 hover:underline cursor-pointer bg-transparent border-none p-0"
+        aria-label="Back to Homepage"
       >
         <img
           src="../assets/logmate-logo.png"
           className="inline sm:h-28 sm:w-28 h-20 w-20 rounded-full mx-2"
           alt="Logmate Logo"
         />
-      </a>
+      </button>
+
       <h1 className="text-2xl font-bold mb-4">Privacy Policy</h1>
       <p className="text-sm text-gray-500">Last Updated: 25/02/2025</p>
       <p className="mt-4">

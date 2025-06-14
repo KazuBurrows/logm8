@@ -1,5 +1,5 @@
 import * as React from "react";
-import { CSSProperties, useEffect } from "react";
+// import { CSSProperties, useEffect } from "react";
 
 export interface ButtonProps {
   label?: string;

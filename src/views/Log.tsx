@@ -58,6 +58,7 @@ export default function Log() {
   // State to hold the service logs
   const [serviceRecords, setServiceRecords] = useState<ServiceRecord[]>([]);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -104,6 +105,7 @@ export default function Log() {
                   Receipts: task["receipts"] ?? []
                 }
                 myCompletedTasks.push(myTask);
+                return <></>
               });
 
               var myRecord: ServiceRecord = {
@@ -117,6 +119,7 @@ export default function Log() {
                 PendingCompletedTasks: []
               };
               myRecords.push(myRecord);
+              return <></>
             });
 
             setServiceRecords(myRecords)

@@ -27,9 +27,12 @@ export default function NotFound() {
           </span>
           tag again.
         </p>
-        <a onClick={handleRedirect} className="text-rose-500 hover:underline cursor-pointer">
-          Back to Homepage
-        </a>
+        <button
+  onClick={handleRedirect}
+  className="text-rose-500 hover:underline cursor-pointer bg-transparent border-none p-0"
+>
+  Back to Homepage
+</button>
       </div>
     </Section>
   );

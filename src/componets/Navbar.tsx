@@ -28,7 +28,7 @@ export const Navbar = ({ onToggle }: HamburgerButtonProps) => {
       <nav className="w-9/12 md:flex hidden mx-auto my-2 flex justify-between items-center bg-black text-white px-9 py-2 rounded-full shadow-lg z-50">
         {/* Left Side: Logo */}
         <div className="flex items-center space-x-2">
-          <img src={logmateLogo} className="h-12 m-0"></img>
+          <img src={logmateLogo} alt="logm8-logo" className="h-12 m-0"></img>
           <span className="lexend-font text-3xl uppercase font-black">
             Logm8
           </span>

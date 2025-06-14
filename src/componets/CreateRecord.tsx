@@ -132,12 +132,12 @@ const groupBadgeStyles: CSSProperties = {
   textAlign: "center",
 };
 
-const formatGroupLabel = (data: GroupedOption) => (
-  <div style={groupStyles}>
-    <span>{data.label}</span>
-    <span style={groupBadgeStyles}>{data.options.length}</span>
-  </div>
-);
+// const formatGroupLabel = (data: GroupedOption) => (
+//   <div style={groupStyles}>
+//     <span>{data.label}</span>
+//     <span style={groupBadgeStyles}>{data.options.length}</span>
+//   </div>
+// );
 
 /** Primary UI component for user interaction */
 export const CreateRecord = ({
@@ -218,6 +218,7 @@ export const CreateRecord = ({
       if (task !== index) {
         tempTaskRows.push(task);
       }
+      return <></>
     })
 
     setSelectedValues((prev) => {

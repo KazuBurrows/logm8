@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+// import React, { useState } from "react";
 import { Search } from "../componets/Search";
 
 interface Station {
@@ -95,7 +95,7 @@ export default function Locations() {
                 <td className="p-3">{station.phone}</td>
                 <td className="p-3">{station.email}</td>
                 <td className="p-3">
-                  <a href={station.mapURL} target="_blank">
+                  <a href={station.mapURL} target="_blank" rel="noreferrer">
                     <svg
                       id="Layer_1"
                       data-name="Layer 1"
@@ -137,7 +137,7 @@ export default function Locations() {
                   <h4 className="md:row-start-1 md:col-start-2 row-start-3 col-start-1">{station.phone}</h4>
                   <h4 className="md:row-start-2 md:col-start-2 row-start-4 col-start-1">{station.email}</h4>
                   <div className="w-min md:row-start-1 md:col-start-3 row-start-2 col-start-2 ml-auto">
-                    <a href={station.mapURL} target="_blank">
+                    <a href={station.mapURL} target="_blank" rel="noreferrer">
                       <svg
                         id="Layer_1"
                         data-name="Layer 1"
