@@ -1,6 +1,6 @@
 import React, { CSSProperties, useState } from "react";
 import { useLocation } from "react-router-dom";
-import Select, { SingleValue } from "react-select";
+// import Select, { SingleValue } from "react-select";
 
 import { Button } from "./Button";
 import { LoadingScreen } from "./LoadingScreen";
