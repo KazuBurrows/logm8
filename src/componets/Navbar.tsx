@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-// import logmateLogo from "../assets/logmate-logo.png";
-
 import { Button } from "./Button";
 import { useNavigate } from "react-router-dom";
+
+const logmateLogo = require("../assets/logmate-logo.png");
 
 interface HamburgerButtonProps {
   onToggle: () => void;
@@ -28,7 +28,7 @@ export const Navbar = ({ onToggle }: HamburgerButtonProps) => {
       <nav className="w-9/12 md:flex hidden mx-auto my-2 flex justify-between items-center bg-black text-white px-9 py-2 rounded-full shadow-lg z-50">
         {/* Left Side: Logo */}
         <div className="flex items-center space-x-2">
-          <img src="../assets/logmate-logo.png" className="h-12 m-0"></img>
+          <img src={logmateLogo} className="h-12 m-0"></img>
           <span className="lexend-font text-3xl uppercase font-black">
             Logm8
           </span>

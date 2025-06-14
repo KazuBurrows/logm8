@@ -1,29 +1,29 @@
 import React from "react";
 import { Section } from "../componets/Section";
 
-// import img1 from "../assets/img1.jpg";
-// import img2 from "../assets/img2.jpg";
-// import img3 from "../assets/img3.jpg";
+const img1 = require("../assets/img1.jpg");
+const img2 = require("../assets/img2.jpg");
+const img3 = require("../assets/img3.jpg");
 
-type Inovation = { title: string; description: string; imgUrl: string };
+type Inovation = { title: string; description: string; imgUrl: any };
 const innovation: Inovation[] = [
   {
     title: "Tracking & Management",
     description:
       "This innovative sticker stays with your vehicle from owner to owner, allowing you to build a detailed history of its care.",
-    imgUrl: "../assets/img1.jpg",
+    imgUrl: img1,
   },
   {
     title: "Secure & Reliable",
     description:
       "Easily upload receipts, proof of work, and any other valuable information, keeping everything in one secure place.",
-    imgUrl: "../assets/img2.jpg",
+    imgUrl: img2,
   },
   {
     title: "Durability & Speed",
     description:
       "Simply scan it with your phone to view or add updates instantly. Dust-proof, water-proof, and drop-proof.",
-    imgUrl: "../assets/img3.jpg",
+    imgUrl: img3,
   },
 ];
 

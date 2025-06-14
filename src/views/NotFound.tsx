@@ -2,7 +2,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 
 import { Section } from "../componets/Section"
-// import logmateLogo from "../assets/logmate-logo.png";
+const logmateLogo = require("../assets/logmate-logo.png");
 
 
 export default function NotFound() {
@@ -23,7 +23,7 @@ export default function NotFound() {
         <p className="sm:text-7xl text-6xl font-semibold leading-none text-sky-300 mb-8">
           Try scanning the
           <span className="inline-block">
-            <img src="../assets/logmate-logo.png" className="inline sm:h-28 sm:w-28 h-20 w-20 rounded-full mx-2" alt="Logmate Logo" />
+            <img src={logmateLogo} className="inline sm:h-28 sm:w-28 h-20 w-20 rounded-full mx-2" alt="Logmate Logo" />
           </span>
           tag again.
         </p>
