@@ -188,7 +188,7 @@ export default function Log() {
 
     // fetchRecords();
     checkCookieExpiration();
-  }, []);
+  }, [checkCookieExpiration,navigate, token]);
 
   const RenderThis = () => {
     if (isRetrievingData) {
