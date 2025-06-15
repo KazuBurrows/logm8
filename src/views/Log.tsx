@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 import Cookies from "js-cookie";
@@ -31,7 +31,7 @@ export default function Log() {
   const token = queryParams.get("token"); // Extract the 'token' value
   const navigate = useNavigate();
 
-  const checkCookieExpiration = () => {
+  const checkCookieExpiration = useCallback(() => {
     const expiration = Cookies.get("pageExpiration");
     const now = Math.floor(Date.now() / 1000); // Convert to seconds
 
@@ -49,7 +49,7 @@ export default function Log() {
         expires: 365 * 100,
       });
     }
-  };
+  }, [navigate]);
 
   const [isRetrievingData, setIsRetrievingData] = useState(true);
 
@@ -163,7 +163,8 @@ export default function Log() {
 
     fetchData();
     checkCookieExpiration();
-  }, [navigate, token]);
+  }, [navigate, token, checkCookieExpiration]);
+
 
   const RenderThis = () => {
     if (isRetrievingData) {
