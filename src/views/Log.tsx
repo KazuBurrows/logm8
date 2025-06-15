@@ -58,6 +58,8 @@ export default function Log() {
   // State to hold the service logs
   const [serviceRecords, setServiceRecords] = useState<ServiceRecord[]>([]);
 
+
+
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     const fetchData = async () => {
@@ -161,7 +163,7 @@ export default function Log() {
 
     fetchData();
     checkCookieExpiration();
-  }, []);
+  }, [navigate, token]);
 
   const RenderThis = () => {
     if (isRetrievingData) {
