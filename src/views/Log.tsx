@@ -96,19 +96,18 @@ export default function Log() {
           
           const myRecords: ServiceRecord[] =[];
           try {
-            data.records.map((record: any) => {
-              var myCompletedTasks: TaskCompleted[] = [];
-              record["completedTasks"].map((task: any) => {
-                var myTask: TaskCompleted = {
+            data.records.forEach((record: any) => {
+              const myCompletedTasks: TaskCompleted[] = [];
+
+              record["completedTasks"].forEach((task: any) => {
+                myCompletedTasks.push({
                   Task: task["task"] ?? "",
                   Comment: task["comment"] ?? "",
                   Receipts: task["receipts"] ?? []
-                }
-                myCompletedTasks.push(myTask);
-                return <></>
+                });
               });
 
-              var myRecord: ServiceRecord = {
+              myRecords.push({
                 id: "",
                 TagID: "",
                 EnteredDate: record["enteredDate"] ?? "",
@@ -117,9 +116,7 @@ export default function Log() {
                 Odometer: record["odometer"] ?? "",
                 CompletedTasks: myCompletedTasks,
                 PendingCompletedTasks: []
-              };
-              myRecords.push(myRecord);
-              return <></>
+              });
             });
 
             setServiceRecords(myRecords)
@@ -163,32 +160,8 @@ export default function Log() {
     };
 
     fetchData();
-
-    // const fetchRecords = async () => {
-    //   try {
-    //     const response = await fetch(
-    //       "https://logmate.azurewebsites.net/api/RequestRecords?token=" +
-    //         token +
-    //         ""
-    //       // "http://localhost:7071/api/RequestRecords?token=" + token  + ""
-    //     );
-    //     setIsRetrievingRecords(false);
-
-    //     console.log(await response);
-    //     const result: ServiceRecord[] = await response.json();
-    //     setServiceRecords(result);
-    //     // console.log(result[0].id);
-
-    //     setIsRetrievingRecords(false);
-    //     // setIsDisplayingInfo(true);
-    //   } catch (err: any) {
-    //     console.log(err);
-    //   }
-    // };
-
-    // fetchRecords();
     checkCookieExpiration();
-  }, [navigate, token]);
+  }, []);
 
   const RenderThis = () => {
     if (isRetrievingData) {
