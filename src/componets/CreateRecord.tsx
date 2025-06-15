@@ -1,4 +1,4 @@
-import React, { CSSProperties, useState } from "react";
+import React, { useState } from "react";
 import { useLocation } from "react-router-dom";
 // import Select, { SingleValue } from "react-select";
 
