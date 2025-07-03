@@ -5,6 +5,7 @@ import Merchant from './views/Merchant';
 import Log from './views/Log';
 import NotFound from './views/NotFound';
 import Privacy from './views/Privacy';
+import CreateTag from './componets/CreateTag';
 
 function App() {
   return (
