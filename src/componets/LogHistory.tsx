@@ -35,18 +35,18 @@ const toggleInfo = (id: string) => {
   };
 
 
-  const formattedLongDate = (strDate: string) => {
-    const rawDate = new Date(strDate);
+//   const formattedLongDate = (strDate: string) => {
+//     const rawDate = new Date(strDate);
 
-    const longDate = rawDate.toLocaleDateString("en-NZ", {
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
+//     const longDate = rawDate.toLocaleDateString("en-NZ", {
+//       weekday: "long",
+//       year: "numeric",
+//       month: "long",
+//       day: "numeric",
+//     });
 
-    return longDate;
-  };
+//     return longDate;
+//   };
 
   const formattedShortDate = (strDate: string) => {
     const rawDate = new Date(strDate);

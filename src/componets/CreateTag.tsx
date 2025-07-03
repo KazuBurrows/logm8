@@ -64,7 +64,7 @@ export default function CreateTag() {
       setTagId(id.replace(/ /g, "+"));
       // setTagId(encodeURIComponent(id));
       
-      console.log(TagId)
+      // console.log(TagId)
     }, [id]);
 
 
