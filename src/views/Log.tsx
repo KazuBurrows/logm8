@@ -1,13 +1,13 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
-import Cookies from "js-cookie";
+// import Cookies from "js-cookie";
 
 import LogHistory from "../componets/LogHistory";
 import LogInfo from "../componets/LogInfo";
 import { LoadingScreen } from "../componets/LoadingScreen";
 
-const TTL_DURATION = 45 * 60; // 45 minutes (in seconds)
+// const TTL_DURATION = 45 * 60; // 45 minutes (in seconds)
 
 const data: ServiceTag = {
   Make: "undefiend",
@@ -31,26 +31,6 @@ export default function Log() {
   const token = queryParams.get("token"); // Extract the 'token' value
   const navigate = useNavigate();
 
-  const checkCookieExpiration = useCallback(() => {
-    const expiration = Cookies.get("pageExpiration");
-    const now = Math.floor(Date.now() / 1000); // Convert to seconds
-
-    if (now > Number(expiration)) {
-      console.log("now > Number(expiration)");
-      // Expired: Remove cookie and redirect
-      Cookies.remove("pageExpiration");
-      navigate("/404");
-    } else if (!expiration) {
-      console.log("!expiration");
-
-      // No expiration set: Create a new one
-      const expirationTime = now + TTL_DURATION;
-      Cookies.set("pageExpiration", String(expirationTime), {
-        expires: 365 * 100,
-      });
-    }
-  }, [navigate]);
-
   const [isRetrievingData, setIsRetrievingData] = useState(true);
 
   // State to hold the service logs
@@ -65,10 +45,10 @@ export default function Log() {
     const fetchData = async () => {
       try {
         fetch(
-          "https://logmate.azurewebsites.net/api/ActivateOneLifeUrl?token=" +
-            token +
-            ""
-          // "http://localhost:7071/api/ActivateOneLifeUrl?token=" + token + ""
+          // "https://logmate.azurewebsites.net/api/ActivateOneLifeUrl?token=" +
+          //   token +
+          //   ""
+          "http://localhost:7071/api/ActivateOneLifeUrl?token=" + token + ""
         )
         .then((response) => {
           if (!response.ok) {
@@ -132,38 +112,13 @@ export default function Log() {
           console.log(error);
         });
 
-
-
-        // const response = await fetch(
-        //   // "https://logmate.azurewebsites.net/api/ActivateOneLifeUrl?token=" +
-        //   //   token +
-        //   //   ""
-        //   "http://localhost:7071/api/ActivateOneLifeUrl?token=" + token + ""
-        // );
-
-        // if (!response.ok) {
-        //   navigate(`/404`);
-        // }
-        // console.log(await response.json());
-        // const jsonResponse: JSON = await response.json();
-
-        // const tag: ServiceTag = jsonResponse["jsonTagInfo"];
-        // setTag(tag);
-
-        // const records: ServiceRecord[] = jsonResponse["jsonRecords"];
-        // setServiceRecords(records);
-
-
-        // // console.log(result);
-        // setIsRetrievingData(false);
       } catch (err: any) {
         console.log(err);
       }
     };
 
     fetchData();
-    checkCookieExpiration();
-  }, [navigate, token, checkCookieExpiration]);
+  }, [navigate, token]);
 
 
   const RenderThis = () => {
@@ -175,7 +130,6 @@ export default function Log() {
           <LogInfo tag={tag}></LogInfo>
           <LogHistory
             logServiceRecords={serviceRecords}
-            checkExpiration={() => checkCookieExpiration()}
           ></LogHistory>
         </>
       );

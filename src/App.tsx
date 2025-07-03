@@ -15,7 +15,7 @@ function App() {
         <Route path="/merchant" element={<Merchant />} />
         <Route path="/log" element={<Log />} />
         {/* <Route path="/log/details" element={<LogDetail/>} /> */}
-        {/* <Route path="/tag/create" element={<CreateTag/>} /> */}
+        <Route path="/tag/create" element={<CreateTag/>} />
         <Route path="/404" element={<NotFound/>} />
         {/* <Route path="/loading-screen" element={<LoadingScreen text={'Loading...'}/>} /> */}
         <Route path="/privacy" element={<Privacy/>} />
