@@ -73,23 +73,23 @@ const toggleInfo = (id: string) => {
          className="font-black bg-blue-500 text-white lexend-font fixed bottom-8 left-1/2 transform -translate-x-1/2"
      />
 
-     <div className="flex justify-end">
+     {/* <div className="flex justify-end">
          <Button
              type={"button"}
              size={"default"}
              className={"bg-rose-500 text-white my-8 font-bold"}
              label="Download PDF"
          />
-     </div>
+     </div> */}
      <ul className="w-full mx-auto px-1">
          {serviceRecords.map((record, recordIndex) => (
              <li key={recordIndex} className="mb-3">
                  {/* Large screen */}
-                 <div className="px-4 py-2 sm:flex md:gap-16 sm:gap-8 gap-4 text-lg font-normal leading-tight lexend-font justify-between sm:block hidden rounded-t-md bg-slate-200">
+                 {/* <div className="px-4 py-2 sm:flex md:gap-16 sm:gap-8 gap-4 text-lg font-normal leading-tight lexend-font justify-between sm:block hidden rounded-t-md bg-slate-200">
                      <h3>{record.ServicedDate}</h3>
                      <h3 className="text-center">{record.Odometer}km</h3>
                      <h3 className="ml-auto">{record.MechanicName}</h3>
-                 </div>
+                 </div> */}
                  {/* Small screen */}
                  {/* <div className="text-lg font-normal leading-tight lexend-font w-full sm:hidden">
                      <h3 className="px-4">{record.ServicedDate}</h3>
@@ -99,9 +99,9 @@ const toggleInfo = (id: string) => {
                      </div>
                  </div> */}
 
-                 <div className="w-full bg-white rounded-full">
+                 <div className="w-full bg-white rounded-2xl shadow shadow-slate-300/80">
                     {record.CompletedTasks.map((task, taskIndex) => (
-                        <div key={taskIndex} className="w-full">
+                        <div key={taskIndex} className="w-full cursor-pointer" onClick={() => toggleInfo(recordIndex.toString() + taskIndex.toString())}>
                             {/* Row */}
                             <div className="flex flex-wrap sm:flex-nowrap items-center py-2 px-2 sm:px-8">
                                 {/* Button column */}
@@ -138,7 +138,7 @@ const toggleInfo = (id: string) => {
                                         {formattedShortDate(record.ServicedDate)}
                                     </div>
                                     <Button
-                                        className="ml-auto justify-end ml-[62%] p-0 m-[-15px]"
+                                        className="ml-auto justify-end ml-[60%] p-0 m-[-15px]"
                                         type="button"
                                         size="small"
                                         onClick={toggleInfo}
@@ -155,11 +155,11 @@ const toggleInfo = (id: string) => {
 
                             {/* Expanded section */}
                             {expandedItemId === recordIndex.toString() + taskIndex.toString() && (
-                                <>
-                                    <div className="bg-slate-200 text-gray-700 text-center py-2 px-2 sm:px-8">
+                                <div className="bg-slate-200 text-gray-700 text-center py-2 px-2 sm:px-8 rounded-b-2xl">
+                                    <div>
                                         {task.Comment}
                                     </div>
-                                    <div className="bg-slate-200 text-gray-700 px-4 py-2 flex flex-wrap gap-4">
+                                    <div className="px-4 py-2 flex flex-wrap gap-4">
                                         {task.Receipts.map((receipt, receiptIndex) => (
                                             <li
                                                 key={receiptIndex}
@@ -181,7 +181,7 @@ const toggleInfo = (id: string) => {
                                             </li>
                                         ))}
                                     </div>
-                                </>
+                                </div>
                             )}
                         </div>
                     ))}
