@@ -1,7 +1,7 @@
 // import React, { useState, useEffect } from "react";
 
 import { Section } from "./Section";
-import { Button } from "./Button";
+// import { Button } from "./Button";
 
 export interface LogInfoProps {
   tag: ServiceTag;
