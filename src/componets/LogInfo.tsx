@@ -25,14 +25,14 @@ export default function LogInfo({ tag }: LogInfoProps) {
           {tag.Year} <span className="mx-5" /> {tag.Engine}cc
           <span className="mx-5" /> {tag.Transmission}
         </h3>
-        <div className="w-fit ml-auto flex mt-4 mb-8">
+        {/* <div className="w-fit ml-auto flex mt-4 mb-8">
           <Button
             label={"PDF"}
             className="font-light bg-sky-500 text-white lexend-font mx-4 ml-auto"
             type={"button"}
             size={"default"}
           />
-        </div>
+        </div> */}
       </div>
 
       <div className="w-fit mx-auto pt-4 md:hidden">

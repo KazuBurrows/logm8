@@ -2,9 +2,10 @@ import React, { useState } from "react";
 import { useLocation } from "react-router-dom";
 // import Select, { SingleValue } from "react-select";
 
-import { Button } from "./Button";
+// import { Button } from "./Button";
 import { LoadingScreen } from "./LoadingScreen";
-import { Svg } from "./Svg";
+// import { Svg } from "./Svg";
+// import Select from "react-select/dist/declarations/src/Select";
 
 export interface CreateRecordProps {
   isOpen: boolean; // Controls if the modal is visible
@@ -17,12 +18,6 @@ export interface TaskOption {
   readonly label: string;
 }
 
-export const flavourOptions: readonly TaskOption[] = [
-  { value: "vanilla", label: "Vanilla" },
-  { value: "chocolate", label: "Chocolate" },
-  { value: "strawberry", label: "Strawberry" },
-  { value: "salted-caramel", label: "Salted Caramel" },
-];
 
 export const maintenanceOptions: readonly TaskOption[] = [
   { value: "oil change", label: "oil change" },
@@ -114,36 +109,12 @@ export const groupedOptions: readonly GroupedOption[] = [
   },
 ];
 
-// const groupStyles = {
-//   display: "flex",
-//   alignItems: "center",
-//   justifyContent: "space-between",
-// };
-// const groupBadgeStyles: CSSProperties = {
-//   backgroundColor: "#EBECF0",
-//   borderRadius: "2em",
-//   color: "#172B4D",
-//   display: "inline-block",
-//   fontSize: 12,
-//   fontWeight: "normal",
-//   lineHeight: "1",
-//   minWidth: 1,
-//   padding: "0.16666666666667em 0.5em",
-//   textAlign: "center",
-// };
-
-// const formatGroupLabel = (data: GroupedOption) => (
-//   <div style={groupStyles}>
-//     <span>{data.label}</span>
-//     <span style={groupBadgeStyles}>{data.options.length}</span>
-//   </div>
-// );
 
 /** Primary UI component for user interaction */
 export const CreateRecord = ({
   isOpen,
   onClose,
-  onInsert,
+  // onInsert,
 }: CreateRecordProps) => {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
@@ -157,92 +128,41 @@ export const CreateRecord = ({
   const [MechanicName, setMechanicName] = useState<string>("");
   const [Odometer, setOdometer] = useState<number>();
   const [OdometerMetric, setOdometerMetric] = useState<string>("km");
+  const [ServiceType, setServiceType] = useState<string>("");
+  const [Comment, setComment] = useState<string>("");
+  const [Files, setFiles] = useState<File[]>([]);
+
   // const [PendingCompletedTasks, setPendingCompletedTasks] = useState<PendingTaskCompleted[]>([]);
 
-  const [taskRows, setTaskRows] = useState<number[]>([0]);
+  // const [taskRows, setTaskRows] = useState<number[]>([0]);
 
-  // State to hold the selected values for each row, using the index as the key
-  const [selectedValues, setSelectedValues] = useState<{
-    [key: number]: { task: string; comment: string; receipts: File[] };
-  }>({});
-
-  
-  // Handle change for both select and input fields
-  const handleChange = (
-    index: number,
-    field: "task" | "comment" | "receipts",
-    value: string | File[] // Allow File[] for "receipts"
-  ) => {
-    setSelectedValues((prevState) => ({
-      ...prevState,
-      [index]: {
-        ...prevState[index],
-        [field]: field === "receipts" ? (value as File[]) : value, // Type cast value to File[] when receipts
-      },
-    }));
+const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setServiceType(e.target.value);
   };
 
-  const handleFileChange = (index: number, files: FileList | null) => {
-    if (files) {
-      handleChange(index, "receipts", Array.from(files)); // Pass File[] correctly
-    }
-  };
+const handleTextAreaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+  setComment(e.target.value);
+};
+
+  const handleFilesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  if (e.target.files) {
+    setFiles(Array.from(e.target.files));
+  }
+};
 
 
   const handleOdoChange = (event :any) => {
     setOdometerMetric(event.target.value);
   };
 
-  const [expandedTaskIndex, setExpandedTaskIndex] = useState<string | null>("0");
 
-  const toggleExpandedTask = (index: string) => {
-    // console.log(id);
-    setExpandedTaskIndex(expandedTaskIndex === index ? null : index); // Toggle logic
-  };
+  // const cleanFields = () => {
+  //   setTaskRows([0]);
+  // };
 
-  const cleanFields = () => {
-    setSelectedValues({});
-    setTaskRows([0]);
-    setExpandedTaskIndex("0");
-  };
-
-  const handleAddSupply = () => {
-    setTaskRows([...taskRows, taskRows[taskRows.length - 1] + 1]);
-    toggleExpandedTask(`${parseInt(expandedTaskIndex ?? "0") + 1}`);
-  };
-
-  const handleDeleteSupply = (index: number) => {
-    var tempTaskRows: number[] = [];
-
-    taskRows.map((task) => {
-      if (task !== index) {
-        tempTaskRows.push(task);
-      }
-      return <></>
-    })
-
-    setSelectedValues((prev) => {
-      const updatedValues = { ...prev }; // Create a new copy
-      delete updatedValues[index]; // Remove the key
-      return updatedValues;
-    });
-    
-    setTaskRows(tempTaskRows);
-
-  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
-    const pendingTasksArray: PendingTaskCompleted[] = Object.entries(
-      selectedValues
-    ).map(([_key, value]) => ({
-      Task: value.task, // Ensure uppercase property names match PendingTaskCompleted
-      Comment: value.comment,
-      Receipts: value.receipts ?? [], // Keep as File[]. ?? if value.receipts is undefined
-    }));
-
-    // setPendingCompletedTasks(pendingTasksArray);
 
     const currDate: Date = new Date(); // Current date and time
 
@@ -253,16 +173,10 @@ export const CreateRecord = ({
     formData.append("ServicedDate", ServicedDate);
     formData.append("MechanicName", MechanicName);
     formData.append("Odometer", (Odometer?.toString() ?? "0") + " " + OdometerMetric);
-
-    // Append PendingCompletedTasks array
-    pendingTasksArray.forEach((task, index) => {
-      formData.append(`tasks[${index}][Task]`, task.Task);
-      formData.append(`tasks[${index}][Comment]`, task.Comment);
-
-      // Append each file in Receipts
-      task.Receipts.forEach((file) => {
-        formData.append(`tasks[${index}][Receipts]`, file);
-      });
+    formData.append("ServiceType", ServiceType);
+    formData.append("Comment", Comment);
+    Files.forEach((File) => {
+      formData.append("Files", File);
     });
 
     const fetchData = async () => {
@@ -285,32 +199,22 @@ export const CreateRecord = ({
         const insertedRecord = await response.json();
         console.log("insertedRecord:", insertedRecord);
 
-        var completedTasks: TaskCompleted[] = insertedRecord.completedTasks.map(
-          (t: any) => {
-            var completedTask: TaskCompleted = {
-              Task: t.task,
-              Comment: t.comment,
-              Receipts: t.receipts,
-            };
-            return completedTask;
-          }
-        );
+
         // Map response to ServiceRecord interface
-        const serviceRecord: ServiceRecord = {
-          id: insertedRecord.id,
-          TagID: insertedRecord.tagId, // Map TagId from backend to TagID in frontend
-          EnteredDate: insertedRecord.enteredDate,
-          ServicedDate: insertedRecord.servicedDate,
-          MechanicName: insertedRecord.mechanicName,
-          Odometer: insertedRecord.odometer,
-          CompletedTasks: completedTasks || [],
-          PendingCompletedTasks: [],
-          Certified: insertedRecord.certified ?? false, // Default to false if not present
-        };
+        // const serviceRecord: ServiceRecord = {
+        //   id: insertedRecord.id,
+        //   TagID: insertedRecord.tagId, // Map TagId from backend to TagID in frontend
+        //   EnteredDate: insertedRecord.enteredDate,
+        //   ServicedDate: insertedRecord.servicedDate,
+        //   MechanicName: insertedRecord.mechanicName,
+        //   Odometer: insertedRecord.odometer,
+        //   PendingCompletedTasks: [],
+        //   Certified: insertedRecord.certified ?? false, // Default to false if not present
+        // };
 
-        console.log("Mapped ServiceRecord:", serviceRecord);
+        // console.log("Mapped ServiceRecord:", serviceRecord);
 
-        onInsert(serviceRecord); // Update LogHistory
+        // onInsert(serviceRecord); // Update LogHistory
         onClose(); // Close modal
         setIsLoading(false);
       } catch (err: any) {
@@ -321,7 +225,7 @@ export const CreateRecord = ({
     fetchData();
 
     setIsLoading(true);
-    cleanFields();
+    // cleanFields();
   };
   if (!isOpen) return null; // Don't render the modal if not open
 
@@ -380,7 +284,8 @@ export const CreateRecord = ({
                 type="date"
                 id="ServicedDate"
                 className="w-full p-2 mr-24 border rounded"
-                value={ServicedDate}
+                defaultValue={ServicedDate}
+                onFocus={(e) => e.target.showPicker?.()}
                 onChange={(e) => setServicedDate(e.target.value)}
               />
             </div>
@@ -442,112 +347,34 @@ export const CreateRecord = ({
           </div>
 
           <div>
-            <div className="bg-gray-100 w-full text-center py-2">
-              <h2 className="text-xl font-semibold uppercase funnel-display-font">
-                Services
-              </h2>
-            </div>
-            {taskRows.map((index) => (
-              <div key={index} className="">
-                {expandedTaskIndex === index.toString() ? (
-                  <>
-                    <div className="">
-                      {/* <Select<TaskOption, false, GroupedOption>
-                        defaultValue={maintenanceOptions[0]}
-                        options={groupedOptions}
-                        formatGroupLabel={formatGroupLabel}
-                        onChange={(selected: SingleValue<TaskOption>) =>
-                          handleChange(
-                            index,
-                            "task",
-                            selected?.valueOf()["value"] ?? ""
-                          )
-                        }
-                        className="w-full capitalize"
-                      /> */}
-                    </div>
-                    <div>
-                      <textarea
-                        id="Comment"
-                        className="p-2 w-full border focus:outline-none"
-                        rows={3}
-                        value={selectedValues[index]?.comment || ""}
-                        onChange={(e) =>
-                          handleChange(index, "comment", e.target.value)
-                        }
-                        placeholder="mobil - 10w-40 - 4qurts"
-                      />
-                    </div>
-                    <div>
-                      <input
-                        type="file"
-                        id="Reciept"
-                        className="p-2 w-full bg-gray-100"
-                        multiple
-                        onChange={(e) =>
-                          handleFileChange(index, e.target.files)
-                        }
-                      />
-                    </div>
-                  </>
-                ) : (
-                  <>
-                  <div className="flex w-full bg-sky-50 border">
-                    <Button
-                      className="mx-2 mx-auto py-1"
-                      type={"button"}
-                      size={"xs"}
-                      onClick={toggleExpandedTask}
-                      param={index.toString()}
-                      children={
-                        <>
-                          <h2 className="capitalize">{selectedValues[index]?.task ?? "oil change"}</h2>
-                          <div className="flex justify-center h-[20px] mt-[-12px]">
-                            <Svg
-                              type="angle-small-down2"
-                              size="md"
-                              color="slate-700"
-                            />
-                          </div>
-                        </>
-                      }
-                    />
-                    <Button
-                      className="mr-2 ml-auto"
-                      type={"button"}
-                      size={"xs"}
-                      onClick={handleDeleteSupply}
-                      param={index}
-                      children={
-                        <>
-                          <div className="flex justify-end">
-                            <Svg
-                              type="cross-circle"
-                              size="md"
-                              color="rose-500"
-                            />
-                          </div>
-                        </>
-                      }
-                    />
-                  </div>
-                    
-                  </>
-                )}
-              </div>
-            ))}
-            <div className="py-4">
-              <div className="flex justify-center">
-                <Button
-                  label="＋"
-                  className="bg-blue-500 hover:bg-blue-600 text-white font-black"
-                  onClick={handleAddSupply}
-                  size={"default"}
-                  type={"button"}
-                ></Button>
-              </div>
-            </div>
+            <select value={ServiceType} onChange={handleChange} className="w-full p-2 border rounded capitalize">
+              <option value="">Select a task...</option>
+              {groupedOptions.map((group) => (
+                <optgroup key={group.label} label={group.label}>
+                  {group.options.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </optgroup>
+              ))}
+            </select>
           </div>
+
+          <div>
+              <textarea className="w-full h-24 bg-gray-200 mt-4 p-2 rounded" placeholder="Mobil - 10w-40 - 2qrts" value={Comment} onChange={handleTextAreaChange}>
+              </textarea>
+          </div>
+          <div>
+              <input
+                  type="file"
+                  id="Reciept"
+                  className="p-2 w-full bg-gray-100"
+                  multiple
+                  onChange={handleFilesChange}
+              />
+          </div>
+
           <div className="flex justify-center">
             <button
               type="submit"

@@ -75,20 +75,20 @@ export default function Log() {
 
           setTag(myTag);
 
-
-          
+          console.log(data)
           const myRecords: ServiceRecord[] =[];
           try {
             data.records.forEach((record: any) => {
-              const myCompletedTasks: TaskCompleted[] = [];
+              
+              // const myCompletedTasks: TaskCompleted[] = [];
 
-              record["completedTasks"].forEach((task: any) => {
-                myCompletedTasks.push({
-                  Task: task["task"] ?? "",
-                  Comment: task["comment"] ?? "",
-                  Receipts: task["receipts"] ?? []
-                });
-              });
+              // record["completedTasks"].forEach((task: any) => {
+              //   myCompletedTasks.push({
+              //     Task: task["task"] ?? "",
+              //     Comment: task["comment"] ?? "",
+              //     Receipts: task["receipts"] ?? []
+              //   });
+              // });
 
               myRecords.push({
                 id: "",
@@ -97,8 +97,11 @@ export default function Log() {
                 ServicedDate: record["servicedDate"],
                 MechanicName: record["mechanicName"] ?? "",
                 Odometer: record["odometer"] ?? "",
-                CompletedTasks: myCompletedTasks,
-                PendingCompletedTasks: []
+                // CompletedTasks: myCompletedTasks,
+                // PendingCompletedTasks: [],
+                ServiceType: record["serviceType"],
+                Comment: record["comment"],
+                FileUrls: record["fileUrls"]
               });
             });
 

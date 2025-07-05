@@ -11,8 +11,11 @@ declare global {
     ServicedDate: string;
     MechanicName: string;
     Odometer: string;
-    CompletedTasks: TaskCompleted[];
-    PendingCompletedTasks: PendingTaskCompleted[] | null;
+    ServiceType: string;
+    Comment: string;
+    FileUrls: string[];
+    // CompletedTasks: TaskCompleted[];
+    // PendingCompletedTasks: PendingTaskCompleted[] | null;
     Certified?: boolean;
   }
   
