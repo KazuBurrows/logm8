@@ -19,7 +19,7 @@ function App() {
         <Route path="/tag/create" element={<CreateTag/>} />
         <Route path="/404" element={<NotFound/>} />
         {/* <Route path="/loading-screen" element={<LoadingScreen text={'Loading...'}/>} /> */}
-        <Route path="/privacy" element={<Privacy/>} />
+        <Route path="/faq" element={<Privacy/>} />
       </Routes>
     </Router>
   );

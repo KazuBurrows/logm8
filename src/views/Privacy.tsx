@@ -1,9 +1,48 @@
 // import React from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 // import { Section } from "../componets/Section";
-// import logmateLogo from "../assets/logmate-logo.png";
+import logmateLogo from "../assets/logm8logo3.png"; // ✅ Correct path
 
+
+interface FAQItem {
+  question: string;
+  answer: string;
+}
+
+const faqs: FAQItem[] = [
+  {
+    question: "What is Logm8?",
+    answer:
+      "Logm8 is a lightweight digital logbook for automobiles. It lets you keep a record of your vehicle’s history by scanning a Logm8 sticker attached to your vehicle.",
+  },
+  {
+    question: "How does the Logm8 sticker work?",
+    answer:
+      "Each Logm8 sticker contains a unique code. When scanned through the Logm8 app, it connects your phone to your vehicle's digital logbook via your browser.",
+  },
+  {
+    question: "Is the Logm8 app free?",
+    answer:
+      "Yes, the Logm8 app is free to download and use. It’s designed to be lightweight and easy to use.",
+  },
+  {
+    question: "Can I transfer my logbook to a new owner?",
+    answer:
+      "Yes! The Logm8 logbook stays with the vehicle. When the vehicle changes hands, the logbook can be accessed and continued by the new owner.",
+  },
+  {
+    question: "What can I store in my digital logbook?",
+    answer:
+      "You can store receipts, service records, oil changes, WOFs, registration details, and other important vehicle documents.",
+  },
+  {
+    question: "Do I need an account to use Logm8?",
+    answer:
+      "No account is required to scan a sticker and view a vehicle logbook. For uploading and editing entries, a secure login is required.",
+  },
+];
 export default function Privacy() {
   const navigate = useNavigate();
 
@@ -11,119 +50,48 @@ export default function Privacy() {
     navigate(`/`);
   };
 
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
+
+  const toggleFAQ = (index: number) => {
+    setOpenIndex(openIndex === index ? null : index);
+  };
+
   return (
-    <div className="max-w-3xl mx-auto p-6 bg-white shadow-md rounded-lg">
+    <div className="max-w-4xl mx-auto p-6 text-center">
       <button
         onClick={handleRedirect}
-        className="text-rose-500 hover:underline cursor-pointer bg-transparent border-none p-0"
         aria-label="Back to Homepage"
       >
         <img
-          src="../assets/logmate-logo.png"
-          className="inline sm:h-28 sm:w-28 h-20 w-20 rounded-full mx-2"
+          src={logmateLogo}
+          className="inline sm:h-24 sm:w-24 h-20 w-20 mx-2 my-8"
           alt="Logmate Logo"
         />
       </button>
-
-      <h1 className="text-2xl font-bold mb-4">Privacy Policy</h1>
-      <p className="text-sm text-gray-500">Last Updated: 25/02/2025</p>
-      <p className="mt-4">
-        Welcome to Logm8. Your privacy is
-        important to us, and we are committed to protecting the personal
-        information you share with us. This Privacy Policy explains how we
-        collect, use, disclose, and safeguard your information when you visit
-        our website www.logm8.com.
-      </p>
-
-      <h2 className="text-xl font-semibold mt-6">1. Information We Collect</h2>
-      <ul className="list-disc pl-6 mt-2">
-        <li>
-          <strong>Personal Information</strong>: Name, email address, phone
-          number, and any other details you provide when contacting us or
-          signing up for services.
-        </li>
-        <li>
-          <strong>Usage Data</strong>: Information about how you interact with
-          our website, including IP address, browser type, device information,
-          and pages visited.
-        </li>
-        <li>
-          <strong>Cookies and Tracking Technologies</strong>: We use cookies and
-          similar technologies to enhance user experience and analyze website
-          traffic. You can manage cookie preferences in your browser settings.
-        </li>
-      </ul>
-
-      <h2 className="text-xl font-semibold mt-6">
-        2. How We Use Your Information
-      </h2>
-      <ul className="list-disc pl-6 mt-2">
-        <li>Provide, operate, and maintain our website.</li>
-        <li>Improve user experience and customer service.</li>
-        <li>Respond to inquiries and provide support.</li>
-        <li>
-          Send promotional or informational communications (you may opt out at
-          any time).
-        </li>
-        <li>Ensure compliance with legal obligations.</li>
-      </ul>
-
-      <h2 className="text-xl font-semibold mt-6">
-        3. Sharing Your Information
-      </h2>
-      <p className="mt-2">
-        We do not sell or rent your personal information. However, we may share
-        your information with:
-      </p>
-      <ul className="list-disc pl-6 mt-2">
-        <li>
-          <strong>Service Providers</strong>: Third-party companies that assist
-          in website operation and analytics.
-        </li>
-        <li>
-          <strong>Legal Compliance</strong>: When required by law, or to protect
-          our rights and safety.
-        </li>
-      </ul>
-
-      <h2 className="text-xl font-semibold mt-6">4. Data Security</h2>
-      <p className="mt-2">
-        We implement security measures to protect your personal information from
-        unauthorized access, alteration, or disclosure. However, no internet
-        transmission is completely secure, and we cannot guarantee absolute
-        security.
-      </p>
-
-      <h2 className="text-xl font-semibold mt-6">5. Your Rights and Choices</h2>
-      <ul className="list-disc pl-6 mt-2">
-        <li>Access, update, or delete your personal information.</li>
-        <li>Opt-out of marketing communications.</li>
-        <li>Disable cookies through browser settings.</li>
-        <li>Request data portability where applicable.</li>
-      </ul>
-
-      <h2 className="text-xl font-semibold mt-6">6. Third-Party Links</h2>
-      <p className="mt-2">
-        Our website may contain links to external sites. We are not responsible
-        for their privacy practices and encourage you to review their policies.
-      </p>
-
-      <h2 className="text-xl font-semibold mt-6">7. Changes to This Policy</h2>
-      <p className="mt-2">
-        We may update this Privacy Policy periodically. Any changes will be
-        posted on this page with the updated date.
-      </p>
-
-      <h2 className="text-xl font-semibold mt-6">8. Contact Us</h2>
-      <p className="mt-2">
-        If you have any questions about this Privacy Policy, please contact us
-        at:
-      </p>
-      <p className="mt-2"> postmaster@logm8.com</p>
-
-      <p className="mt-6">
-        By using our website, you consent to the terms of this Privacy Policy.
-      </p>
+      <h2 className="text-3xl font-bold mb-8 text-center">Frequently Asked Questions</h2>
+      <div className="space-y-4">
+        {faqs.map((faq, index) => (
+          <div
+            key={index}
+            className="border rounded-xl overflow-hidden shadow-sm"
+          >
+            <button
+              onClick={() => toggleFAQ(index)}
+              className="w-full text-left px-4 py-3 bg-gray-100 hover:bg-gray-200 focus:outline-none flex justify-between items-center"
+            >
+              <span className="font-medium">{faq.question}</span>
+              <span className="text-xl">{openIndex === index ? "−" : "+"}</span>
+            </button>
+            {openIndex === index && (
+              <div className="px-4 py-3 bg-white text-gray-700 transition-all duration-300">
+                {faq.answer}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
     </div>
+
+
   );
 }
