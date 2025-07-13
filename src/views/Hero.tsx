@@ -12,7 +12,7 @@ export default function Hero() {
       id="hero"
       className="relative h-screen bg-white lg:px-10 overflow-hidden"
     >
-      <div className="2xl:mt-20 xl:mt-8 lg:mt-16 md:mt-16 sm:mt-20 my-24 x-auto">
+      <div className="2xl:mt-40 xl:mt-24 lg:mt-24 md:mt-24 sm:mt-20 my-24 x-auto">
         <img
           src={logmateLogo}
           alt="logm8-logo"

@@ -91,4 +91,21 @@ interface Recent {
   type RecentLogs = Recent[];
 }
 
+export interface TaskOption {
+  readonly value: string;
+  readonly label: string;
+}
+
+interface StateOption {
+  readonly value: string;
+  readonly label: string;
+}
+
+export interface GroupedOption {
+  readonly label: string;
+  readonly options: readonly TaskOption[];
+}
+
+
+
 export {};

@@ -1,11 +1,8 @@
 import React, { useState } from "react";
 import { useLocation } from "react-router-dom";
-// import Select, { SingleValue } from "react-select";
-
-// import { Button } from "./Button";
 import { LoadingScreen } from "./LoadingScreen";
-// import { Svg } from "./Svg";
-// import Select from "react-select/dist/declarations/src/Select";
+import { groupedOptions } from "../types/serviceOptions";
+
 
 export interface CreateRecordProps {
   isOpen: boolean; // Controls if the modal is visible
@@ -13,101 +10,6 @@ export interface CreateRecordProps {
   onInsert: (newRecord: ServiceRecord) => void;
 }
 
-export interface TaskOption {
-  readonly value: string;
-  readonly label: string;
-}
-
-
-export const maintenanceOptions: readonly TaskOption[] = [
-  { value: "oil change", label: "oil change" },
-  { value: "air filter replacement", label: "air filter replacement" },
-  { value: "chain lubrication", label: "chain lubrication" },
-  { value: "coolant replacement", label: "coolant replacement" },
-  { value: "tyre pressure check", label: "tyre pressure check" },
-  { value: "battery check & charging", label: "battery check & charging" },
-  { value: "clutch adjustment", label: "clutch adjustment" },
-];
-
-export const inspectionOptions: readonly TaskOption[] = [
-  { value: "brake inspection", label: "brake inspection" },
-  {
-    value: "tyre tread depth inspection",
-    label: "tyre tread depth inspection",
-  },
-  {
-    value: "lights and indicators inspection",
-    label: "lights and indicators inspection",
-  },
-  { value: "suspension inspection", label: "suspension inspection" },
-  { value: "steering inspection", label: "steering inspection" },
-  { value: "exhaust system inspection", label: "exhaust system inspection" },
-  { value: "fluid leak inspection", label: "fluid leak inspection" },
-  {
-    value: "cables and controls inspection",
-    label: "cables and controls inspection",
-  },
-];
-
-export const modificationOptions: readonly TaskOption[] = [
-  { value: "exhaust upgrade", label: "exhaust upgrade" },
-  { value: "handlebar replacement", label: "handlebar replacement" },
-  { value: "LED lighting installation", label: "LED lighting installation" },
-  { value: "custom paint job", label: "custom paint job" },
-  { value: "seat replacement", label: "seat replacement" },
-  {
-    value: "performance air filter installation",
-    label: "performance air filter installation",
-  },
-  { value: "suspension tuning", label: "suspension tuning" },
-  { value: "engine tuning/remapping", label: "engine tuning/remapping" },
-];
-
-export const diagnosticOptions: readonly TaskOption[] = [
-  { value: "ECU scan", label: "ECU scan" },
-  { value: "engine noise analysis", label: "engine noise analysis" },
-  { value: "fuel system diagnostic", label: "fuel system diagnostic" },
-  {
-    value: "electrical system troubleshooting diagnostic",
-    label: "electrical system troubleshooting diagnostic",
-  },
-  {
-    value: "sensor calibration diagnostic",
-    label: "sensor calibration diagnostic",
-  },
-  { value: "ignition system diagnostic", label: "ignition system diagnostic" },
-  { value: "compression diagnostic", label: "compression diagnostic" },
-  { value: "charging system diagnostic", label: "charging system diagnostic" },
-];
-
-export interface StateOption {
-  readonly value: string;
-  readonly label: string;
-}
-
-export interface GroupedOption {
-  readonly label: string;
-  readonly options: readonly TaskOption[];
-}
-
-export const groupedOptions: readonly GroupedOption[] = [
-  {
-    label: "maintenance",
-    options: maintenanceOptions,
-  },
-  {
-    label: "inspection",
-    options: inspectionOptions,
-  },
-  {
-    label: "modification",
-    options: modificationOptions,
-  },
-  {
-    label: "diagnostic",
-    options: diagnosticOptions,
-  },
-];
 
 
 /** Primary UI component for user interaction */

@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 import { Section } from "./Section";
 import { Button } from "./Button";
 import { CreateRecord } from "./CreateRecord";
 import { Svg } from "./Svg";
+import { groupedOptions } from "../types/serviceOptions";
 
 export interface LogHistoryProps {
   logServiceRecords: ServiceRecord[];
@@ -20,7 +21,6 @@ export default function LogHistory({ logServiceRecords }: LogHistoryProps) {
   const [expandedItemId, setExpandedItemId] = useState<string | null>(null);
 
   const toggleInfo = (id: string) => {
-    // console.log(id);
     setExpandedItemId(expandedItemId === id ? null : id); // Toggle logic
   };
 
@@ -57,6 +57,35 @@ export default function LogHistory({ logServiceRecords }: LogHistoryProps) {
     return shortDate;
   };
 
+  const [selectedServiceTypes, setSelectedServiceTypes] = useState<string[]>(
+    []
+  );
+  const filteredRecords = selectedServiceTypes.length
+    ? serviceRecords.filter((record) =>
+        selectedServiceTypes.includes(record.ServiceType)
+      )
+    : serviceRecords;
+
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        isFilterOpen &&
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsFilterOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isFilterOpen]);
+
   return (
     <Section
       id={""}
@@ -69,7 +98,68 @@ export default function LogHistory({ logServiceRecords }: LogHistoryProps) {
         onClick={() => openModal()}
         className="font-black bg-blue-500 text-white lexend-font fixed bottom-8 left-1/2 transform -translate-x-1/2"
       />
+      <div className="relative" ref={dropdownRef}>
+        <div className="flex">
+          <button
+            type="button"
+            className="w-[130px] border border-gray-200 rounded-2xl px-4 py-1 bg-white text-center ml-auto mb-1"
+            onClick={() => setIsFilterOpen(!isFilterOpen)}
+          >
+            {selectedServiceTypes.length > 0
+              ? `${selectedServiceTypes.length} selected`
+              : "Filter"}
+          </button>
+        </div>
 
+        <div className="relative">
+          {/* parent container */}
+          {isFilterOpen && (
+            <div className="absolute right-0 z-10 md:w-5/12 w-9/12 bg-white border border-gray-200 rounded-2xl shadow-lg max-h-64 overflow-y-auto p-4">
+              {/* Clear All Button */}
+              <div className="flex justify-end mb-4">
+                <button
+                  onClick={() => setSelectedServiceTypes([])}
+                  className="text-sm text-red-600 hover:underline"
+                >
+                  Clear All
+                </button>
+              </div>
+
+              {groupedOptions.map((group) => (
+                <fieldset key={group.label} className="mb-4">
+                  <legend className="font-semibold text-sm text-gray-700 mb-1 capitalize">
+                    {group.label}
+                  </legend>
+                  <div className="space-y-2 pl-2">
+                    {group.options.map((opt) => (
+                      <label
+                        key={opt.value}
+                        className="flex items-center space-x-2 text-sm"
+                      >
+                        <input
+                          type="checkbox"
+                          value={opt.value}
+                          checked={selectedServiceTypes.includes(opt.value)}
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            setSelectedServiceTypes((prev) =>
+                              e.target.checked
+                                ? [...prev, value]
+                                : prev.filter((v) => v !== value)
+                            );
+                          }}
+                          className="accent-red-500"
+                        />
+                        <span className="capitalize">{opt.label}</span>
+                      </label>
+                    ))}
+                  </div>
+                </fieldset>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
       {/* <div className="flex justify-end">
          <Button
              type={"button"}
@@ -79,23 +169,8 @@ export default function LogHistory({ logServiceRecords }: LogHistoryProps) {
          />
      </div> */}
       <ul className="w-full mx-auto px-1">
-        {serviceRecords.map((record, recordIndex) => (
+        {filteredRecords.map((record, recordIndex) => (
           <li key={recordIndex} className="mb-3">
-            {/* Large screen */}
-            {/* <div className="px-4 py-2 sm:flex md:gap-16 sm:gap-8 gap-4 text-lg font-normal leading-tight lexend-font justify-between sm:block hidden rounded-t-md bg-slate-200">
-                     <h3>{record.ServicedDate}</h3>
-                     <h3 className="text-center">{record.Odometer}km</h3>
-                     <h3 className="ml-auto">{record.MechanicName}</h3>
-                 </div> */}
-            {/* Small screen */}
-            {/* <div className="text-lg font-normal leading-tight lexend-font w-full sm:hidden">
-                     <h3 className="px-4">{record.ServicedDate}</h3>
-                     <div className="flex bg-white px-4 py-2 mt-4">
-                         <h3>{record.Odometer}km</h3>
-                         <h3 className="ml-auto">{record.MechanicName}</h3>
-                     </div>
-                 </div> */}
-
             <div className="w-full bg-white rounded-2xl shadow shadow-slate-300/80">
               <div
                 key={recordIndex.toString()}
@@ -127,7 +202,7 @@ export default function LogHistory({ logServiceRecords }: LogHistoryProps) {
                   </div>
 
                   {/* Comment - visible on large screens */}
-                  <div className="w-1/4 px-2 hidden sm:block">
+                  <div className="w-1/4 px-2 hidden md:block truncate">
                     {record.Comment}
                   </div>
 
@@ -136,7 +211,7 @@ export default function LogHistory({ logServiceRecords }: LogHistoryProps) {
                     <div className="font-semibold">
                       {formattedShortDate(record.ServicedDate)}
                     </div>
-                    <div className="text-right text-gray-400 text-sm font-semibold">
+                    <div className="text-right text-gray-400 text-sm font-semibold truncate">
                       {record.MechanicName}
                     </div>
                   </div>
