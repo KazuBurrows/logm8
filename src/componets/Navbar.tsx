@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 
 const logmateLogo = require("../assets/logmate-logo.png");
 
@@ -9,7 +9,7 @@ interface HamburgerButtonProps {
 
 /** Primary UI component for user interaction */
 export const Navbar = ({ onToggle }: HamburgerButtonProps) => {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   // const handleRedirect = (id: number) => {
   //   navigate(`/merchant/${id}`);
