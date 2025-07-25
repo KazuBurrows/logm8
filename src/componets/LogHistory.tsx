@@ -89,7 +89,7 @@ export default function LogHistory({ logServiceRecords }: LogHistoryProps) {
   return (
     <Section
       id={""}
-      className="h-full w-full mx-0 xl:px-80 lg:px-48 md:px-24 sm:px-16 sm:py-16 py-8 bg-slate-100"
+      className="h-full w-full mx-0 xl:px-80 lg:px-48 md:px-24 sm:px-16 sm:py-16 py-8 bg-slate-100 pb-24"
     >
       <Button
         // label={"＋"}

@@ -18,13 +18,19 @@ export default function LogInfo({ tag }: LogInfoProps) {
       <img
         src={logmateLogo}
         alt="logm8-logo"
-        className="h-16 mx-auto z-20 bg-blue-500 bg-opacity-10 rounded rounded-full"
+        className="h-20 mx-auto z-20 bg-blue-500 bg-opacity-10 rounded rounded-full"
       ></img>
+      {/* <img
+        src={logmateLogo}
+        alt="logm8-logo"
+        className="h-24 mx-auto z-20 bg-blue-500 bg-opacity-10 rounded rounded-full mr-8"
+      ></img> */}
+
       {/* Background image */}
-      {/* <div
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat z-0 scale-[1.5] opacity-40"
+      <div
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat z-0 lg:scale-[1.5] scale-[4] opacity-90"
         style={{ backgroundImage: `url('/bg-detail.svg')` }}
-      ></div> */}
+      ></div>
 
       {/* Vignette overlay */}
       <div className="absolute inset-0 bg-[radial-gradient(circle,_rgba(255,255,255,0.0)_80%,_rgba(255,255,255,0.5)_150%)] pointer-events-none z-10" />
