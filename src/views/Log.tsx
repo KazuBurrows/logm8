@@ -127,7 +127,7 @@ export default function Log() {
 
   const RenderThis = () => {
     if (isRetrievingData) {
-      return <LoadingScreen text={"Retrieving Logm8 Data..."} />;
+      return <LoadingScreen text={"Retrieving Data..."} />;
     } else {
       return (
         <>

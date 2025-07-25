@@ -92,12 +92,15 @@ export default function LogHistory({ logServiceRecords }: LogHistoryProps) {
       className="h-full w-full mx-0 xl:px-80 lg:px-48 md:px-24 sm:px-16 sm:py-16 py-8 bg-slate-100"
     >
       <Button
-        label={"＋"}
+        // label={"＋"}
         type={"button"}
-        size={"default"}
+        size={"small"}
         onClick={() => openModal()}
-        className="font-black bg-blue-500 text-white lexend-font fixed bottom-8 left-1/2 transform -translate-x-1/2"
-      />
+        className="font-black bg-blue-500 text-white lexend-font fixed bottom-8 left-1/2 transform -translate-x-1/2 shadow-xl hover:scale-125"
+      >
+        <Svg type={"add3"} size="lg" color="white"></Svg>
+      </Button>
+
       <div className="relative" ref={dropdownRef}>
         <div className="flex">
           <button
@@ -183,7 +186,7 @@ export default function LogHistory({ logServiceRecords }: LogHistoryProps) {
                   <div className="px-2">
                     <Button
                       label=""
-                      className="mx-2"
+                      className=""
                       type="button"
                       size="small"
                     >
@@ -206,8 +209,7 @@ export default function LogHistory({ logServiceRecords }: LogHistoryProps) {
                     {record.Comment}
                   </div>
 
-                  {/* Toggle button */}
-                  <div className="px-4 ml-auto text-right justify-end h-10">
+                  <div className="px-4 text-right justify-end h-10 w-2/6">
                     <div className="font-semibold">
                       {formattedShortDate(record.ServicedDate)}
                     </div>

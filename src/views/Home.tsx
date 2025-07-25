@@ -6,6 +6,7 @@ import Locations from "../views/Locations";
 import Contact from "../views/Contact";
 import Hero from "../views/Hero";
 import About from "../views/About";
+// import Footer from "../componets/Footer";
 
 
 
@@ -44,7 +45,7 @@ export default function Home() {
 
       <Contact></Contact>
       
-        
+      {/* <Footer></Footer> */}
       
     </>
   );

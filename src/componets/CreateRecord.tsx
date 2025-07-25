@@ -132,7 +132,7 @@ const handleTextAreaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
   if (!isOpen) return null; // Don't render the modal if not open
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 overflow-y-auto overflow-x-hidden">
       {isLoading ? (
         <div className="w-full h-full bg-slate-100 bg-opacity-70 absolute z-50">
           <LoadingScreen

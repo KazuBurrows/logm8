@@ -48,13 +48,25 @@ module.exports = {
             textShadow: "1px 1px 2px rgba(0, 0, 0, 0.5)",
           },
           ".text-shadow": {
-            textShadow: "2px 2px 4px rgba(0, 0, 0, 0.5)",
+            textShadow: "2px 2px 8px rgba(0, 0, 0, 0.5)",
           },
           ".text-shadow-md": {
             textShadow: "32px 10px 5px rgba(0,0,0,0.06)",
           },
           ".text-shadow-lg": {
             textShadow: "6px 6px 12px rgba(0, 0, 0, 0.3)",
+          },
+          ".text-shadow-white-sm": {
+            textShadow: "1px 1px 2px rgba(255, 255, 255, 0.5)",
+          },
+          ".text-shadow-white": {
+            textShadow: "2px 2px 8px rgba(255, 255, 255, 0.5)",
+          },
+          ".text-shadow-white-md": {
+            textShadow: "32px 10px 5px rgba(255, 255, 255, 0.06)",
+          },
+          ".text-shadow-white-lg": {
+            textShadow: "6px 6px 12px rgba(255, 255, 255, 0.3)",
           },
         });
       },
