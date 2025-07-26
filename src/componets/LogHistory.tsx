@@ -92,13 +92,12 @@ export default function LogHistory({ logServiceRecords }: LogHistoryProps) {
       className="h-full w-full mx-0 xl:px-80 lg:px-48 md:px-24 sm:px-16 sm:py-16 py-8 bg-slate-100 pb-24"
     >
       <Button
-        // label={"＋"}
-        type={"button"}
-        size={"small"}
+        type="button"
+        size="small"
         onClick={() => openModal()}
-        className="font-black bg-blue-500 text-white lexend-font fixed bottom-8 left-1/2 transform -translate-x-1/2 shadow-xl hover:scale-125"
+        className="fixed bottom-8 right-8 font-black bg-blue-500 text-white lexend-font shadow-xl hover:scale-125 z-30"
       >
-        <Svg type={"add3"} size="lg" color="white"></Svg>
+        <Svg type="add3" size="lg" color="white" />
       </Button>
 
       <div className="relative" ref={dropdownRef}>
@@ -263,7 +262,7 @@ export default function LogHistory({ logServiceRecords }: LogHistoryProps) {
           </li>
         ))}
       </ul>
-
+      
       <CreateRecord
         isOpen={isModalOpen}
         onClose={closeModal}

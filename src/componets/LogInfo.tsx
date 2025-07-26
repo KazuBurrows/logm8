@@ -13,22 +13,26 @@ export default function LogInfo({ tag }: LogInfoProps) {
   return (
     <Section
       id={""}
-      className="relative h-full pt-8 pb-24 azeret-mono-font text-white bg-zinc-900  overflow-hidden"
+      className="relative h-[calc(100vh-3rem)] pt-8 azeret-mono-font text-white bg-zinc-900  overflow-hidden"
     >
-      <img
-        src={logmateLogo}
-        alt="logm8-logo"
-        className="h-20 mx-auto z-20 bg-blue-500 bg-opacity-10 rounded rounded-full"
-      ></img>
       {/* <img
         src={logmateLogo}
         alt="logm8-logo"
-        className="h-24 mx-auto z-20 bg-blue-500 bg-opacity-10 rounded rounded-full mr-8"
+        className="h-20 mx-auto z-20 bg-blue-500 bg-opacity-10 rounded rounded-full"
       ></img> */}
+      <div className="w-11/12 flex mx-auto">
+        <p className="electrolize-font text-lg">logm8</p>
+        <img
+          src={logmateLogo}
+          alt="logm8-logo"
+          className="h-12 ml-auto z-20 bg-blue-500 bg-opacity-10 rounded rounded-full"
+        ></img>
+      </div>
+      
 
       {/* Background image */}
       <div
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat z-0 lg:scale-[1.5] scale-[4] opacity-90"
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat z-0 lg:scale-[1.5] scale-[4] opacity-40"
         style={{ backgroundImage: `url('/bg-detail.svg')` }}
       ></div>
 
@@ -89,11 +93,11 @@ export default function LogInfo({ tag }: LogInfoProps) {
         </div>
       </div>
       {/* DESKTOP END */}
-
+      
       {/* MOBILE START */}
       <div className="w-11/12 mx-auto pt-12 md:hidden tracking-tight text-left z-10 relative electrolize-font">
-        <h1 className="text-6xl leading-none pt-4 text-shadow">{tag.Make}</h1>
-        <h3 className="font-black leading-none text-6xl text-shadow-white-lg [word-spacing:-.4em] azeret-mono-font">
+        <h1 className="h-md:text-8xl text-6xl leading-none pt-4 text-shadow">{tag.Make}</h1>
+        <h3 className="font-black leading-none h-md:text-8xl h-sm:text-7xl text-6xl text-shadow-white-lg [word-spacing:-.4em] azeret-mono-font">
           {tag.Model}
         </h3>
         <div className="my-12"></div>
@@ -101,32 +105,32 @@ export default function LogInfo({ tag }: LogInfoProps) {
           <SimpleSwipeSlider
             slides={[
               <div key="year">
-                <p className="text-base md:text-lg">Year</p>
-                <h3 className="text-2xl sm:text-4xl font-semibold leading-none text-shadow">
+                <p className="h-md:text-xl h-sm:text-lg text-base">Year</p>
+                <h3 className="h-sm:text-3xl text-2xl font-semibold leading-none text-shadow">
                   {tag.Year}
                 </h3>
               </div>,
               <div key="engine">
-                <p>Engine</p>
-                <h3 className="text-2xl font-normal leading-none text-shadow">
+                <p className="h-md:text-xl h-sm:text-lg text-base">Engine</p>
+                <h3 className="h-sm:text-3xl text-2xl font-normal leading-none text-shadow">
                   {tag.Engine}cc
                 </h3>
               </div>,
               <div key="fuel">
-                <p>Fuel</p>
-                <h3 className="text-2xl font-normal leading-none text-shadow">
+                <p className="h-md:text-xl h-sm:text-lg text-base">Fuel</p>
+                <h3 className="h-sm:text-3xl text-2xl font-normal leading-none text-shadow">
                   {tag.Fuel}
                 </h3>
               </div>,
               <div key="transmission">
-                <p>Transmission</p>
-                <h3 className="text-2xl font-normal leading-none text-shadow">
+                <p className="h-md:text-xl h-sm:text-lg text-base">Transmission</p>
+                <h3 className="h-sm:text-3xl text-2xl font-normal leading-none text-shadow">
                   {tag.Transmission}
                 </h3>
               </div>,
               <div key="colour">
-                <p>Colour</p>
-                <h3 className="text-2xl font-normal leading-none text-shadow">
+                <p className="h-md:text-xl h-sm:text-lg text-base">Colour</p>
+                <h3 className="h-sm:text-3xl text-2xl font-normal leading-none text-shadow">
                   {tag.Color}
                 </h3>
               </div>,
@@ -134,22 +138,21 @@ export default function LogInfo({ tag }: LogInfoProps) {
           />
         </div>
 
-        <div className="pt-6 text-center">Swipe for more --{`>`}</div>
 
-        {/* <div className="grid grid-cols-2 text-center gap-4">
-          <div className="text-center">
-            <p className="">Transmission</p>
-            <h3 className="text-lg font-normal leading-none text-shadow">
-              {tag.Transmission}
+        <div className="text-left pt-4">
+          <div className="py-1">
+            <p className="h-md:text-lg h-sm:text-md text-sm">Vin Number</p>
+            <h3 className="h-md:text-xl h-sm:text-lg text-md leading-none text-shadow">
+              {tag.VinNumber ?? "N/A"}
             </h3>
           </div>
-          <div className="text-center">
-            <p className="">Colour</p>
-            <h3 className="text-lg font-normal leading-none text-shadow">
-              {tag.Color}
+          <div className="py-1">
+            <p className="h-md:text-lg h-sm:text-md text-sm">Licence Plate</p>
+            <h3 className="h-md:text-xl h-sm:text-lg text-md leading-none text-shadow">
+              {tag.LicencePlate ?? "N/A"}
             </h3>
           </div>
-        </div> */}
+        </div>
       </div>
       {/* MOBILE END */}
     </Section>

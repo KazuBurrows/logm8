@@ -38,7 +38,27 @@ module.exports = {
           '14xl': '13rem',
           '15xl': '14rem',
           '20xl': '30rem',
-        }
+        },
+        screens: {
+          'h-xs':  { raw: '(min-height: 480px)' },
+          'h-sm':  { raw: '(min-height: 640px)' },
+          'h-md':  { raw: '(min-height: 768px)' },
+          'h-lg':  { raw: '(min-height: 1024px)' },
+          'h-xl':  { raw: '(min-height: 1280px)' },
+          'h-2xl': { raw: '(min-height: 1440px)' },
+
+          // ----- optional: max-height helpers -----
+          'h-max-xs':  { raw: '(max-height: 479px)' },
+          'h-max-sm':  { raw: '(max-height: 639px)' },
+          'h-max-md':  { raw: '(max-height: 767px)' },
+          'h-max-lg':  { raw: '(max-height: 1023px)' },
+          'h-max-xl':  { raw: '(max-height: 1279px)' },
+          'h-max-2xl': { raw: '(max-height: 1439px)' },
+
+          // ----- optional: orientation helpers -----
+          'portrait':  { raw: '(orientation: portrait)' },
+          'landscape': { raw: '(orientation: landscape)' },
+        },
       }
     },
     plugins: [
