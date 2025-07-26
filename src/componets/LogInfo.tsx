@@ -96,8 +96,8 @@ export default function LogInfo({ tag }: LogInfoProps) {
       
       {/* MOBILE START */}
       <div className="w-11/12 mx-auto pt-12 md:hidden tracking-tight text-left z-10 relative electrolize-font">
-        <h1 className="h-md:text-8xl text-6xl leading-none pt-4 text-shadow">{tag.Make}</h1>
-        <h3 className="font-black leading-none h-md:text-8xl h-sm:text-7xl text-6xl text-shadow-white-lg [word-spacing:-.4em] azeret-mono-font">
+        <h1 className="h-md:text-8xl h-sm:text-7xl text-6xl leading-none pt-4 text-shadow">{tag.Make}</h1>
+        <h3 className="font-black leading-none h-md:text-8xl h-sm:text-8xl text-6xl text-shadow-white-lg [word-spacing:-.4em] azeret-mono-font">
           {tag.Model}
         </h3>
         <div className="my-12"></div>
