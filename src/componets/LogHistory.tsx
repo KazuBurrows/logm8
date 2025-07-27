@@ -128,9 +128,9 @@ export default function LogHistory({ logServiceRecords }: LogHistoryProps) {
                   </button>
                   <button
                     onClick={() => setIsFilterOpen(false)}
-                    className="text-gray-500 hover:text-gray-700 text-2xl"
+                    className="flex bg-green-200 px-2 rounded rounded-full"
                   >
-                    ✕ Close
+                    <Svg type={"check"} color="green-500" size="md"></Svg> <span className="text-green-500 text-2xl font-semibold pl-1">Done</span>
                   </button>
                 </div>
 
