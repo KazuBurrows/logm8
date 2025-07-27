@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { Section } from "./Section";
-import { Navbar } from "./Navbar";
+// import { Navbar } from "./Navbar";
 import { Button } from "./Button";
 
 export default function CreateTag() {
