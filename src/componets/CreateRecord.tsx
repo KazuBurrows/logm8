@@ -3,26 +3,24 @@ import { useLocation } from "react-router-dom";
 import { LoadingScreen } from "./LoadingScreen";
 import { groupedOptions } from "../types/serviceOptions";
 
-
 export interface CreateRecordProps {
   isOpen: boolean; // Controls if the modal is visible
   onClose: () => void; // Function to close the modal
   onInsert: (newRecord: ServiceRecord) => void;
 }
 
-
-
 /** Primary UI component for user interaction */
 export const CreateRecord = ({
   isOpen,
   onClose,
-  // onInsert,
-}: CreateRecordProps) => {
+}: // onInsert,
+CreateRecordProps) => {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const token = queryParams.get("token"); // Extract the 'token' value
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isOptionsOpen, setIsOptionsOpen] = useState(false);
 
   const [Token] = useState<string>(token ?? "");
   const [TagId] = useState<string>("");
@@ -34,34 +32,24 @@ export const CreateRecord = ({
   const [Comment, setComment] = useState<string>("");
   const [Files, setFiles] = useState<File[]>([]);
 
-  // const [PendingCompletedTasks, setPendingCompletedTasks] = useState<PendingTaskCompleted[]>([]);
-
-  // const [taskRows, setTaskRows] = useState<number[]>([0]);
-
-const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setServiceType(e.target.value);
+  // const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  //   setServiceType(e.target.value);
+  // };
+  const handleTextAreaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setComment(e.target.value);
   };
-
-const handleTextAreaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-  setComment(e.target.value);
-};
-
   const handleFilesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  if (e.target.files) {
-    setFiles(Array.from(e.target.files));
-  }
-};
-
-
-  const handleOdoChange = (event :any) => {
+    if (e.target.files) {
+      setFiles(Array.from(e.target.files));
+    }
+  };
+  const handleOdoChange = (event: any) => {
     setOdometerMetric(event.target.value);
   };
-
 
   // const cleanFields = () => {
   //   setTaskRows([0]);
   // };
-
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -74,7 +62,10 @@ const handleTextAreaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     formData.append("EnteredDate", currDate.toString());
     formData.append("ServicedDate", ServicedDate);
     formData.append("MechanicName", MechanicName);
-    formData.append("Odometer", (Odometer?.toString() ?? "0") + " " + OdometerMetric);
+    formData.append(
+      "Odometer",
+      (Odometer?.toString() ?? "0") + " " + OdometerMetric
+    );
     formData.append("ServiceType", ServiceType);
     formData.append("Comment", Comment);
     Files.forEach((File) => {
@@ -100,7 +91,6 @@ const handleTextAreaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
 
         const insertedRecord = await response.json();
         console.log("insertedRecord:", insertedRecord);
-
 
         // Map response to ServiceRecord interface
         // const serviceRecord: ServiceRecord = {
@@ -196,13 +186,13 @@ const handleTextAreaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
                 className="block text-sm font-medium mb-1"
                 htmlFor="MechanicName"
               >
-                Full Name
+                Serviced By
               </label>
               <input
                 type="text"
                 id="MechanicName"
                 className="w-full p-2 border rounded"
-                placeholder="Mr. Worldwide"
+                placeholder="Bruce McLaren"
                 value={MechanicName}
                 onChange={(e) => setMechanicName(e.target.value)}
               />
@@ -218,7 +208,10 @@ const handleTextAreaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
                 >
                   Odometer
                 </label>
-                <fieldset className="my-2 text-sm gap-2 inline-flex justify-center border border-slate-300 rounded-full" onChange={handleOdoChange}>
+                <fieldset
+                  className="my-2 text-sm gap-2 inline-flex justify-center border border-slate-300 rounded-full"
+                  onChange={handleOdoChange}
+                >
                   <div className="p-2 flex gap-1">
                     <input type="radio" id="huey" name="drone" value="km" />
                     <label>KM</label>
@@ -235,7 +228,7 @@ const handleTextAreaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
                   </div>
                 </fieldset>
               </div>
-              
+
               <input
                 type="number"
                 id="Odometer"
@@ -248,8 +241,12 @@ const handleTextAreaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
             <div className="w-full"></div>
           </div>
 
-          <div>
-            <select value={ServiceType} onChange={handleChange} className="w-full p-2 border rounded capitalize">
+          {/* <div>
+            <select
+              value={ServiceType}
+              onChange={handleChange}
+              className="w-full p-2 border rounded capitalize"
+            >
               <option value="">Select a task...</option>
               {groupedOptions.map((group) => (
                 <optgroup key={group.label} label={group.label}>
@@ -261,20 +258,79 @@ const handleTextAreaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
                 </optgroup>
               ))}
             </select>
-          </div>
+          </div> */}
 
+
+<div className="relative">
+      {/* Trigger button */}
+      <div
+        className="w-full p-2 border rounded capitalize bg-white"
+        onClick={() => setIsOptionsOpen(true)}
+      >
+        {ServiceType || "Select a task..."}
+      </div>
+
+      {/* Full screen dropdown */}
+      {isOptionsOpen && (
+        <div className="fixed inset-0 z-50 bg-black/40 flex flex-col">
+          <div className="bg-white w-full h-full p-4 overflow-y-auto">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="font-bold">Select a Task</h2>
+              <button
+                onClick={() => setIsOptionsOpen(false)}
+                className="text-blue-500 font-semibold"
+              >
+                Done
+              </button>
+            </div>
+
+            {groupedOptions.map((group) => (
+              <div key={group.label} className="mb-6">
+                <h3 className="text-gray-600 font-semibold mb-2">
+                  {group.label}
+                </h3>
+                <ul className="space-y-2">
+                  {group.options.map((option) => (
+                    <li
+                      key={option.value}
+                      onClick={() => {
+                        setServiceType(option.value);
+                        setIsOptionsOpen(false);
+                      }}
+                      className={`p-2 border rounded cursor-pointer hover:bg-blue-100 ${
+                        ServiceType === option.value ? "bg-blue-200" : ""
+                      }`}
+                    >
+                      {option.label}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
           <div>
-              <textarea className="w-full h-24 bg-gray-200 mt-4 p-2 rounded" placeholder="Mobil - 10w-40 - 2qrts" value={Comment} onChange={handleTextAreaChange}>
-              </textarea>
+            <textarea
+              className="w-full h-24 bg-gray-200 mt-4 p-2 rounded"
+              placeholder="Mobil - 10w-40 - 2qrts"
+              value={Comment}
+              onChange={handleTextAreaChange}
+              maxLength={250} // <-- Maximum character limit
+            />
+            <p className="text-sm text-gray-500 text-right">
+              {Comment.length}/250
+            </p>
           </div>
           <div>
-              <input
-                  type="file"
-                  id="Reciept"
-                  className="p-2 w-full bg-gray-100"
-                  multiple
-                  onChange={handleFilesChange}
-              />
+            <input
+              type="file"
+              id="Reciept"
+              className="p-2 w-full bg-gray-100"
+              multiple
+              onChange={handleFilesChange}
+            />
           </div>
 
           <div className="flex justify-center">

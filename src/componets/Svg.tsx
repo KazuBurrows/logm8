@@ -66,7 +66,15 @@ export interface SvgProps {
     | "green-400"
     | "green-500"
     | "green-600"
-    | "green-700";
+    | "green-700"
+    | "blue-50"
+    | "blue-100"
+    | "blue-200"
+    | "blue-300"
+    | "blue-400"
+    | "blue-500"
+    | "blue-600"
+    | "blue-700";
 }
 
 /** Primary UI component for user interaction */
@@ -187,6 +195,23 @@ export const Svg = ({ type, size, color }: SvgProps) => {
       case "green-700":
         return "#15803D";
 
+      case "blue-50":
+        return "#EFF6FF";
+      case "blue-100":
+        return "#DBEAFE";
+      case "blue-200":
+        return "#BFDBFE";
+      case "blue-300":
+        return "#93C5FD";
+      case "blue-400":
+        return "#60A5FA";
+      case "blue-500":
+        return "#3B82F6";
+      case "blue-600":
+        return "#2563EB";
+      case "blue-700":
+        return "#1D4ED8";
+      
       case "white":
         return "#fff";
 

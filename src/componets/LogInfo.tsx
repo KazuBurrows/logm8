@@ -13,7 +13,7 @@ export default function LogInfo({ tag }: LogInfoProps) {
   return (
     <Section
       id={""}
-      className="relative h-[calc(100vh-3rem)] pt-8 azeret-mono-font text-white bg-zinc-900  overflow-hidden"
+      className="relative h-[calc(100vh-3rem)] pt-8 azeret-mono-font text-white bg-zinc-900 overflow-hidden"
     >
       {/* <img
         src={logmateLogo}

@@ -91,14 +91,29 @@ export default function LogHistory({ logServiceRecords }: LogHistoryProps) {
       id={""}
       className="h-full w-full mx-0 xl:px-80 lg:px-48 md:px-24 sm:px-16 sm:py-16 py-8 bg-slate-100 pb-24"
     >
+      {/* Create Record Button START */}
       <Button
         type="button"
         size="small"
         onClick={() => openModal()}
-        className="fixed bottom-8 right-8 font-black bg-blue-500 text-white lexend-font shadow-xl hover:scale-125 z-30"
+        className="
+          fixed bottom-8 right-8
+          w-18 h-18 
+          rounded-full
+          border-4 border-blue-400
+          bg-transparent
+          text-white text-2xl font-bold
+          flex items-center justify-center
+          shadow-lg
+          hover:scale-110 transition-transform duration-200
+          shadow-[0_0_5px_5px_rgba(59,130,246,0.3)]
+          z-30
+        "
       >
-        <Svg type="add3" size="lg" color="white" />
+        {/* <h1 className="text-lg font-bold my-3">New</h1> */}
+        <Svg type="add1" size="base" color="blue-400" />
       </Button>
+      {/* Create Record Button END */}
 
       <div className="relative" ref={dropdownRef}>
         <div className="flex">
