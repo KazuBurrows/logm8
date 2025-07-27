@@ -12,10 +12,10 @@ export default function CreateTag() {
   const [TagId, setTagId] = useState<string>("");
   const [Make, setMake] = useState<string>("");
   const [Model, setModel] = useState<string>("");
-  const [Year, setYear] = useState<number | 0>();
+  const [Year, setYear] = useState<string>("");
   const [Vehicle, setVehicle] = useState<string>("Motorbike");
   const [Style, setStyle] = useState<string>("Dirt");
-  const [EngineCC, setEngineCC] = useState<number | 0>();
+  const [EngineCC, setEngineCC] = useState<string>("");
   const [Fuel, setFuel] = useState<string>("Gasoline");
   const [Transmission, setTransmission] = useState<string>("");
   const [Color, setColor] = useState<string>("");
@@ -133,11 +133,11 @@ export default function CreateTag() {
 
   return (
     <>
-      <Navbar onToggle={() => null} />
-      <Section id={""} className="h-full mb-64 lg:pt-0 sm:pt-8 pt-12">
+      {/* <Navbar onToggle={() => null} /> */}
+      <Section id={""} className="h-full mb-64 lg:pt-0 sm:pt-8 pt-2">
         <div className="md:w-7/12 sm:w-9/12 w-11/12 mx-auto mt-24 mb-16">
           <h1 className="lg:text-8xl sm:text-6xl text-5xl text-center funnel-display-font font-bold leading-tight text-wrap">
-            Lets setup your new Logm8 NFC.
+            Lets setup your new logm8 NFC.
           </h1>
         </div>
         {/* Big screen */}
@@ -177,7 +177,7 @@ export default function CreateTag() {
                   className="block w-full px-3 py-2 border rounded-lg"
                   placeholder="2016"
                   value={Year}
-                  onChange={(e) => setYear(Number(e.target.value) || 0)}
+                  onChange={(e) => setYear(e.target.value)}
                 />
               </div>
               <div className="w-full">
@@ -216,7 +216,7 @@ export default function CreateTag() {
                   className="block w-full px-3 py-2 border rounded-lg"
                   placeholder="250"
                   value={EngineCC}
-                  onChange={(e) => setEngineCC(Number(e.target.value) || 0)}
+                  onChange={(e) => setEngineCC(e.target.value)}
                 />
               </div>
             </div>
@@ -335,7 +335,7 @@ export default function CreateTag() {
                 className="block w-full px-3 py-2 border rounded-lg"
                 placeholder="2016"
                 value={Year}
-                onChange={(e) => setYear(Number(e.target.value) || 0)}
+                onChange={(e) => setYear(e.target.value)}
               />
             </div>
             <div className="w-full mb-2">
@@ -372,7 +372,7 @@ export default function CreateTag() {
                 className="block w-full px-3 py-2 border rounded-lg"
                 placeholder="250"
                 value={EngineCC}
-                onChange={(e) => setEngineCC(Number(e.target.value) || 0)}
+                onChange={(e) => setEngineCC(e.target.value)}
               />
             </div>
 

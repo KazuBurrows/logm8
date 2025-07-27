@@ -28,7 +28,7 @@ export const CreateRecord = ({
   const [TagId] = useState<string>("");
   const [ServicedDate, setServicedDate] = useState<string>("");
   const [MechanicName, setMechanicName] = useState<string>("");
-  const [Odometer, setOdometer] = useState<number>();
+  const [Odometer, setOdometer] = useState<string>("");
   const [OdometerMetric, setOdometerMetric] = useState<string>("km");
   const [ServiceType, setServiceType] = useState<string>("");
   const [Comment, setComment] = useState<string>("");
@@ -157,7 +157,7 @@ const handleTextAreaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
               viewBox="0 0 24 24"
               strokeWidth={2}
               stroke="currentColor"
-              className="w-5 h-5"
+              className="w-10 h-10"
             >
               <path
                 strokeLinecap="round"
@@ -242,7 +242,7 @@ const handleTextAreaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
                 className="w-full p-2 border rounded"
                 placeholder="150000"
                 value={Odometer}
-                onChange={(e) => setOdometer(Number(e.target.value) || 0)}
+                onChange={(e) => setOdometer(e.target.value)}
               />
             </div>
             <div className="w-full"></div>

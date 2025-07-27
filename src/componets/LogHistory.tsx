@@ -114,50 +114,65 @@ export default function LogHistory({ logServiceRecords }: LogHistoryProps) {
         </div>
 
         <div className="relative">
-          {/* parent container */}
           {isFilterOpen && (
-            <div className="absolute right-0 z-10 md:w-5/12 w-9/12 bg-white border border-gray-200 rounded-2xl shadow-lg max-h-64 overflow-y-auto p-4">
-              {/* Clear All Button */}
-              <div className="flex justify-end mb-4">
-                <button
-                  onClick={() => setSelectedServiceTypes([])}
-                  className="text-sm text-red-600 hover:underline"
-                >
-                  Clear All
-                </button>
-              </div>
+            <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/40">
+              {/* Modal container */}
+              <div className="bg-white w-full h-full md:w-10/12 md:h-auto md:mt-10 rounded-none md:rounded-2xl shadow-lg overflow-y-auto p-4">
+                {/* Top bar with Close & Clear */}
+                <div className="flex justify-between items-center mb-4">
+                  <button
+                    onClick={() => setSelectedServiceTypes([])}
+                    className="text-2xl text-red-600 hover:underline"
+                  >
+                    Clear All
+                  </button>
+                  <button
+                    onClick={() => setIsFilterOpen(false)}
+                    className="text-gray-500 hover:text-gray-700 text-2xl"
+                  >
+                    ✕ Close
+                  </button>
+                </div>
 
-              {groupedOptions.map((group) => (
-                <fieldset key={group.label} className="mb-4">
-                  <legend className="font-semibold text-sm text-gray-700 mb-1 capitalize">
-                    {group.label}
-                  </legend>
-                  <div className="space-y-2 pl-2">
-                    {group.options.map((opt) => (
-                      <label
-                        key={opt.value}
-                        className="flex items-center space-x-2 text-sm"
-                      >
-                        <input
-                          type="checkbox"
-                          value={opt.value}
-                          checked={selectedServiceTypes.includes(opt.value)}
-                          onChange={(e) => {
-                            const value = e.target.value;
-                            setSelectedServiceTypes((prev) =>
-                              e.target.checked
-                                ? [...prev, value]
-                                : prev.filter((v) => v !== value)
-                            );
-                          }}
-                          className="accent-red-500"
-                        />
-                        <span className="capitalize">{opt.label}</span>
-                      </label>
-                    ))}
-                  </div>
-                </fieldset>
-              ))}
+                {/* Options */}
+                {groupedOptions.map((group) => (
+                  <fieldset key={group.label} className="mb-4">
+                    <legend className="font-semibold text-4xl text-gray-700 mb-1 capitalize">
+                      {group.label}
+                    </legend>
+                    <div className="space-y-2 pl-2">
+                      {group.options.map((opt) => (
+                        <label
+                          key={opt.value}
+                          className="flex items-center space-x-2 text-2xl"
+                        >
+                          <input
+                            type="checkbox"
+                            value={opt.value}
+                            checked={selectedServiceTypes.includes(opt.value)}
+                            onChange={(e) => {
+                              const value = e.target.value;
+                              setSelectedServiceTypes((prev) =>
+                                e.target.checked
+                                  ? [...prev, value]
+                                  : prev.filter((v) => v !== value)
+                              );
+                            }}
+                            className="
+                              appearance-none w-5 h-5 
+                              border-2 border-gray-400 
+                              checked:bg-red-500 checked:border-red-500 
+                              rounded 
+                              transition-colors
+                            "
+                          />
+                          <span className="capitalize">{opt.label}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </fieldset>
+                ))}
+              </div>
             </div>
           )}
         </div>
@@ -183,12 +198,7 @@ export default function LogHistory({ logServiceRecords }: LogHistoryProps) {
                 <div className="flex flex-wrap sm:flex-nowrap items-center py-2 px-2 sm:px-8">
                   {/* Button column */}
                   <div className="px-2">
-                    <Button
-                      label=""
-                      className=""
-                      type="button"
-                      size="small"
-                    >
+                    <Button label="" className="" type="button" size="small">
                       <Svg type="marker3" size="md" color="rose-400" />
                     </Button>
                   </div>
@@ -262,7 +272,7 @@ export default function LogHistory({ logServiceRecords }: LogHistoryProps) {
           </li>
         ))}
       </ul>
-      
+
       <CreateRecord
         isOpen={isModalOpen}
         onClose={closeModal}
