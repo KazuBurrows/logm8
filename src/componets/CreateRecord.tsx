@@ -241,76 +241,57 @@ CreateRecordProps) => {
             <div className="w-full"></div>
           </div>
 
-          {/* <div>
-            <select
-              value={ServiceType}
-              onChange={handleChange}
-              className="w-full p-2 border rounded capitalize"
+          <div className="relative">
+            {/* Trigger button */}
+            <div
+              className="w-full p-2 border rounded capitalize bg-white"
+              onClick={() => setIsOptionsOpen(true)}
             >
-              <option value="">Select a task...</option>
-              {groupedOptions.map((group) => (
-                <optgroup key={group.label} label={group.label}>
-                  {group.options.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </optgroup>
-              ))}
-            </select>
-          </div> */}
-
-
-<div className="relative">
-      {/* Trigger button */}
-      <div
-        className="w-full p-2 border rounded capitalize bg-white"
-        onClick={() => setIsOptionsOpen(true)}
-      >
-        {ServiceType || "Select a task..."}
-      </div>
-
-      {/* Full screen dropdown */}
-      {isOptionsOpen && (
-        <div className="fixed inset-0 z-50 bg-black/40 flex flex-col">
-          <div className="bg-white w-full h-full p-4 overflow-y-auto">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="font-bold">Select a Task</h2>
-              <button
-                onClick={() => setIsOptionsOpen(false)}
-                className="text-blue-500 font-semibold"
-              >
-                Done
-              </button>
+              {ServiceType || "Select a task..."}
             </div>
 
-            {groupedOptions.map((group) => (
-              <div key={group.label} className="mb-6">
-                <h3 className="text-gray-600 font-semibold mb-2">
-                  {group.label}
-                </h3>
-                <ul className="space-y-2">
-                  {group.options.map((option) => (
-                    <li
-                      key={option.value}
-                      onClick={() => {
-                        setServiceType(option.value);
-                        setIsOptionsOpen(false);
-                      }}
-                      className={`p-2 border rounded cursor-pointer hover:bg-blue-100 ${
-                        ServiceType === option.value ? "bg-blue-200" : ""
-                      }`}
+            {/* Full screen dropdown */}
+            {isOptionsOpen && (
+              <div className="fixed inset-0 z-50 bg-black/40 flex flex-col">
+                <div className="bg-white w-full h-full p-4 overflow-y-auto">
+                  <div className="flex justify-between items-center mb-4">
+                    <h2 className="font-bold">Select a Task</h2>
+                    <button
+                      onClick={() => setIsOptionsOpen(false)}
+                      className="text-blue-500 font-semibold"
                     >
-                      {option.label}
-                    </li>
+                      Done
+                    </button>
+                  </div>
+
+                  {groupedOptions.map((group) => (
+                    <div key={group.label} className="mb-6">
+                      <h3 className="text-gray-600 font-semibold mb-2">
+                        {group.label}
+                      </h3>
+                      <ul className="space-y-2">
+                        {group.options.map((option) => (
+                          <li
+                            key={option.value}
+                            onClick={() => {
+                              setServiceType(option.value);
+                              setIsOptionsOpen(false);
+                            }}
+                            className={`p-2 border rounded cursor-pointer hover:bg-blue-100 ${
+                              ServiceType === option.value ? "bg-blue-200" : ""
+                            }`}
+                          >
+                            {option.label}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
                   ))}
-                </ul>
+                </div>
               </div>
-            ))}
+            )}
           </div>
-        </div>
-      )}
-    </div>
+          
           <div>
             <textarea
               className="w-full h-24 bg-gray-200 mt-4 p-2 rounded"

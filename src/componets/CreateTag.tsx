@@ -3,133 +3,116 @@ import { useLocation } from "react-router-dom";
 import { Section } from "./Section";
 // import { Navbar } from "./Navbar";
 import { Button } from "./Button";
+import { groupedFuelOptions } from "../types/serviceOptions";
 
 export default function CreateTag() {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const id = queryParams.get("token") ?? ""; // Extract the 'id' value
-  
+
+  const [isFuelOptionsOpen, setIsFuelOptionsOpen] = useState(false);
+
   const [TagId, setTagId] = useState<string>("");
   const [Make, setMake] = useState<string>("");
   const [Model, setModel] = useState<string>("");
   const [Year, setYear] = useState<string>("");
   const [Vehicle, setVehicle] = useState<string>("Motorbike");
-  const [Style, setStyle] = useState<string>("Dirt");
+  const [Style] = useState<string>("Null");
   const [EngineCC, setEngineCC] = useState<string>("");
-  const [Fuel, setFuel] = useState<string>("Gasoline");
+  const [Fuel, setFuel] = useState<string[]>([]);
   const [Transmission, setTransmission] = useState<string>("");
   const [Color, setColor] = useState<string>("");
   const [VinNumber, setVinNumber] = useState<string | null>(null);
   const [LicencePlate, setLicencePlate] = useState<string | null>(null);
 
   const handleSubmit = (e: React.FormEvent) => {
-      e.preventDefault();
-      const formData = {
-        TagId,
-        Make,
-        Model,
-        Year,
-        Vehicle,
-        Style,
-        EngineCC,
-        Fuel,
-        Transmission,
-        Color,
-        VinNumber,
-        LicencePlate,
-      };
-      console.log("Form Data:", formData);
-      // Add your submission logic here
-      const jsonData = JSON.stringify(formData);
+    e.preventDefault();
+    const formData = {
+      TagId,
+      Make,
+      Model,
+      Year,
+      Vehicle,
+      Style,
+      EngineCC,
+      Fuel,
+      Transmission,
+      Color,
+      VinNumber,
+      LicencePlate,
+    };
+    console.log("Form Data:", formData);
+    // Add your submission logic here
+    const jsonData = JSON.stringify(formData);
 
-      const fetchData = async () => {
-        try {
-          const response = await fetch(
-            "https://logmate.azurewebsites.net/api/SubmitTag?tag=" + jsonData + ""
-            // "http://localhost:7071/api/SubmitTag?tag=" + jsonData + ""
-          );
-          
-         
-          console.log(await response);
-        } catch (err: any) {
-          console.log(err);
-        }
-      };
-  
-      fetchData();
+    const fetchData = async () => {
+      try {
+        const response = await fetch(
+          "https://logmate.azurewebsites.net/api/SubmitTag?tag=" + jsonData + ""
+          // "http://localhost:7071/api/SubmitTag?tag=" + jsonData + ""
+        );
 
+        console.log(await response);
+      } catch (err: any) {
+        console.log(err);
+      }
     };
 
-    useEffect(() => {
-      setTagId(id.replace(/ /g, "+"));
-      // setTagId(encodeURIComponent(id));
-      
-      // console.log(TagId)
-    }, [id]);
+    fetchData();
+  };
 
+  useEffect(() => {
+    setTagId(id.replace(/ /g, "+"));
+    // setTagId(encodeURIComponent(id));
+
+    // console.log(TagId)
+  }, [id]);
 
   const VehicleTypes = ["Motorbike", "Car"];
-  const VehicleStyles: Record<string, string[]> = {
-    Motorbike: [
-        "Dirt",
-        "Sport",
-        "Cruiser",
-        "Touring",
-        "Adventure",
-        "Standard",
-        "Dual-Sport",
-        "Scooter",
-        "Cafe Racer",
-        "Bobber",
-        "Chopper",
-        "Sport Touring",
-        "Enduro",
-        "Naked",
-        "Mini Bike",
-        "Trike",
-        "Electric",
-    ],
-    Car: [
-        "Sedan",
-        "SUV",
-        "Coupe",
-        "Convertible",
-        "Hatchback",
-        "Wagon",
-        "Truck",
-        "Van",
-        "Minivan",
-        "Crossover",
-        "Sports Car",
-        "Luxury Car",
-        "Hybrid",
-        "Electric",
-        "Off-Road",
-        "Compact",
-        "Microcar",
-        "Pickup",
-        "Roadster",
-        "Supercar",
-        "Muscle Car",
-    ],
-};
-  const VehicleFuels = [
-    "Gasoline",
-    "Diesel",
-    "Electric",
-    "Hybrid (Gasoline/Electric)",
-    "Hybrid (Diesel/Electric)",
-    "Hydrogen",
-    "Compressed Natural Gas (CNG)",
-    "Liquefied Natural Gas (LNG)",
-    "Ethanol",
-    "Biodiesel",
-    "Propane (LPG)",
-    "Plug-in Hybrid",
-    "Solar",
-    "Flex-Fuel",
-    "Synthetic Fuel",
-  ];
+  //   const VehicleStyles: Record<string, string[]> = {
+  //     Motorbike: [
+  //         "Dirt",
+  //         "Sport",
+  //         "Cruiser",
+  //         "Touring",
+  //         "Adventure",
+  //         "Standard",
+  //         "Dual-Sport",
+  //         "Scooter",
+  //         "Cafe Racer",
+  //         "Bobber",
+  //         "Chopper",
+  //         "Sport Touring",
+  //         "Enduro",
+  //         "Naked",
+  //         "Mini Bike",
+  //         "Trike",
+  //         "Electric",
+  //     ],
+  //     Car: [
+  //         "Sedan",
+  //         "SUV",
+  //         "Coupe",
+  //         "Convertible",
+  //         "Hatchback",
+  //         "Wagon",
+  //         "Truck",
+  //         "Van",
+  //         "Minivan",
+  //         "Crossover",
+  //         "Sports Car",
+  //         "Luxury Car",
+  //         "Hybrid",
+  //         "Electric",
+  //         "Off-Road",
+  //         "Compact",
+  //         "Microcar",
+  //         "Pickup",
+  //         "Roadster",
+  //         "Supercar",
+  //         "Muscle Car",
+  //     ],
+  // };
 
   return (
     <>
@@ -143,7 +126,9 @@ export default function CreateTag() {
         {/* Big screen */}
         <div className="2xl:w-7/12 xl:w-8/12 md:w-10/12 mx-auto md:block hidden">
           <form className="roboto-flex-font" onSubmit={handleSubmit}>
-            <h2 className="text-5xl text-green-400 font-semibold uppercase leading-tight mb-4">Create NFC</h2>
+            <h2 className="text-5xl text-green-400 font-semibold uppercase leading-tight mb-4">
+              Create NFC
+            </h2>
             {/* <h3 className="text-lg opacity-70">{TagId}</h3> */}
 
             <div className="flex gap-8 mb-2">
@@ -196,7 +181,7 @@ export default function CreateTag() {
             </div>
 
             <div className="flex gap-8 mb-2">
-              <div className="w-full">
+              {/* <div className="w-full">
                 <label className="block">Style</label>
                 <select
                   className="block w-full px-3 py-2 border rounded-lg"
@@ -208,7 +193,7 @@ export default function CreateTag() {
                     </option>
                   ))}
                 </select>
-              </div>
+              </div> */}
               <div className="w-full">
                 <label className="block">Engine CC</label>
                 <input
@@ -222,7 +207,7 @@ export default function CreateTag() {
             </div>
 
             <div className="flex gap-8 mb-2">
-              <div className="w-full">
+              {/* <div className="w-full">
                 <label className="block">Fuel</label>
                 <select
                   className="block w-full px-3 py-2 border rounded-lg"
@@ -234,7 +219,7 @@ export default function CreateTag() {
                     </option>
                   ))}
                 </select>
-              </div>
+              </div> */}
               <div className="w-full">
                 <label className="block">Transmission</label>
                 <input
@@ -269,7 +254,9 @@ export default function CreateTag() {
 
             <div className="flex gap-8 mb-2">
               <div className="w-full">
-                <label className="block">Vin Number <span className="text-slate-300">- optional</span></label>
+                <label className="block">
+                  Vin Number <span className="text-slate-300">- optional</span>
+                </label>
                 <input
                   type="text"
                   className="block w-full px-3 py-2 border rounded-lg"
@@ -279,7 +266,10 @@ export default function CreateTag() {
                 />
               </div>
               <div className="w-full">
-                <label className="block">Licence Plate <span className="text-slate-300">- optional</span></label>
+                <label className="block">
+                  Licence Plate{" "}
+                  <span className="text-slate-300">- optional</span>
+                </label>
                 <input
                   type="text"
                   className="block w-full px-3 py-2 border rounded-lg"
@@ -303,9 +293,13 @@ export default function CreateTag() {
         {/* Mobile screen */}
         <div className="sm:w-7/12 w-10/12 mx-auto md:hidden block">
           <form className="roboto-flex-font" onSubmit={handleSubmit}>
-          <h2 className="text-5xl text-green-400 font-semibold uppercase leading-tight">Create</h2>
-          <h2 className="text-5xl text-green-400 font-semibold uppercase leading-tight mb-4">NFC</h2>
-          {/* <h3 className="text-lg opacity-70">{id}</h3> */}
+            <h2 className="text-5xl text-green-400 font-semibold uppercase leading-tight">
+              Create
+            </h2>
+            <h2 className="text-5xl text-green-400 font-semibold uppercase leading-tight mb-4">
+              NFC
+            </h2>
+            {/* <h3 className="text-lg opacity-70">{id}</h3> */}
 
             <div className="w-full mb-2">
               <label className="block">Make</label>
@@ -352,7 +346,7 @@ export default function CreateTag() {
               </select>
             </div>
 
-            <div className="w-full mb-2">
+            {/* <div className="w-full mb-2">
               <label className="block">Style</label>
               <select
                 className="block w-full px-3 py-2 border rounded-lg"
@@ -364,7 +358,7 @@ export default function CreateTag() {
                   </option>
                 ))}
               </select>
-            </div>
+            </div> */}
             <div className="w-full mb-2">
               <label className="block">Engine CC</label>
               <input
@@ -376,19 +370,73 @@ export default function CreateTag() {
               />
             </div>
 
-            <div className="w-full mb-2">
+            <div className="relative pb-2">
               <label className="block">Fuel</label>
-              <select
-                className="block w-full px-3 py-2 border rounded-lg"
-                onChange={(e) => setFuel(e.target.value)}
-                >
-                {VehicleFuels.map((v) => (
-                  <option value={v} key={v}>
-                    {v}
-                  </option>
-                ))}
-              </select>
+              {/* Trigger button */}
+              <div
+                className="w-full p-2 border rounded capitalize bg-white"
+                onClick={() => setIsFuelOptionsOpen(true)}
+              >
+                {Fuel.length > 0 ? Fuel : "Select Fuels..."}
+              </div>
+
+              {/* Full screen dropdown */}
+              {isFuelOptionsOpen && (
+                <div className="fixed inset-0 z-50 bg-black/40 flex flex-col">
+                  <div className="bg-white w-full h-full p-4 overflow-y-auto">
+                    <div className="flex justify-between items-center mb-4">
+                      <h2 className="font-bold">Select a Task</h2>
+                      <button
+                        onClick={() => setIsFuelOptionsOpen(false)}
+                        className="text-blue-500 font-semibold"
+                      >
+                        Done
+                      </button>
+                    </div>
+
+                    {/* Options */}
+                    {groupedFuelOptions.map((group) => (
+                      <fieldset key={group.label} className="mb-4">
+                        <legend className="font-semibold text-4xl text-gray-700 mb-1 capitalize">
+                          {group.label}
+                        </legend>
+                        <div className="space-y-2 pl-2">
+                          {group.options.map((opt) => (
+                            <label
+                              key={opt.value}
+                              className="flex items-center space-x-2 text-2xl"
+                            >
+                              <input
+                                type="checkbox"
+                                value={opt.value}
+                                checked={Fuel.includes(opt.value)}
+                                onChange={(e) => {
+                                  const value = e.target.value;
+                                  setFuel((prev) =>
+                                    e.target.checked
+                                      ? [...prev, value]
+                                      : prev.filter((v) => v !== value)
+                                  );
+                                }}
+                                className="
+                                  appearance-none w-5 h-5 
+                                  border-2 border-gray-400 
+                                  checked:bg-red-500 checked:border-red-500 
+                                  rounded 
+                                  transition-colors
+                                "
+                              />
+                              <span className="capitalize">{opt.label}</span>
+                            </label>
+                          ))}
+                        </div>
+                      </fieldset>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
+
             <div className="w-full mb-2">
               <label className="block">Transmission</label>
               <input
@@ -412,7 +460,9 @@ export default function CreateTag() {
             </div>
 
             <div className="w-full mb-2">
-              <label className="block">Vin Number <span className="text-slate-300">- optional</span></label>
+              <label className="block">
+                Vin Number <span className="text-slate-300">- optional</span>
+              </label>
               <input
                 type="text"
                 className="block w-full px-3 py-2 border rounded-lg"
@@ -422,7 +472,9 @@ export default function CreateTag() {
               />
             </div>
             <div className="w-full mb-2">
-              <label className="block">Licence Plate <span className="text-slate-300">- optional</span></label>
+              <label className="block">
+                Licence Plate <span className="text-slate-300">- optional</span>
+              </label>
               <input
                 type="text"
                 className="block w-full px-3 py-2 border rounded-lg"

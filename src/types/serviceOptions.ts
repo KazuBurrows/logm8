@@ -80,3 +80,37 @@ export const groupedOptions: readonly GroupedOption[] = [
     options: diagnosticOptions,
   },
 ];
+
+
+
+export const petrolOptions: readonly TaskOption[] = [
+  { value: "91 Octane", label: "91 Octane" },
+  { value: "95 Octane", label: "95 Octane" },
+  { value: "98 Octane", label: "98 Octane" },
+  { value: "100 Octane", label: "100 Octane" },
+];
+
+export const dieselOptions: readonly TaskOption[] = [
+  { value: "Standard Diesel", label: "Standard Diesel" },
+];
+
+export const electricOptions: readonly TaskOption[] = [
+  { value: "Battery Electric (BEV)", label: "Battery Electric (BEV)" },
+  { value: "Plug-in Hybrid Electric (PHEV)", label: "Plug-in Hybrid Electric (PHEV)" },
+  { value: "Hybrid Electric (HEV)", label: "Hybrid Electric (HEV)" },
+];
+
+export const groupedFuelOptions: readonly GroupedOption[] = [
+  {
+    label: "Petrol (Gasoline)",
+    options: petrolOptions,
+  },
+  {
+    label: "Diesel",
+    options: dieselOptions,
+  },
+  {
+    label: "Electric",
+    options: electricOptions,
+  },
+];
