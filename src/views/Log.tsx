@@ -46,10 +46,10 @@ export default function Log() {
       try {
         
         fetch(
-          "https://logmate.azurewebsites.net/api/ActivateOneLifeUrl?token=" +
+          "https://logmate.azurewebsites.net/api/GetLogData?token=" +
             token +
             ""
-          // "http://localhost:7071/api/ActivateOneLifeUrl?token=" + token + ""
+          // "http://localhost:7071/api/GetLogData?token=" + token + ""
         )
         .then((response) => {
           if (!response.ok) {
