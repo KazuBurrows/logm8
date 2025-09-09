@@ -49,8 +49,8 @@ export default function CreateTag() {
       try {
         const eId = id;  // To conform with Server Sides variable
         const reqString = JSON.stringify({ eId });
-        // const url = `https://logmate.azurewebsites.net/api/OneLifeUrlOneStepNoDecrypt?reqString=${reqString}`;
-        const url = `http://localhost:7071/api/OneLifeUrlOneStepNoDecrypt?reqString=${reqString}`;
+        const url = `https://logmate.azurewebsites.net/api/OneLifeUrlOneStepNoDecrypt?reqString=${reqString}`;
+        // const url = `http://localhost:7071/api/OneLifeUrlOneStepNoDecrypt?reqString=${reqString}`;
         const response = await fetch(url);
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
@@ -70,8 +70,8 @@ export default function CreateTag() {
     const fetchData = async () => {
       try {
         const response = await fetch(
-          // "https://logmate.azurewebsites.net/api/SubmitTag?tag=" + jsonData + ""
-          "http://localhost:7071/api/SubmitTag?tag=" + jsonData + ""
+          "https://logmate.azurewebsites.net/api/SubmitTag?tag=" + jsonData + ""
+          // "http://localhost:7071/api/SubmitTag?tag=" + jsonData + ""
         );
 
         const data = await response.json();
