@@ -18,7 +18,7 @@ export default function CreateTag() {
   const [Year, setYear] = useState<string>("");
   const [Vehicle, setVehicle] = useState<string>("Motorbike");
   const [Style] = useState<string>("Null");
-  const [EngineCC, setEngineCC] = useState<string>("");
+  const [Engine, setEngine] = useState<string>("");
   const [Fuel, setFuel] = useState<string[]>([]);
   const [Transmission, setTransmission] = useState<string>("");
   const [Color, setColor] = useState<string>("");
@@ -34,7 +34,7 @@ export default function CreateTag() {
       Year,
       Vehicle,
       Style,
-      EngineCC,
+      Engine,
       Fuel,
       Transmission,
       Color,
@@ -200,8 +200,8 @@ export default function CreateTag() {
                   type="number"
                   className="block w-full px-3 py-2 border rounded-lg"
                   placeholder="250"
-                  value={EngineCC}
-                  onChange={(e) => setEngineCC(e.target.value)}
+                  value={Engine}
+                  onChange={(e) => setEngine(e.target.value)}
                 />
               </div>
             </div>
@@ -365,8 +365,8 @@ export default function CreateTag() {
                 type="number"
                 className="block w-full px-3 py-2 border rounded-lg"
                 placeholder="250"
-                value={EngineCC}
-                onChange={(e) => setEngineCC(e.target.value)}
+                value={Engine}
+                onChange={(e) => setEngine(e.target.value)}
               />
             </div>
 
