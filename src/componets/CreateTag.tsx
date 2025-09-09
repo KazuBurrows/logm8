@@ -9,7 +9,7 @@ export default function CreateTag() {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const id = queryParams.get("token") ?? ""; // Extract the 'id' value
-
+  
   const [isFuelOptionsOpen, setIsFuelOptionsOpen] = useState(false);
 
   const [TagId, setTagId] = useState<string>("");
@@ -45,16 +45,46 @@ export default function CreateTag() {
     // Add your submission logic here
     const jsonData = JSON.stringify(formData);
 
+    const redirectUser = async () => {
+      try {
+        const eId = id;  // To conform with Server Sides variable
+        const reqString = JSON.stringify({ eId });
+        // const url = `https://logmate.azurewebsites.net/api/OneLifeUrlOneStepNoDecrypt?reqString=${reqString}`;
+        const url = `http://localhost:7071/api/OneLifeUrlOneStepNoDecrypt?reqString=${reqString}`;
+        const response = await fetch(url);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+        const data = await response.json();
+        console.error("data:", data);
+        if (data.success && data.url) {
+          window.location.href = data.url;
+        } else {
+          console.error("API failed:", data);
+        }
+      } catch (err: any) {
+        console.error("Redirect error:", err);
+      };
+    };
+
+
     const fetchData = async () => {
       try {
         const response = await fetch(
-          "https://logmate.azurewebsites.net/api/SubmitTag?tag=" + jsonData + ""
-          // "http://localhost:7071/api/SubmitTag?tag=" + jsonData + ""
+          // "https://logmate.azurewebsites.net/api/SubmitTag?tag=" + jsonData + ""
+          "http://localhost:7071/api/SubmitTag?tag=" + jsonData + ""
         );
 
-        console.log(await response);
+        const data = await response.json();
+        console.log("API Response:", data);
+
+        if (data.success) {
+          // alert(data.message);
+          redirectUser();
+        } else {
+          alert("Oops! Something went wrong. Please try again soon: " + data.message);
+        }
       } catch (err: any) {
-        console.log(err);
+        console.error("Fetch error:", err);
       }
     };
 
