@@ -107,7 +107,7 @@ export default function LogHistory({ logServiceRecords }: LogHistoryProps) {
           shadow-lg
           hover:scale-110 transition-transform duration-200
           shadow-[0_0_5px_5px_rgba(59,130,246,0.3)]
-          z-30
+          z-10
         "
       >
         {/* <h1 className="text-lg font-bold my-3">New</h1> */}

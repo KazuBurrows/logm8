@@ -1,5 +1,7 @@
 // import React, { useState, useEffect } from "react";
 
+import { useState } from "react";
+import EditTag from "./EditTag";
 import { Section } from "./Section";
 import { SimpleSwipeSlider } from "./SimpleSwipeSlider";
 // const bg1 = require("../assets/bg-detail.svg");
@@ -10,22 +12,28 @@ export interface LogInfoProps {
 }
 
 export default function LogInfo({ tag }: LogInfoProps) {
+  const [editTagIsOpen, setEditTagIsOpen] = useState(false);
+  const openEditTag = () => {
+    setEditTagIsOpen(true);
+  };
+  const closeEditTag = () => {
+    console.log("test")
+    setEditTagIsOpen(false);
+  };
   return (
-    <Section
+    <>
+      <EditTag isOpen={editTagIsOpen} onClose={closeEditTag} tag={tag}></EditTag>
+<Section
       id={""}
       className="relative h-[calc(100vh-3rem)] pt-8 azeret-mono-font text-white bg-zinc-900 overflow-hidden"
     >
-      {/* <img
-        src={logmateLogo}
-        alt="logm8-logo"
-        className="h-20 mx-auto z-20 bg-blue-500 bg-opacity-10 rounded rounded-full"
-      ></img> */}
       <div className="w-11/12 flex mx-auto">
         <p className="electrolize-font text-lg">logm8</p>
         <img
           src={logmateLogo}
           alt="logm8-logo"
           className="h-12 ml-auto z-20 bg-blue-500 bg-opacity-10 rounded rounded-full"
+          onClick={() => openEditTag()}
         ></img>
       </div>
       
@@ -156,5 +164,7 @@ export default function LogInfo({ tag }: LogInfoProps) {
       </div>
       {/* MOBILE END */}
     </Section>
+    </>
+    
   );
 }

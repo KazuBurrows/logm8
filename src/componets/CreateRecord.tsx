@@ -92,20 +92,6 @@ CreateRecordProps) => {
         const insertedRecord = await response.json();
         console.log("insertedRecord:", insertedRecord);
 
-        // Map response to ServiceRecord interface
-        // const serviceRecord: ServiceRecord = {
-        //   id: insertedRecord.id,
-        //   TagID: insertedRecord.tagId, // Map TagId from backend to TagID in frontend
-        //   EnteredDate: insertedRecord.enteredDate,
-        //   ServicedDate: insertedRecord.servicedDate,
-        //   MechanicName: insertedRecord.mechanicName,
-        //   Odometer: insertedRecord.odometer,
-        //   PendingCompletedTasks: [],
-        //   Certified: insertedRecord.certified ?? false, // Default to false if not present
-        // };
-
-        // console.log("Mapped ServiceRecord:", serviceRecord);
-
         // onInsert(serviceRecord); // Update LogHistory
         onClose(); // Close modal
         setIsLoading(false);
