@@ -32,6 +32,15 @@ CreateRecordProps) => {
   const [Comment, setComment] = useState<string>("");
   const [Files, setFiles] = useState<File[]>([]);
 
+  const clearFields = () => {
+    setServicedDate("");
+    setOdometer("");
+    setOdometerMetric("km"); // reset to default
+    setServiceType("");
+    setComment("");
+    setFiles([]);
+  };
+
   // const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
   //   setServiceType(e.target.value);
   // };
@@ -94,6 +103,7 @@ CreateRecordProps) => {
 
         // onInsert(serviceRecord); // Update LogHistory
         onClose(); // Close modal
+        clearFields();
         setIsLoading(false);
       } catch (err: any) {
         console.log(err);
@@ -165,6 +175,7 @@ CreateRecordProps) => {
                 defaultValue={ServicedDate}
                 onFocus={(e) => e.target.showPicker?.()}
                 onChange={(e) => setServicedDate(e.target.value)}
+                required
               />
             </div>
             <div className="mb-4 w-full">
