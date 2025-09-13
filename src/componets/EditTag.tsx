@@ -88,7 +88,7 @@ export default function EditTag({ tag, isOpen, onClose }: ModalProps) {
 
     setFuel(defaultFuel);
   }
-  }, []);
+  }, [tag.Fuel]);
 
   const VehicleTypes = ["Motorbike", "Car"];
 
