@@ -33,8 +33,8 @@ CreateRecordProps) => {
   const [Files, setFiles] = useState<File[]>([]);
 
   const clearFields = () => {
-    setServicedDate("");
-    setOdometer("");
+    // setServicedDate("");
+    // setOdometer("");
     setOdometerMetric("km"); // reset to default
     setServiceType("");
     setComment("");
@@ -210,18 +210,36 @@ CreateRecordProps) => {
                   onChange={handleOdoChange}
                 >
                   <div className="p-2 flex gap-1">
-                    <input type="radio" id="huey" name="drone" value="km" />
-                    <label>KM</label>
+                    <input
+                      type="radio"
+                      id="huey"
+                      name="drone"
+                      value="km"
+                      checked={OdometerMetric === "km"}
+                    />
+                    <label htmlFor="huey">KM</label>
                   </div>
 
                   <div className="p-2 flex gap-1">
-                    <input type="radio" id="dewey" name="drone" value="miles" />
-                    <label>Miles</label>
+                    <input
+                      type="radio"
+                      id="dewey"
+                      name="drone"
+                      value="miles"
+                      checked={OdometerMetric === "miles"}
+                    />
+                    <label htmlFor="dewey">Miles</label>
                   </div>
 
                   <div className="p-2 flex gap-1">
-                    <input type="radio" id="louie" name="drone" value="hours" />
-                    <label>Hours</label>
+                    <input
+                      type="radio"
+                      id="louie"
+                      name="drone"
+                      value="hours"
+                      checked={OdometerMetric === "hours"}
+                    />
+                    <label htmlFor="louie">Hours</label>
                   </div>
                 </fieldset>
               </div>
@@ -288,7 +306,7 @@ CreateRecordProps) => {
               </div>
             )}
           </div>
-          
+
           <div>
             <textarea
               className="w-full h-24 bg-gray-200 mt-4 p-2 rounded"

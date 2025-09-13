@@ -5,9 +5,26 @@ import { Button } from "./Button";
 import { CreateRecord } from "./CreateRecord";
 import { Svg } from "./Svg";
 import { groupedOptions } from "../types/serviceOptions";
+import { sortedOptions } from "../types/sortOptions";
 
 export interface LogHistoryProps {
   logServiceRecords: ServiceRecord[];
+}
+
+function toKm(value: string): number {
+  const [valueStr, metric] = value.split(" ")
+  switch (metric) {
+    case "km":
+      return parseInt(valueStr);
+    case "miles":
+      return parseInt(valueStr) * 1.60934; // miles → km
+    case "hours":
+      // hours → km depends on your assumption of avg speed
+      // let's assume 40 km/h as a baseline
+      return parseInt(valueStr) * 60;
+    default:
+      return parseInt(valueStr);
+  }
 }
 
 export default function LogHistory({ logServiceRecords }: LogHistoryProps) {
@@ -57,15 +74,62 @@ export default function LogHistory({ logServiceRecords }: LogHistoryProps) {
     return shortDate;
   };
 
+  const [selectedSortType, setSelectedSortType] = useState<string>("");
+  const sortedRecords = React.useMemo(() => {
+    let records = [...serviceRecords]; // copy so we don’t mutate state
+
+    switch (selectedSortType) {
+      case "Service Name A-Z":
+        records.sort((a, b) => a.ServiceType.localeCompare(b.ServiceType));
+        break;
+      case "Service Name Z-A":
+        records.sort((a, b) => b.ServiceType.localeCompare(a.ServiceType));
+        break;
+      case "Odometer High-Low":
+        records.sort(
+          (a, b) => 
+            toKm(b.Odometer) - toKm(a.Odometer)
+        );
+        break;
+
+      case "Odometer Low-High":
+        records.sort(
+          (a, b) => 
+            toKm(a.Odometer) - toKm(b.Odometer)
+        );
+        break;
+      case "Serviced Date New-Old":
+        records.sort(
+          (a, b) =>
+            new Date(b.ServicedDate).getTime() -
+            new Date(a.ServicedDate).getTime()
+        );
+        break;
+      case "Serviced Date Old-New":
+        records.sort(
+          (a, b) =>
+            new Date(a.ServicedDate).getTime() -
+            new Date(b.ServicedDate).getTime()
+        );
+        break;
+      default:
+        // no sort applied
+        break;
+    }
+
+    return records;
+  }, [serviceRecords, selectedSortType]);
+
   const [selectedServiceTypes, setSelectedServiceTypes] = useState<string[]>(
     []
   );
   const filteredRecords = selectedServiceTypes.length
-    ? serviceRecords.filter((record) =>
+    ? sortedRecords.filter((record) =>
         selectedServiceTypes.includes(record.ServiceType)
       )
-    : serviceRecords;
+    : sortedRecords;
 
+  const [isSortOpen, setIsSortOpen] = useState(false);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -119,7 +183,14 @@ export default function LogHistory({ logServiceRecords }: LogHistoryProps) {
         <div className="flex">
           <button
             type="button"
-            className="w-[130px] border border-gray-200 rounded-2xl px-4 py-1 bg-white text-center ml-auto mb-1"
+            className="w-[40px] border border-gray-200 rounded-2xl px-1 py-1 bg-white text-center ml-auto mb-1 mr-1"
+            onClick={() => setIsSortOpen(!isSortOpen)}
+          >
+            <Svg type="sort-1" size="2xl" color="slate-600" />
+          </button>
+          <button
+            type="button"
+            className="w-[130px] border border-gray-200 rounded-2xl px-4 py-1 bg-white text-center mb-1"
             onClick={() => setIsFilterOpen(!isFilterOpen)}
           >
             {selectedServiceTypes.length > 0
@@ -128,6 +199,72 @@ export default function LogHistory({ logServiceRecords }: LogHistoryProps) {
           </button>
         </div>
 
+        {/* Sort Modal */}
+        <div className="relative">
+          {isSortOpen && (
+            <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/40">
+              {/* Modal container */}
+              <div className="bg-white w-full h-full md:w-10/12 md:h-auto md:mt-10 rounded-none md:rounded-2xl shadow-lg overflow-y-auto p-4">
+                {/* Top bar with Close & Clear */}
+                <div className="flex justify-between items-center mb-4">
+                  <button
+                    onClick={() => setSelectedSortType("")}
+                    className="text-2xl text-red-600 hover:underline"
+                  >
+                    Reset
+                  </button>
+                  <button
+                    onClick={() => setIsSortOpen(false)}
+                    className="flex bg-green-200 px-2 rounded rounded-full"
+                  >
+                    <Svg type={"check"} color="green-500" size="md"></Svg>{" "}
+                    <span className="text-green-500 text-2xl font-semibold pl-1">
+                      Done
+                    </span>
+                  </button>
+                </div>
+
+                {/* Options */}
+                {sortedOptions.map((group) => (
+                  <fieldset key={group.label} className="mb-4">
+                    <legend className="font-semibold text-4xl text-gray-700 mb-1 capitalize">
+                      {group.label}
+                    </legend>
+                    <div className="space-y-2 pl-2">
+                      {group.options.map((opt) => (
+                        <label
+                          key={opt.value}
+                          className="flex items-center space-x-2 text-2xl"
+                        >
+                          <input
+                            type="radio"
+                            name={group.label} // ensures only one option in this group
+                            value={opt.value}
+                            checked={selectedSortType.includes(opt.value)}
+                            onChange={(e) => {
+                              const value = e.target.value;
+                              setSelectedSortType(value); // overwrite with just one
+                            }}
+                            className="
+                            appearance-none w-5 h-5 
+                            border-2 border-gray-400 
+                            checked:bg-red-500 checked:border-red-500 
+                            rounded-full
+                            transition-colors
+                          "
+                          />
+                          <span className="capitalize">{opt.label}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </fieldset>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Filter Modal */}
         <div className="relative">
           {isFilterOpen && (
             <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/40">
@@ -145,7 +282,10 @@ export default function LogHistory({ logServiceRecords }: LogHistoryProps) {
                     onClick={() => setIsFilterOpen(false)}
                     className="flex bg-green-200 px-2 rounded rounded-full"
                   >
-                    <Svg type={"check"} color="green-500" size="md"></Svg> <span className="text-green-500 text-2xl font-semibold pl-1">Done</span>
+                    <Svg type={"check"} color="green-500" size="md"></Svg>{" "}
+                    <span className="text-green-500 text-2xl font-semibold pl-1">
+                      Done
+                    </span>
                   </button>
                 </div>
 
@@ -201,6 +341,11 @@ export default function LogHistory({ logServiceRecords }: LogHistoryProps) {
          />
      </div> */}
       <ul className="w-full mx-auto px-1">
+        {!filteredRecords.length && (
+          <h2 className="mx-4 text-2xl funnel-display-font font-semibold text-center">
+            Oh no! There are no service records for this vehicle yet!
+          </h2>
+        )}
         {filteredRecords.map((record, recordIndex) => (
           <li key={recordIndex} className="mb-3">
             <div className="w-full bg-white rounded-2xl shadow shadow-slate-300/80">

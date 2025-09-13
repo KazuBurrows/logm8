@@ -107,5 +107,11 @@ export interface GroupedOption {
 }
 
 
+export interface SortOption {
+  readonly label: string;
+  readonly options: readonly TaskOption[];
+}
+
+
 
 export {};

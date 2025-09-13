@@ -31,7 +31,8 @@ export interface SvgProps {
     | "file-download2"
     | "file-download3"
     | "inbox-in1"
-    | "inbox-in2";
+    | "inbox-in2"
+    | "sort-1";
   size?: "sm" | "md" | "base" | "lg" | "xl" | "2xl" | "5xl";
   color?:
     | "white"
@@ -211,7 +212,7 @@ export const Svg = ({ type, size, color }: SvgProps) => {
         return "#2563EB";
       case "blue-700":
         return "#1D4ED8";
-      
+
       case "white":
         return "#fff";
 
@@ -660,6 +661,42 @@ export const Svg = ({ type, size, color }: SvgProps) => {
             fill={getColorHex()}
           >
             <path d="M21,12h-3c-1.103,0-2,.897-2,2s-.897,2-2,2h-4c-1.103,0-2-.897-2-2s-.897-2-2-2H3c-1.654,0-3,1.346-3,3v4c0,2.757,2.243,5,5,5h14c2.757,0,5-2.243,5-5v-4c0-1.654-1.346-3-3-3Zm1,7c0,1.654-1.346,3-3,3H5c-1.654,0-3-1.346-3-3v-4c0-.552,.448-1,1-1l3-.002v.002c0,2.206,1.794,4,4,4h4c2.206,0,4-1.794,4-4h3c.552,0,1,.448,1,1v4ZM7.293,7.121c-.391-.391-.391-1.023,0-1.414s1.023-.391,1.414,0l2.293,2.293V1c0-.553,.447-1,1-1s1,.447,1,1v7l2.293-2.293c.391-.391,1.023-.391,1.414,0s.391,1.023,0,1.414l-3.293,3.293c-.387,.387-.896,.582-1.405,.584l-.009,.002-.009-.002c-.509-.002-1.018-.197-1.405-.584l-3.293-3.293Z" />
+          </svg>
+        );
+      case "sort-1":
+        return (
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+            <g
+              id="SVGRepo_tracerCarrier"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            ></g>
+            <g id="SVGRepo_iconCarrier">
+              {" "}
+              <path
+                d="M22 7L9 7M2 7L5 7"
+                stroke={getColorHex()}
+                stroke-width="2.4"
+                stroke-linecap="round"
+              ></path>{" "}
+              <path
+                d="M19 12H16M5 12L12 12"
+                stroke={getColorHex()}
+                stroke-width="2.4"
+                stroke-linecap="round"
+              ></path>{" "}
+              <path
+                d="M16 17H8"
+                stroke={getColorHex()}
+                stroke-width="2.4"
+                stroke-linecap="round"
+              ></path>{" "}
+            </g>
           </svg>
         );
       default:
