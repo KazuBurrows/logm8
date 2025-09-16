@@ -46,9 +46,7 @@ export default function Log() {
       try {
         
         fetch(
-          "https://logmate.azurewebsites.net/api/GetLogData?token=" +
-            token +
-            ""
+          "https://logmate.azurewebsites.net/api/GetLogData?token=" + token + ""
           // "http://localhost:7071/api/GetLogData?token=" + token + ""
         )
         .then((response) => {
