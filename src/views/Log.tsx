@@ -112,16 +112,17 @@ export default function Log() {
 
           setIsRetrievingData(false);
 
-          try {
-            fetch(
-              "https://logmate.azurewebsites.net/api/ConsumeOneLifeUrl?token=" +
-                token +
-                ""
-              // "http://localhost:7071/api/ConsumeOneLifeUrl?token=" + token + ""
-            )
-          } catch {
-            console.log("failed ConsumeOneLifeUrl API call")
-          }
+          // return;
+          // try {
+          //   fetch(
+          //     "https://logmate.azurewebsites.net/api/ConsumeOneLifeUrl?token=" +
+          //       token +
+          //       ""
+          //     "http://localhost:7071/api/ConsumeOneLifeUrl?token=" + token + ""
+          //   )
+          // } catch {
+          //   console.log("failed ConsumeOneLifeUrl API call")
+          // }
         })
         .catch((error) => {
           console.log(error);
