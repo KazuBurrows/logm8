@@ -6,9 +6,11 @@ import { CreateRecord } from "./CreateRecord";
 import { Svg } from "./Svg";
 import { groupedOptions } from "../types/serviceOptions";
 import { sortedOptions } from "../types/sortOptions";
+import { UserMode } from "../views/Log";
 
 export interface LogHistoryProps {
   logServiceRecords: ServiceRecord[];
+  viewMode: string;
 }
 
 function toKm(value: string): number {
@@ -27,7 +29,7 @@ function toKm(value: string): number {
   }
 }
 
-export default function LogHistory({ logServiceRecords }: LogHistoryProps) {
+export default function LogHistory({ logServiceRecords, viewMode }: LogHistoryProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const openModal = () => {
@@ -156,6 +158,7 @@ export default function LogHistory({ logServiceRecords }: LogHistoryProps) {
       className="h-full w-full mx-0 xl:px-80 lg:px-48 md:px-24 sm:px-16 sm:py-16 py-8 bg-slate-100 pb-24"
     >
       {/* Create Record Button START */}
+      {viewMode === UserMode[0] &&
       <Button
         type="button"
         size="small"
@@ -177,6 +180,7 @@ export default function LogHistory({ logServiceRecords }: LogHistoryProps) {
         {/* <h1 className="text-lg font-bold my-3">New</h1> */}
         <Svg type="add1" size="base" color="blue-400" />
       </Button>
+}
       {/* Create Record Button END */}
 
       <div className="relative" ref={dropdownRef}>
@@ -433,11 +437,13 @@ export default function LogHistory({ logServiceRecords }: LogHistoryProps) {
         ))}
       </ul>
 
+      
       <CreateRecord
-        isOpen={isModalOpen}
-        onClose={closeModal}
-        onInsert={updateRecords}
-      ></CreateRecord>
+      isOpen={isModalOpen}
+      onClose={closeModal}
+      onInsert={updateRecords}
+    ></CreateRecord>
+      
     </Section>
   );
 }

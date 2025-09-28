@@ -9,6 +9,11 @@ import { LoadingScreen } from "../componets/LoadingScreen";
 
 // const TTL_DURATION = 45 * 60; // 45 minutes (in seconds)
 
+export enum UserMode {
+  Service = 0,
+  Guest = 1,
+}
+
 const data: ServiceTag = {
   Make: "undefiend",
   Model: "undefiend",
@@ -38,7 +43,7 @@ export default function Log() {
   // State to hold the service logs
   const [serviceRecords, setServiceRecords] = useState<ServiceRecord[]>([]);
 
-
+  const [viewMode, setViewMode] = useState<string>(UserMode[1]);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
@@ -46,8 +51,8 @@ export default function Log() {
       try {
         
         fetch(
-          "https://logmate.azurewebsites.net/api/GetLogData?token=" + token + ""
-          // "http://localhost:7071/api/GetLogData?token=" + token + ""
+          // "https://logmate.azurewebsites.net/api/GetLogData?token=" + token + ""
+          "http://localhost:7071/api/GetLogData?token=" + token + ""
         )
         .then((response) => {
           if (!response.ok) {
@@ -77,17 +82,6 @@ export default function Log() {
           const myRecords: ServiceRecord[] =[];
           try {
             data.records.forEach((record: any) => {
-              
-              // const myCompletedTasks: TaskCompleted[] = [];
-
-              // record["completedTasks"].forEach((task: any) => {
-              //   myCompletedTasks.push({
-              //     Task: task["task"] ?? "",
-              //     Comment: task["comment"] ?? "",
-              //     Receipts: task["receipts"] ?? []
-              //   });
-              // });
-
               myRecords.push({
                 id: "",
                 TagID: "",
@@ -95,8 +89,6 @@ export default function Log() {
                 ServicedDate: record["servicedDate"],
                 MechanicName: record["mechanicName"] ?? "",
                 Odometer: record["odometer"] ?? "",
-                // CompletedTasks: myCompletedTasks,
-                // PendingCompletedTasks: [],
                 ServiceType: record["serviceType"],
                 Comment: record["comment"],
                 FileUrls: record["fileUrls"]
@@ -104,9 +96,21 @@ export default function Log() {
             });
 
             setServiceRecords(myRecords)
+
+            
           } catch {
             setServiceRecords([]);
           }
+
+
+          try {
+            setViewMode(UserMode[data.mode]);
+            console.log("viewMode:", UserMode[data.mode])
+            
+          } catch {
+            setViewMode(UserMode[1]);
+          }
+
 
           setIsRetrievingData(false);
 
@@ -144,6 +148,7 @@ export default function Log() {
           <LogInfo tag={tag}></LogInfo>
           <LogHistory
             logServiceRecords={serviceRecords}
+            viewMode={viewMode}
           ></LogHistory>
         </>
       );
