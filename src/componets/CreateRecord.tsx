@@ -1,18 +1,21 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { LoadingScreen } from "./LoadingScreen";
-import { groupedOptions } from "../types/serviceOptions";
+// import { groupedOptions } from "../types/serviceOptions";
+import CascadingDropdown from "./CascadingDropdown";
 
 export interface CreateRecordProps {
   isOpen: boolean; // Controls if the modal is visible
   onClose: () => void; // Function to close the modal
   onInsert: (newRecord: ServiceRecord) => void;
+  logServiceOptions: ServiceOption[];
 }
 
 /** Primary UI component for user interaction */
 export const CreateRecord = ({
   isOpen,
   onClose,
+  logServiceOptions
 }: // onInsert,
 CreateRecordProps) => {
   const location = useLocation();
@@ -20,7 +23,7 @@ CreateRecordProps) => {
   const token = queryParams.get("token"); // Extract the 'token' value
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [isOptionsOpen, setIsOptionsOpen] = useState(false);
+  // const [isOptionsOpen, setIsOptionsOpen] = useState(false);
 
   const [Token] = useState<string>(token ?? "");
   const [TagId] = useState<string>("");
@@ -29,6 +32,7 @@ CreateRecordProps) => {
   const [Odometer, setOdometer] = useState<string>("");
   const [OdometerMetric, setOdometerMetric] = useState<string>("km");
   const [ServiceType, setServiceType] = useState<string>("");
+  const [selection, setSelection] = useState<any>(null);
   const [Comment, setComment] = useState<string>("");
   const [Files, setFiles] = useState<File[]>([]);
 
@@ -40,6 +44,7 @@ CreateRecordProps) => {
     setComment("");
     setFiles([]);
   };
+
 
   // const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
   //   setServiceType(e.target.value);
@@ -63,6 +68,23 @@ CreateRecordProps) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Helper function to check required fields
+    const isValidForm = (): boolean => {
+      if (!ServicedDate || ServicedDate.trim() === "") return false;
+      if (!MechanicName || MechanicName.trim() === "") return false;
+      if (!Odometer || Odometer.trim() === "") return false;
+      if (!OdometerMetric || OdometerMetric.trim() === "") return false;
+      if (!selection.subitem && !selection.subcategory && !selection.category) return false;
+      if (!selection.serviceType) return false;
+      return true;
+    };
+
+    if (!isValidForm()) {
+      alert("Please fill all required fields before submitting.");
+      return;
+    }
+
+
     const currDate: Date = new Date(); // Current date and time
 
     const formData = new FormData();
@@ -75,7 +97,12 @@ CreateRecordProps) => {
       "Odometer",
       (Odometer?.toString() ?? "0") + " " + OdometerMetric
     );
-    formData.append("ServiceType", ServiceType);
+    // formData.append("ServiceType", ServiceType);
+
+    const name = selection.subitem?.Name ?? selection.subcategory?.Name ?? selection.category?.Name ?? "None";
+    formData.append("ServiceOption", name);
+    formData.append("ServiceType", selection.serviceType);
+
     formData.append("Comment", Comment);
     Files.forEach((File) => {
       formData.append("Files", File);
@@ -84,11 +111,7 @@ CreateRecordProps) => {
     const fetchData = async () => {
       try {
         const response = await fetch(
-          // "https://logmate.azurewebsites.net/api/SubmitRecord?record=" +
-          //   jsonData +
-          //   ""
-          "https://logmate.azurewebsites.net/api/SubmitRecord",
-          {
+          "https://logmate.azurewebsites.net/api/SubmitRecord", {
             method: "POST",
             body: formData,
           }
@@ -256,56 +279,8 @@ CreateRecordProps) => {
             <div className="w-full"></div>
           </div>
 
-          <div className="relative">
-            {/* Trigger button */}
-            <div
-              className="w-full p-2 border rounded capitalize bg-white"
-              onClick={() => setIsOptionsOpen(true)}
-            >
-              {ServiceType || "Select a task..."}
-            </div>
-
-            {/* Full screen dropdown */}
-            {isOptionsOpen && (
-              <div className="fixed inset-0 z-50 bg-black/40 flex flex-col">
-                <div className="bg-white w-full h-full p-4 overflow-y-auto">
-                  <div className="flex justify-between items-center mb-4">
-                    <h2 className="font-bold">Select a Task</h2>
-                    <button
-                      onClick={() => setIsOptionsOpen(false)}
-                      className="text-blue-500 font-semibold"
-                    >
-                      Done
-                    </button>
-                  </div>
-
-                  {groupedOptions.map((group) => (
-                    <div key={group.label} className="mb-6">
-                      <h3 className="text-gray-600 font-semibold mb-2">
-                        {group.label}
-                      </h3>
-                      <ul className="space-y-2">
-                        {group.options.map((option) => (
-                          <li
-                            key={option.value}
-                            onClick={() => {
-                              setServiceType(option.value);
-                              setIsOptionsOpen(false);
-                            }}
-                            className={`p-2 border rounded cursor-pointer hover:bg-blue-100 ${
-                              ServiceType === option.value ? "bg-blue-200" : ""
-                            }`}
-                          >
-                            {option.label}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
+          
+          <CascadingDropdown logServiceOptions={logServiceOptions} onChange={(selected) => setSelection(selected)} />
 
           <div>
             <textarea

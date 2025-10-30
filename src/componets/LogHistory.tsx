@@ -7,14 +7,16 @@ import { Svg } from "./Svg";
 import { groupedOptions } from "../types/serviceOptions";
 import { sortedOptions } from "../types/sortOptions";
 import { UserMode } from "../views/Log";
+// import CascadingDropdown from "./CascadingDropdown";
 
 export interface LogHistoryProps {
   logServiceRecords: ServiceRecord[];
+  logServiceOptions: ServiceOption[];
   viewMode: string;
 }
 
 function toKm(value: string): number {
-  const [valueStr, metric] = value.split(" ")
+  const [valueStr, metric] = value.split(" ");
   switch (metric) {
     case "km":
       return parseInt(valueStr);
@@ -29,7 +31,36 @@ function toKm(value: string): number {
   }
 }
 
-export default function LogHistory({ logServiceRecords, viewMode }: LogHistoryProps) {
+// Neon/futuristic color scheme for each service type
+const serviceTypeClasses: Record<string, string> = {
+  Maintenance: "text-white bg-blue-900/50",
+  Replacement: "text-white bg-red-900/50",
+  Inspection: "text-white bg-green-900/50",
+  Adjustment: "text-white bg-yellow-900/50",
+  Tune: "text-white bg-purple-900/50",
+};
+
+const serviceStatClasses: Record<string, string> = {
+  Maintenance: "text-white bg-blue-700/60",
+  Replacement: "text-white bg-red-700/60",
+  Inspection: "text-white bg-green-700/60",
+  Adjustment: "text-white bg-yellow-700/60",
+  Tune: "text-white bg-purple-700/60",
+};
+
+const glowClasses: Record<string, string> = {
+  Maintenance: "drop-shadow-[0_0_2px_rgba(59,130,246,0.7)]",
+  Replacement: "drop-shadow-[0_0_2px_rgba(248,113,113,0.7)]",
+  Inspection: "drop-shadow-[0_0_2px_rgba(34,197,94,0.7)]",
+  Adjustment: "drop-shadow-[0_0_2px_rgba(253,224,71,0.7)]",
+  Tune: "drop-shadow-[0_0_2px_rgba(139,92,246,0.7)]",
+};
+
+export default function LogHistory({
+  logServiceRecords,
+  viewMode,
+  logServiceOptions,
+}: LogHistoryProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const openModal = () => {
@@ -38,6 +69,9 @@ export default function LogHistory({ logServiceRecords, viewMode }: LogHistoryPr
   const closeModal = () => setIsModalOpen(false);
 
   const [expandedItemId, setExpandedItemId] = useState<string | null>(null);
+  const [serviceRecordStats, setServiceRecordStats] = useState<
+    [number, number, number, number, number]
+  >([0, 0, 0, 0, 0]);
 
   const toggleInfo = (id: string) => {
     setExpandedItemId(expandedItemId === id ? null : id); // Toggle logic
@@ -64,17 +98,17 @@ export default function LogHistory({ logServiceRecords, viewMode }: LogHistoryPr
   //     return longDate;
   //   };
 
-  const formattedShortDate = (strDate: string) => {
-    const rawDate = new Date(strDate);
+  // const formattedShortDate = (strDate: string) => {
+  //   const rawDate = new Date(strDate);
 
-    const shortDate = rawDate.toLocaleDateString("en-NZ", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-    }); // "04/03/2025"
+  //   const shortDate = rawDate.toLocaleDateString("en-NZ", {
+  //     day: "2-digit",
+  //     month: "2-digit",
+  //     year: "numeric",
+  //   }); // "04/03/2025"
 
-    return shortDate;
-  };
+  //   return shortDate;
+  // };
 
   const [selectedSortType, setSelectedSortType] = useState<string>("");
   const sortedRecords = React.useMemo(() => {
@@ -82,23 +116,17 @@ export default function LogHistory({ logServiceRecords, viewMode }: LogHistoryPr
 
     switch (selectedSortType) {
       case "Service Name A-Z":
-        records.sort((a, b) => a.ServiceType.localeCompare(b.ServiceType));
+        records.sort((a, b) => a.ServiceOption.localeCompare(b.ServiceOption));
         break;
       case "Service Name Z-A":
-        records.sort((a, b) => b.ServiceType.localeCompare(a.ServiceType));
+        records.sort((a, b) => b.ServiceOption.localeCompare(a.ServiceOption));
         break;
       case "Odometer High-Low":
-        records.sort(
-          (a, b) => 
-            toKm(b.Odometer) - toKm(a.Odometer)
-        );
+        records.sort((a, b) => toKm(b.Odometer) - toKm(a.Odometer));
         break;
 
       case "Odometer Low-High":
-        records.sort(
-          (a, b) => 
-            toKm(a.Odometer) - toKm(b.Odometer)
-        );
+        records.sort((a, b) => toKm(a.Odometer) - toKm(b.Odometer));
         break;
       case "Serviced Date New-Old":
         records.sort(
@@ -127,7 +155,7 @@ export default function LogHistory({ logServiceRecords, viewMode }: LogHistoryPr
   );
   const filteredRecords = selectedServiceTypes.length
     ? sortedRecords.filter((record) =>
-        selectedServiceTypes.includes(record.ServiceType)
+        selectedServiceTypes.includes(record.ServiceOption)
       )
     : sortedRecords;
 
@@ -152,18 +180,52 @@ export default function LogHistory({ logServiceRecords, viewMode }: LogHistoryPr
     };
   }, [isFilterOpen]);
 
+  useEffect(() => {
+    // Copy the current stats
+    const tempServiceRecordStats: [number, number, number, number, number] = [
+      ...serviceRecordStats,
+    ];
+
+    // Count service types
+    serviceRecords.forEach((service) => {
+      switch (service.ServiceType) {
+        case "Maintenance":
+          tempServiceRecordStats[0] += 1;
+          break;
+        case "Replacement":
+          tempServiceRecordStats[1] += 1;
+          break;
+        case "Inspection":
+          tempServiceRecordStats[2] += 1;
+          break;
+        case "Adjustment":
+          tempServiceRecordStats[3] += 1;
+          break;
+        case "Tune":
+          tempServiceRecordStats[4] += 1;
+          break;
+        default:
+          console.warn("Unknown service type:", service.ServiceType);
+          break;
+      }
+    });
+
+    // Update state once
+    setServiceRecordStats(tempServiceRecordStats);
+  }, [serviceRecords]);
+
   return (
     <Section
       id={""}
-      className="h-full w-full mx-0 xl:px-80 lg:px-48 md:px-24 sm:px-16 sm:py-16 py-8 bg-slate-100 pb-24"
+      className="h-full w-full mx-0 xl:px-80 lg:px-48 md:px-24 sm:px-16 sm:py-16 py-2 bg-slate-950 pb-24 relative overflow-hidden z-20"
     >
       {/* Create Record Button START */}
-      {viewMode === UserMode[0] &&
-      <Button
-        type="button"
-        size="small"
-        onClick={() => openModal()}
-        className="
+      {viewMode === UserMode[0] && (
+        <Button
+          type="button"
+          size="small"
+          onClick={() => openModal()}
+          className="
           fixed bottom-8 right-8
           w-18 h-18 
           rounded-full
@@ -176,25 +238,134 @@ export default function LogHistory({ logServiceRecords, viewMode }: LogHistoryPr
           shadow-[0_0_5px_5px_rgba(59,130,246,0.3)]
           z-10
         "
-      >
-        {/* <h1 className="text-lg font-bold my-3">New</h1> */}
-        <Svg type="add1" size="base" color="blue-400" />
-      </Button>
-}
+        >
+          {/* <h1 className="text-lg font-bold my-3">New</h1> */}
+          <Svg type="add1" size="base" color="blue-400" />
+        </Button>
+      )}
       {/* Create Record Button END */}
 
+      <div className="w-full mx-auto pb-8">
+        <div className="flex flex-col w-full bg-white/10 rounded-xl p-4 text-white space-y-1">
+          {/* Bar 1 */}
+          <div>
+            <div className="flex justify-between mb-1 text-sm">
+              <span>Maintenance</span>
+              <span>{serviceRecordStats[0]}</span>
+            </div>
+            <div className="w-full bg-slate-950 rounded-full h-1">
+              <div
+                className={`${serviceStatClasses["Maintenance"] || ""} ${
+                  glowClasses["Maintenance"] || ""
+                } h-1 rounded-full`}
+                style={{
+                  width: `${
+                    (serviceRecordStats[0] / Math.max(...serviceRecordStats)) *
+                    100
+                  }%`,
+                }}
+              />
+            </div>
+          </div>
+
+          {/* Bar 2 */}
+          <div>
+            <div className="flex justify-between mb-1 text-sm">
+              <span>Replacement</span>
+              <span>{serviceRecordStats[1]}</span>
+            </div>
+            <div className="w-full bg-slate-950 rounded-full h-1">
+              <div
+                className={`${serviceStatClasses["Replacement"] || ""} ${
+                  glowClasses["Replacement"] || ""
+                } h-1 rounded-full`}
+                style={{
+                  width: `${
+                    (serviceRecordStats[1] / Math.max(...serviceRecordStats)) *
+                    100
+                  }%`,
+                }}
+              />
+            </div>
+          </div>
+
+          {/* Bar 3 */}
+          <div>
+            <div className="flex justify-between mb-1 text-sm">
+              <span>Inspection</span>
+              <span>{serviceRecordStats[2]}</span>
+            </div>
+            <div className="w-full bg-slate-950 rounded-full h-1">
+              <div
+                className={`${serviceStatClasses["Inspection"] || ""} ${
+                  glowClasses["Inspection"] || ""
+                } h-1 rounded-full`}
+                style={{
+                  width: `${
+                    (serviceRecordStats[2] / Math.max(...serviceRecordStats)) *
+                    100
+                  }%`,
+                }}
+              />
+            </div>
+          </div>
+
+          {/* Bar 4 */}
+          <div>
+            <div className="flex justify-between mb-1 text-sm">
+              <span>Adjustment</span>
+              <span>{serviceRecordStats[3]}</span>
+            </div>
+            <div className="w-full bg-slate-950 rounded-full h-1">
+              <div
+                className={`${serviceStatClasses["Adjustment"] || ""} ${
+                  glowClasses["Adjustment"] || ""
+                } h-1 rounded-full`}
+                style={{
+                  width: `${
+                    (serviceRecordStats[3] / Math.max(...serviceRecordStats)) *
+                    100
+                  }%`,
+                }}
+              />
+            </div>
+          </div>
+
+          {/* Bar 5 */}
+          <div>
+            <div className="flex justify-between mb-1 text-sm">
+              <span>Tune</span>
+              <span>{serviceRecordStats[4]}</span>
+            </div>
+            <div className="w-full bg-slate-950 rounded-full h-1">
+              <div
+                className={`${serviceStatClasses["Tune"] || ""} ${
+                  glowClasses["Tune"] || ""
+                } h-1 rounded-full`}
+                style={{
+                  width: `${
+                    (serviceRecordStats[4] / Math.max(...serviceRecordStats)) *
+                    100
+                  }%`,
+                }}
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div className="relative" ref={dropdownRef}>
-        <div className="flex">
+        <div className="flex px-2">
           <button
             type="button"
-            className="w-[40px] border border-gray-200 rounded-2xl px-1 py-1 bg-white text-center ml-auto mb-1 mr-1"
+            className="w-[40px] rounded-2xl px-1 py-1 bg-white/10 text-center ml-auto mb-1 mr-1"
             onClick={() => setIsSortOpen(!isSortOpen)}
           >
-            <Svg type="sort-1" size="2xl" color="slate-600" />
+            <Svg type="sort-1" size="2xl" color="white" />
           </button>
           <button
             type="button"
-            className="w-[130px] border border-gray-200 rounded-2xl px-4 py-1 bg-white text-center mb-1"
+            className="w-[130px] rounded-2xl px-4 py-1 bg-white/10 text-center mb-1 text-white"
             onClick={() => setIsFilterOpen(!isFilterOpen)}
           >
             {selectedServiceTypes.length > 0
@@ -343,107 +514,135 @@ export default function LogHistory({ logServiceRecords, viewMode }: LogHistoryPr
              className={"bg-rose-500 text-white my-8 font-bold"}
              label="Download PDF"
          />
-     </div> */}
-      <ul className="w-full mx-auto px-1">
+      </div> */}
+      <ul className="w-full mx-auto px-2">
         {!filteredRecords.length && (
           <h2 className="mx-4 text-2xl funnel-display-font font-semibold text-center">
             Oh no! There are no service records for this vehicle yet!
           </h2>
         )}
-        {filteredRecords.map((record, recordIndex) => (
-          <li key={recordIndex} className="mb-3">
-            <div className="w-full bg-white rounded-2xl shadow shadow-slate-300/80">
+        {filteredRecords.map((record, recordIndex) => {
+          return (
+            <li key={recordIndex} className="mb-1">
               <div
-                key={recordIndex.toString()}
-                className="w-full cursor-pointer"
-                onClick={() => toggleInfo(recordIndex.toString())}
+                className={`w-full rounded-xl shadow-lg bg-black/60 backdrop-blur-md funnel-display-font leading-none ${
+                  serviceTypeClasses[record.ServiceType] || ""
+                }`}
               >
-                {/* Row */}
-                <div className="flex flex-wrap sm:flex-nowrap items-center py-2 px-2 sm:px-8">
-                  {/* Button column */}
-                  <div className="px-2">
-                    <Button label="" className="" type="button" size="small">
-                      <Svg type="marker3" size="md" color="rose-400" />
+                <div
+                  className="w-full cursor-pointer"
+                  onClick={() => toggleInfo(recordIndex.toString())}
+                >
+                  {/* Record content */}
+                  <div className="flex flex-col py-3 px-4 sm:px-8">
+                    {/* Line 1: Service Option */}
+                    <div className="font-semibold capitalize text-xl text-white tracking-wide mb-1">
+                      {record.ServiceOption}
+                    </div>
+
+                    {/* Line 2: Month + Year (left) and Service Type (right) */}
+                    <div className="flex justify-between items-center">
+                      <div className="flex flex-col text-left text-white/80">
+                        {(() => {
+                          const date = new Date(record.ServicedDate);
+                          const months = [
+                            "Jan",
+                            "Feb",
+                            "Mar",
+                            "Apr",
+                            "May",
+                            "Jun",
+                            "Jul",
+                            "Aug",
+                            "Sep",
+                            "Oct",
+                            "Nov",
+                            "Dec",
+                          ];
+                          const month = months[date.getMonth()];
+                          const year = date.getFullYear();
+
+                          return (
+                            <>
+                              <div className="text-sm uppercase tracking-wider text-white/25">
+                                {month}{" "}
+                                <span className="text-white/50">{year}</span>
+                              </div>
+                              <div className="text-sm capitalize tracking-wider text-white/25">
+                                {record.Odometer}
+                              </div>
+                            </>
+                          );
+                        })()}
+                      </div>
+
+                      <div
+                        className={`text-sm font-thin capitalize px-3 py-1 rounded-full ${
+                          serviceTypeClasses[record.ServiceType] ||
+                          "text-gray-400 bg-gray-800/20"
+                        } ${glowClasses[record.ServiceType] || ""}`}
+                      >
+                        {record.ServiceType}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Expand Button */}
+                  <div className="flex justify-center">
+                    <Button
+                      className="mx-auto flex p-0 m-[-25px] translate-y-[-13px]"
+                      type="button"
+                      size="small"
+                      onClick={toggleInfo}
+                      param={recordIndex.toString()}
+                    >
+                      <Svg type="angle-small-down2" size="md" color="white" />
                     </Button>
                   </div>
 
-                  {/* Task name */}
-                  <div className="mr-auto w-5/12">
-                    <div className="overflow-hidden text-ellipsis whitespace-nowrap px-2 capitalize font-semibold">
-                      {record.ServiceType}
-                    </div>
-                    <div className="px-2 text-gray-400 text-sm font-semibold">
-                      {record.Odometer}
-                    </div>
-                  </div>
-
-                  {/* Comment - visible on large screens */}
-                  <div className="w-1/4 px-2 hidden md:block truncate">
-                    {record.Comment}
-                  </div>
-
-                  <div className="px-4 text-right justify-end h-10 w-2/6">
-                    <div className="font-semibold">
-                      {formattedShortDate(record.ServicedDate)}
-                    </div>
-                    <div className="text-right text-gray-400 text-sm font-semibold truncate">
-                      {record.MechanicName}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex">
-                  <Button
-                    className="mx-auto flex p-0 m-[-25px] translate-y-[-13px]"
-                    type="button"
-                    size="small"
-                    onClick={toggleInfo}
-                    param={recordIndex.toString()}
-                  >
-                    <Svg type="angle-small-down2" size="md" color="slate-700" />
-                  </Button>
-                </div>
-                {/* Expanded section */}
-                {expandedItemId === recordIndex.toString() && (
-                  <div className="bg-slate-200 text-gray-700 text-center py-2 px-2 sm:px-8 rounded-b-2xl">
-                    <div>{record.Comment}</div>
-                    <div className="px-4 py-2 flex flex-wrap gap-4">
-                      {record.FileUrls?.map((fileUrl, fileIndex) => (
-                        <li
-                          key={fileIndex}
-                          className="list-none inline-flex px-2"
-                        >
-                          <a
-                            href={fileUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-center text-sky-600 text-lg roboto-flex-font"
+                  {/* Expanded section */}
+                  {expandedItemId === recordIndex.toString() && (
+                    <div className="bg-black/30 text-white/80 text-left py-2 px-4 sm:px-8 rounded-b-2xl border-t border-gray-700">
+                      <div className="text-sm text-white/90 font-thin">
+                        {record.Comment}
+                      </div>
+                      <div className="px-4 py-2 flex flex-wrap gap-4">
+                        {record.FileUrls?.map((fileUrl, fileIndex) => (
+                          <li
+                            key={fileIndex}
+                            className="list-none inline-flex px-2"
                           >
-                            <Svg
-                              type="file-download1"
-                              size="2xl"
-                              color="sky-600"
-                            />
-                            File {fileIndex + 1}
-                          </a>
-                        </li>
-                      ))}
+                            <a
+                              href={fileUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-center text-cyan-400 hover:text-cyan-300 text-lg roboto-flex-font flex items-center gap-1"
+                            >
+                              <Svg
+                                type="file-download1"
+                                size="2xl"
+                                color="sky-300"
+                              />
+                              File {fileIndex + 1}
+                            </a>
+                          </li>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
-            </div>
-          </li>
-        ))}
+            </li>
+          );
+        })}
       </ul>
 
-      
       <CreateRecord
-      isOpen={isModalOpen}
-      onClose={closeModal}
-      onInsert={updateRecords}
-    ></CreateRecord>
-      
+        isOpen={isModalOpen}
+        onClose={closeModal}
+        onInsert={updateRecords}
+        logServiceOptions={logServiceOptions}
+      ></CreateRecord>
     </Section>
   );
 }

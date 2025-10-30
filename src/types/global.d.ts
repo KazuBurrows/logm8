@@ -12,6 +12,7 @@ declare global {
     MechanicName: string;
     Odometer: string;
     ServiceType: string;
+    ServiceOption: string;
     Comment: string;
     FileUrls: string[];
     // CompletedTasks: TaskCompleted[];
@@ -19,19 +20,14 @@ declare global {
     Certified?: boolean;
   }
   
-  interface TaskCompleted
-  {
-    Task: string;
-    Comment: string;
-    Receipts: string[];
+  interface ServiceOption {
+    Id: number;
+    Name: string;
+    Description: string;
+    Children: ServiceOption[];
+    ServiceTypes: string[];
   }
 
-  interface PendingTaskCompleted
-  {
-    Task: string;
-    Comment: string;
-    Receipts: File[];
-  }
 
 
   interface Task {
@@ -55,7 +51,7 @@ declare global {
     Vehicle: string;
     Style: string;
     Engine: number;
-    Fuel: string;
+    Fuel: string[];
     Transmission: string;
     Color: string;
     VinNumber: string | null;

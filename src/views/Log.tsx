@@ -21,7 +21,7 @@ const data: ServiceTag = {
   Vehicle: "undefiend",
   Style: "undefiend",
   Engine: 0,
-  Fuel: "undefiend",
+  Fuel: ["undefiend"],
   Transmission: "undefiend",
   Color: "undefiend",
   VinNumber: "undefiend",
@@ -42,6 +42,8 @@ export default function Log() {
   const [tag, setTag] = useState<ServiceTag>(data);
   // State to hold the service logs
   const [serviceRecords, setServiceRecords] = useState<ServiceRecord[]>([]);
+  const [serviceOptions, setServiceOptions] = useState<ServiceOption[]>([]);
+
 
   const [viewMode, setViewMode] = useState<string>(UserMode[1]);
 
@@ -91,18 +93,18 @@ export default function Log() {
                 Odometer: record["odometer"] ?? "",
                 ServiceType: record["serviceType"],
                 Comment: record["comment"],
-                FileUrls: record["fileUrls"]
+                FileUrls: record["fileUrls"],
+                ServiceOption: record["serviceOption"],
               });
             });
 
             setServiceRecords(myRecords)
-
             
           } catch {
             setServiceRecords([]);
           }
 
-
+          console.log("myRecords", myRecords)
           try {
             setViewMode(UserMode[data.mode]);
             console.log("viewMode:", UserMode[data.mode])
@@ -136,6 +138,29 @@ export default function Log() {
     };
 
     fetchData();
+
+    const fetchServiceOptions = async () => {
+      try {
+        
+       await fetch(
+          "https://logmate.azurewebsites.net/api/GetMotorbikeOptions"
+          // "http://localhost:7071/api/GetMotorbikeOptions"
+        )
+        .then(async (response) => {
+          if (!response.ok) throw new Error("Failed to fetch");
+          const json = await response.json();
+          setServiceOptions(json);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+
+      } catch (err: any) {
+        console.log(err);
+      }
+    };
+
+    fetchServiceOptions();
   }, [navigate, token]);
 
 
@@ -145,11 +170,16 @@ export default function Log() {
     } else {
       return (
         <>
+        <div className="relative overflow-hidden bg-slate-950">
+
+          
           <LogInfo tag={tag}></LogInfo>
           <LogHistory
             logServiceRecords={serviceRecords}
+            logServiceOptions={serviceOptions}
             viewMode={viewMode}
           ></LogHistory>
+          </div>
         </>
       );
     }

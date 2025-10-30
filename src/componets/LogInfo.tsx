@@ -3,7 +3,6 @@
 import { useState } from "react";
 import EditTag from "./EditTag";
 import { Section } from "./Section";
-import { SimpleSwipeSlider } from "./SimpleSwipeSlider";
 // const bg1 = require("../assets/bg-detail.svg");
 const logmateLogo = require("../assets/logmate-logo.png");
 
@@ -17,154 +16,88 @@ export default function LogInfo({ tag }: LogInfoProps) {
     setEditTagIsOpen(true);
   };
   const closeEditTag = () => {
-    console.log("test")
+    console.log("test");
     setEditTagIsOpen(false);
   };
   return (
     <>
-      <EditTag isOpen={editTagIsOpen} onClose={closeEditTag} tag={tag}></EditTag>
-<Section
-      id={""}
-      className="relative h-[calc(100vh-3rem)] pt-8 azeret-mono-font text-white bg-zinc-900 overflow-hidden"
-    >
-      <div className="w-11/12 flex mx-auto">
-        <p className="electrolize-font text-lg">logm8</p>
-        <img
-          src={logmateLogo}
-          alt="logm8-logo"
-          className="h-12 ml-auto z-20 bg-blue-500 bg-opacity-10 rounded rounded-full"
-          onClick={() => openEditTag()}
-        ></img>
-      </div>
+      <EditTag
+        isOpen={editTagIsOpen}
+        onClose={closeEditTag}
+        tag={tag}
+      ></EditTag>
+      <Section
+        id={""}
+        className="relative h-full pt-8 azeret-mono-font text-white bg-slate-950 overflow-hidden rounded-b-3xl"
+      >
+        {/* Vignette overlay */}
+        <div className="absolute inset-0 h-screen w-screen bg-[linear-gradient(to_bottom,_rgba(28,51,182,0.7)_0%,_rgba(28,51,182,0)_90%)] pointer-events-none z-10" />
       
-
-      {/* Background image */}
-      <div
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat z-0 lg:scale-[1.5] scale-[4] opacity-40"
-        style={{ backgroundImage: `url('/bg-detail.svg')` }}
-      ></div>
-
-      {/* Vignette overlay */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle,_rgba(255,255,255,0.0)_80%,_rgba(255,255,255,0.5)_150%)] pointer-events-none z-10" />
-      {/* Horizontal shadow from right to left */}
-      {/* <div className="absolute inset-0 bg-[linear-gradient(to_left,_rgba(242,239,230,0.5),_transparent)] pointer-events-none z-10" /> */}
-
-      {/* DESKTOP START */}
-      <div className="md:block w-9/12 mx-auto pt-16 hidden tracking-tight">
-        <h1 className="text-5xl font-semibold leading-none pt-8 text-shadow-md">
-          {tag.Make}
-        </h1>
-        <h3 className="text-8xl font-bold leading-[0.8] text-shadow-md [word-spacing:-.4em]">
-          {tag.Model}
-        </h3>
-
-        <h3 className="text-2xl font-normal leading-1 text-shadow-md">
-          {tag.Year} <span className="mx-5" /> {tag.Engine}cc
-          <span className="mx-5" /> {tag.Transmission}
-        </h3>
-
-         <div className="text-center">
-          <SimpleSwipeSlider
-            slides={[
-              <div key="year">
-                <p className="text-base md:text-lg">Year</p>
-                <h3 className="text-2xl sm:text-4xl font-semibold leading-none text-shadow">
-                  {tag.Year}
-                </h3>
-              </div>,
-              <div key="engine">
-                <p>Engine</p>
-                <h3 className="text-2xl font-normal leading-none text-shadow">
-                  {tag.Engine}cc
-                </h3>
-              </div>,
-              <div key="fuel">
-                <p>Fuel</p>
-                <h3 className="text-2xl font-normal leading-none text-shadow">
-                  {tag.Fuel}
-                </h3>
-              </div>,
-              <div key="transmission">
-                <p>Transmission</p>
-                <h3 className="text-2xl font-normal leading-none text-shadow">
-                  {tag.Transmission}
-                </h3>
-              </div>,
-              <div key="colour">
-                <p>Colour</p>
-                <h3 className="text-2xl font-normal leading-none text-shadow">
-                  {tag.Color}
-                </h3>
-              </div>,
-            ]}
-          />
-        </div>
-      </div>
-      {/* DESKTOP END */}
-      
-      {/* MOBILE START */}
-      <div className="w-11/12 mx-auto pt-12 md:hidden tracking-tight text-left z-10 relative electrolize-font">
-        <h1 className="h-md:text-8xl h-sm:text-7xl text-6xl leading-none pt-4 text-shadow">{tag.Make}</h1>
-        <h3 className="font-black leading-none h-md:text-9xl h-sm:text-8xl text-6xl text-shadow-white-lg [word-spacing:-.4em] azeret-mono-font">
-          {tag.Model}
-        </h3>
-        <div className="my-12"></div>
-        <div className="w-full text-center">
-          <SimpleSwipeSlider
-            slides={[
-              <div key="year">
-                <p className="h-md:text-xl h-sm:text-lg text-base">Year</p>
-                <h3 className="h-sm:text-3xl text-2xl font-semibold leading-none text-shadow">
-                  {tag.Year}
-                </h3>
-              </div>,
-              <div key="engine">
-                <p className="h-md:text-xl h-sm:text-lg text-base">Engine</p>
-                <h3 className="h-sm:text-3xl text-2xl font-normal leading-none text-shadow">
-                  {tag.Engine}cc
-                </h3>
-              </div>,
-              <div key="fuel">
-                <p className="h-md:text-xl h-sm:text-lg text-base">Fuel</p>
-                <h3 className="h-sm:text-3xl text-2xl font-normal leading-none text-shadow">
-                  {tag.Fuel}
-                </h3>
-              </div>,
-              <div key="transmission">
-                <p className="h-md:text-xl h-sm:text-lg text-base">Transmission</p>
-                <h3 className="h-sm:text-3xl text-2xl font-normal leading-none text-shadow">
-                  {tag.Transmission}
-                </h3>
-              </div>,
-              <div key="colour">
-                <p className="h-md:text-xl h-sm:text-lg text-base">Colour</p>
-                <h3 className="h-sm:text-3xl text-2xl font-normal leading-none text-shadow">
-                  {tag.Color}
-                </h3>
-              </div>,
-            ]}
-          />
-        </div>
-
-
-        <div className="text-left pt-4">
-          <div className="py-1">
-            <p className="h-md:text-lg h-sm:text-md text-sm">Vin Number</p>
-            <h3 className="h-md:text-xl h-sm:text-lg text-md leading-none text-shadow">
-              {tag.VinNumber ?? "N/A"}
+        {/* MOBILE START */}
+        <div className="w-full mx-auto my-4 px-2 tracking-tight text-center z-10 relative funnel-display-font">
+            <img
+              src={logmateLogo}
+              alt="logm8-logo"
+              className="h-12 mx-auto z-20 bg-blue-500/5 rounded rounded-full"
+              onClick={() => openEditTag()}
+            ></img>
+            <h1 className="h-md:text-8xl h-sm:text-7xl text-6xl leading-none pt-4 text-shadow font-semibold">
+              {tag.Make}
+            </h1>
+            <h3 className="font-black leading-none h-md:text-4xl h-sm:text-3xl text-2xl text-shadow-white-lg">
+              {tag.Model}
             </h3>
-          </div>
-          <div className="py-1">
-            <p className="h-md:text-lg h-sm:text-md text-sm">Licence Plate</p>
-            <h3 className="h-md:text-xl h-sm:text-lg text-md leading-none text-shadow">
-              {tag.LicencePlate ?? "N/A"}
+            <h3 className="font-normal leading-none h-md:text-3xl h-sm:text-2xl text-xl">
+              {tag.Color}
             </h3>
-          </div>
+
+            <div className="w-full flex flex-col items-center text-center mt-12 space-y-1">
+              {/* Top row: Year + Engine */}
+              <div className="flex items-center justify-between w-full max-w-3xl border border-[1.6px] border-white/40 rounded-xl p-1">
+                <div className="h-md:text-2xl h-sm:text-xl text-md font-normal rounded-lg px-12 py-1">
+                  {tag.Year}
+                </div>
+                <div className="h-md:text-2xl h-sm:text-xl text-md font-normal rounded-lg px-12 py-1">
+                  {tag.Engine}cc
+                </div>
+              </div>
+
+              {/* Bottom: Transmission */}
+              <div className="h-md:text-2xl h-sm:text-xl w-full max-w-3xl bg-white/10 rounded-xl px-6 py-2 text-d font-normal uppercase">
+                {tag.Transmission}
+              </div>
+
+              <div className="flex items-center justify-between w-full max-w-3xl border border-[1.6px] border-white/40 rounded-xl p-1">
+                <div className="h-md:text-2xl h-sm:text-xl text-md font-normal rounded-lg pl-12 py-1">
+                  Fuel
+                </div>
+                <div className="h-md:text-2xl h-sm:text-xl text-md font-normal rounded-lg px-12 py-1">
+                  {tag.Fuel.map((x) => {
+                    return <li>{x}</li>;
+                  })}
+                </div>
+              </div>
+            </div>
+
+            <div className="text-left pt-1">
+              <div className="py-1">
+                <p className="text-sm">Vin Number</p>
+                <h3 className="text-sm leading-none text-shadow">
+                  {tag.VinNumber ?? "N/A"}
+                </h3>
+              </div>
+              <div className="py-1">
+                <p className="text-sm">
+                  Licence Plate
+                </p>
+                <h3 className="text-sm leading-none text-shadow">
+                  {tag.LicencePlate ?? "N/A"}
+                </h3>
+              </div>
+            </div>
         </div>
-      </div>
-      {/* MOBILE END */}
-    </Section>
+        {/* MOBILE END */}
+      </Section>
     </>
-    
   );
 }
