@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useLocation } from "react-router-dom";
 import { LoadingScreen } from "./LoadingScreen";
 // import { groupedOptions } from "../types/serviceOptions";
@@ -31,7 +31,7 @@ CreateRecordProps) => {
   const [MechanicName, setMechanicName] = useState<string>("");
   const [Odometer, setOdometer] = useState<string>("");
   const [OdometerMetric, setOdometerMetric] = useState<string>("km");
-  const [ServiceType, setServiceType] = useState<string>("");
+  // const [ServiceType, setServiceType] = useState<string>("");
   const [selection, setSelection] = useState<any>(null);
   const [Comment, setComment] = useState<string>("");
   const [Files, setFiles] = useState<File[]>([]);
@@ -40,7 +40,7 @@ CreateRecordProps) => {
     // setServicedDate("");
     // setOdometer("");
     setOdometerMetric("km"); // reset to default
-    setServiceType("");
+    // setServiceType("");
     setComment("");
     setFiles([]);
   };

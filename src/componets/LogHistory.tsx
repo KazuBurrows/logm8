@@ -181,12 +181,10 @@ export default function LogHistory({
   }, [isFilterOpen]);
 
   useEffect(() => {
-    // Copy the current stats
     const tempServiceRecordStats: [number, number, number, number, number] = [
-      ...serviceRecordStats,
+      0, 0, 0, 0, 0,
     ];
 
-    // Count service types
     serviceRecords.forEach((service) => {
       switch (service.ServiceType) {
         case "Maintenance":
@@ -210,7 +208,6 @@ export default function LogHistory({
       }
     });
 
-    // Update state once
     setServiceRecordStats(tempServiceRecordStats);
   }, [serviceRecords]);
 
