@@ -11,6 +11,7 @@ declare global {
     ServicedDate: string;
     MechanicName: string;
     Odometer: string;
+    ServiceCategory: string;
     ServiceType: string;
     ServiceOption: string;
     Comment: string;

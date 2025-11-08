@@ -12,6 +12,7 @@ import { UserMode } from "../views/Log";
 export interface LogHistoryProps {
   logServiceRecords: ServiceRecord[];
   logServiceOptions: ServiceOption[];
+  logOwnershipOptions: ServiceOption[];
   viewMode: string;
 }
 
@@ -60,6 +61,7 @@ export default function LogHistory({
   logServiceRecords,
   viewMode,
   logServiceOptions,
+  logOwnershipOptions,
 }: LogHistoryProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -639,6 +641,7 @@ export default function LogHistory({
         onClose={closeModal}
         onInsert={updateRecords}
         logServiceOptions={logServiceOptions}
+        logOwnershipOptions={logOwnershipOptions}
       ></CreateRecord>
     </Section>
   );

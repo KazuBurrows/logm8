@@ -43,6 +43,7 @@ export default function Log() {
   // State to hold the service logs
   const [serviceRecords, setServiceRecords] = useState<ServiceRecord[]>([]);
   const [serviceOptions, setServiceOptions] = useState<ServiceOption[]>([]);
+  const [ownershipOptions, setOwnershipOptions] = useState<ServiceOption[]>([]);
 
 
   const [viewMode, setViewMode] = useState<string>(UserMode[1]);
@@ -91,6 +92,7 @@ export default function Log() {
                 ServicedDate: record["servicedDate"],
                 MechanicName: record["mechanicName"] ?? "",
                 Odometer: record["odometer"] ?? "",
+                ServiceCategory: record["serviceCategory"],
                 ServiceType: record["serviceType"],
                 Comment: record["comment"],
                 FileUrls: record["fileUrls"],
@@ -149,7 +151,9 @@ export default function Log() {
         .then(async (response) => {
           if (!response.ok) throw new Error("Failed to fetch");
           const json = await response.json();
-          setServiceOptions(json);
+          console.log(json.OwnershipOptions)
+          setServiceOptions(json.MotorbikeOptions);
+          setOwnershipOptions(json.OwnershipOptions);
         })
         .catch((error) => {
           console.log(error);
@@ -177,6 +181,7 @@ export default function Log() {
           <LogHistory
             logServiceRecords={serviceRecords}
             logServiceOptions={serviceOptions}
+            logOwnershipOptions={ownershipOptions}
             viewMode={viewMode}
           ></LogHistory>
           </div>

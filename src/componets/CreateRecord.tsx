@@ -9,13 +9,15 @@ export interface CreateRecordProps {
   onClose: () => void; // Function to close the modal
   onInsert: (newRecord: ServiceRecord) => void;
   logServiceOptions: ServiceOption[];
+  logOwnershipOptions: ServiceOption[];
 }
 
 /** Primary UI component for user interaction */
 export const CreateRecord = ({
   isOpen,
   onClose,
-  logServiceOptions
+  logServiceOptions,
+  logOwnershipOptions,
 }: // onInsert,
 CreateRecordProps) => {
   const location = useLocation();
@@ -99,8 +101,9 @@ CreateRecordProps) => {
     );
     // formData.append("ServiceType", ServiceType);
 
-    const name = selection.subitem?.Name ?? selection.subcategory?.Name ?? selection.category?.Name ?? "None";
-    formData.append("ServiceOption", name);
+    const serviceOp = selection.subitem?.Name ?? selection.subcategory?.Name ?? selection.category?.Name ?? "None";
+    formData.append("ServiceCategory", selection.category.Name);
+    formData.append("ServiceOption", serviceOp);
     formData.append("ServiceType", selection.serviceType);
 
     formData.append("Comment", Comment);
@@ -139,6 +142,7 @@ CreateRecordProps) => {
     // cleanFields();
   };
   if (!isOpen) return null; // Don't render the modal if not open
+
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 overflow-y-auto overflow-x-hidden">
@@ -279,8 +283,9 @@ CreateRecordProps) => {
             <div className="w-full"></div>
           </div>
 
+
           
-          <CascadingDropdown logServiceOptions={logServiceOptions} onChange={(selected) => setSelection(selected)} />
+          <CascadingDropdown logServiceOptions={logServiceOptions} onChange={(selected) => setSelection(selected)} logOwnershipOptions={logOwnershipOptions} />
 
           <div>
             <textarea
