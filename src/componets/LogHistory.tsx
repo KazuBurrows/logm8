@@ -681,6 +681,4 @@ export default function LogHistory({
     </Section>
   );
 }
-function groupBy(records: ServiceRecord[], arg1: (r: any) => any) {
-  throw new Error("Function not implemented.");
-}
+
