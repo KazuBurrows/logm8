@@ -7,6 +7,7 @@ import { Svg } from "./Svg";
 import { groupedOptions } from "../types/serviceOptions";
 import { sortedOptions } from "../types/sortOptions";
 import { UserMode } from "../views/Log";
+import { TaskOption } from "../types/global";
 // import CascadingDropdown from "./CascadingDropdown";
 
 export interface LogHistoryProps {
@@ -14,6 +15,39 @@ export interface LogHistoryProps {
   logServiceOptions: ServiceOption[];
   logOwnershipOptions: ServiceOption[];
   viewMode: string;
+}
+
+function populateRecordFilter(records: ServiceRecord[]) {
+  function groupBy<T, K extends keyof any>(
+    array: T[],
+    getKey: (item: T) => K
+  ): Record<K, T[]> {
+    return array.reduce((acc, item) => {
+      const key = getKey(item);
+      (acc[key] ??= []).push(item);
+      return acc;
+    }, {} as Record<K, T[]>);
+  }
+
+  const groupedByCategory = groupBy(records, (r) => r.ServiceCategory);
+  console.log(groupedByCategory);
+
+  
+  Object.entries(groupedByCategory).forEach(([category, serviceRecords]) => {
+    const records = Array.from(
+      new Map(
+        serviceRecords.map((r): [string, TaskOption] => [
+          r.ServiceOption,
+          { value: r.ServiceOption, label: r.ServiceOption },
+        ])
+      ).values()
+    );
+
+    groupedOptions.push({
+      label: category,
+      options: records,
+    });
+  });
 }
 
 function toKm(value: string): number {
@@ -211,6 +245,7 @@ export default function LogHistory({
     });
 
     setServiceRecordStats(tempServiceRecordStats);
+    populateRecordFilter(serviceRecords);
   }, [serviceRecords]);
 
   return (
@@ -645,4 +680,7 @@ export default function LogHistory({
       ></CreateRecord>
     </Section>
   );
+}
+function groupBy(records: ServiceRecord[], arg1: (r: any) => any) {
+  throw new Error("Function not implemented.");
 }
