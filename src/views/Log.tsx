@@ -154,6 +154,7 @@ export default function Log() {
           console.log(json.OwnershipOptions)
           setServiceOptions(json.MotorbikeOptions);
           setOwnershipOptions(json.OwnershipOptions);
+          console.log(json.MotorbikeOptions)
         })
         .catch((error) => {
           console.log(error);

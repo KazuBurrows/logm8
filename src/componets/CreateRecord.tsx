@@ -284,8 +284,27 @@ CreateRecordProps) => {
           </div>
 
 
-          
-          <CascadingDropdown logServiceOptions={logServiceOptions} onChange={(selected) => setSelection(selected)} logOwnershipOptions={logOwnershipOptions} />
+          <div className="flex w-full items-start gap-1 transition-all">
+            {/* Cascading Dropdown */}
+            <CascadingDropdown
+                logServiceOptions={logServiceOptions}
+                logOwnershipOptions={logOwnershipOptions}
+                onChange={(selected) => setSelection(selected)}
+              />
+
+            {/* Search + Results */}
+            {/* <div
+              className={`border border-gray-300 rounded px-2 py-1 transition-all duration-300 ${
+                expanded === "search" ? "w-[85%]" : "w-[15%]"
+              }`}
+              onClick={() => setExpanded("search")}
+            >
+              <ServiceTypeSearch logServiceOptions={logServiceOptions}
+                logOwnershipOptions={logOwnershipOptions}
+                onChange={(selected) => setSelection(selected)}/>
+            </div> */}
+          </div>
+
 
           <div>
             <textarea
