@@ -16,9 +16,10 @@ export interface CreateRecordProps {
 export const CreateRecord = ({
   isOpen,
   onClose,
+  onInsert,
   logServiceOptions,
   logOwnershipOptions,
-}: // onInsert,
+}:
 CreateRecordProps) => {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
@@ -127,7 +128,20 @@ CreateRecordProps) => {
         const insertedRecord = await response.json();
         console.log("insertedRecord:", insertedRecord);
 
-        // onInsert(serviceRecord); // Update LogHistory
+        const record: ServiceRecord = {
+          id: "",
+          TagID: TagId,
+          EnteredDate: currDate.toString(),
+          ServicedDate: ServicedDate,
+          MechanicName: MechanicName,
+          Odometer: (Odometer?.toString() ?? "0") + " " + OdometerMetric,
+          ServiceCategory: selection.category.Name,
+          ServiceType: selection.serviceType,
+          ServiceOption: serviceOp,
+          Comment: Comment,
+          FileUrls: []
+        };
+        onInsert(record); // Update LogHistory
         onClose(); // Close modal
         clearFields();
         setIsLoading(false);
