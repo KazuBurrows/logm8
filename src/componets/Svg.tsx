@@ -32,7 +32,8 @@ export interface SvgProps {
     | "file-download3"
     | "inbox-in1"
     | "inbox-in2"
-    | "sort-1";
+    | "sort-1"
+    | "pencil-1";
   size?: "sm" | "md" | "base" | "lg" | "xl" | "2xl" | "5xl";
   color?:
     | "white"
@@ -698,6 +699,20 @@ export const Svg = ({ type, size, color }: SvgProps) => {
               ></path>{" "}
             </g>
           </svg>
+        );
+      case "pencil-1":
+        return (
+          <svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="2 2 20 20"
+  width={get_width()}
+  height={get_height()}
+  fill={getColorHex()}
+>
+  <path d="M3 17.25V21h3.75L17.81 9.94c.39-.39.39-1.02 0-1.41l-3.34-3.34a.9959.9959 0 0 0-1.41 0L3 17.25Zm2.92.58l7.96-7.96 1.58 1.58-7.96 7.96H5.92v-1.58ZM18.71 2.29l2.34 2.34c.39.39.39 1.02 0 1.41l-1.83 1.83-3.75-3.75 1.83-1.83c.39-.39 1.02-.39 1.41 0Z" />
+</svg>
+
+
         );
       default:
         return (

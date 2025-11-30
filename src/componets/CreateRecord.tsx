@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { LoadingScreen } from "./LoadingScreen";
 // import { groupedOptions } from "../types/serviceOptions";
@@ -7,7 +7,13 @@ import CascadingDropdown from "./CascadingDropdown";
 export interface CreateRecordProps {
   isOpen: boolean; // Controls if the modal is visible
   onClose: () => void; // Function to close the modal
-  onInsert: (newRecord: ServiceRecord) => void;
+
+  mode: "create" | "edit";
+  recordToEdit?: ServiceRecord;
+
+  onInsert?: (newRecord: ServiceRecord) => void;
+  onUpdate?: (updatedRecord: ServiceRecord) => void;
+
   logServiceOptions: ServiceOption[];
   logOwnershipOptions: ServiceOption[];
 }
@@ -16,28 +22,54 @@ export interface CreateRecordProps {
 export const CreateRecord = ({
   isOpen,
   onClose,
+  mode,
+  recordToEdit,
   onInsert,
+  onUpdate,
   logServiceOptions,
   logOwnershipOptions,
-}:
-CreateRecordProps) => {
+}: CreateRecordProps) => {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const token = queryParams.get("token"); // Extract the 'token' value
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  // const [isOptionsOpen, setIsOptionsOpen] = useState(false);
 
-  const [Token] = useState<string>(token ?? "");
-  const [TagId] = useState<string>("");
-  const [ServicedDate, setServicedDate] = useState<string>("");
-  const [MechanicName, setMechanicName] = useState<string>("");
-  const [Odometer, setOdometer] = useState<string>("");
-  const [OdometerMetric, setOdometerMetric] = useState<string>("km");
-  // const [ServiceType, setServiceType] = useState<string>("");
+  // Form values
+  const [Token] = useState(token ?? "");
+  const [Id] = useState(recordToEdit?.id ?? "");
+  const [TagId, setTagId] = useState("");
+  const [ServicedDate, setServicedDate] = useState("");
+  const [MechanicName, setMechanicName] = useState("");
+  const [Odometer, setOdometer] = useState("");
+  const [OdometerMetric, setOdometerMetric] = useState("km");
   const [selection, setSelection] = useState<any>(null);
-  const [Comment, setComment] = useState<string>("");
+  const [Comment, setComment] = useState("");
   const [Files, setFiles] = useState<File[]>([]);
+
+  /** -------------- PREFILL ON EDIT MODE ----------------- */
+  useEffect(() => {
+    if (mode === "edit" && recordToEdit) {
+      setTagId(recordToEdit.TagID ?? "");
+      setServicedDate(recordToEdit.ServicedDate ?? "");
+      setMechanicName(recordToEdit.MechanicName ?? "");
+
+      // Split odometer number + metric
+      const [odoNum, odoMetric] = recordToEdit.Odometer?.split(" ") ?? [];
+      setOdometer(odoNum ?? "");
+      setOdometerMetric(odoMetric ?? "km");
+
+      // Preselect dropdown (service options)
+      setSelection({
+        category: recordToEdit.ServiceCategory,
+        subitem: recordToEdit.ServiceOption,
+        topLevel: recordToEdit.ServiceCategory,
+        serviceType: recordToEdit.ServiceType,
+      });
+
+      setComment(recordToEdit.Comment ?? "");
+    }
+  }, [mode, recordToEdit]);
 
   const clearFields = () => {
     // setServicedDate("");
@@ -47,7 +79,6 @@ CreateRecordProps) => {
     setComment("");
     setFiles([]);
   };
-
 
   // const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
   //   setServiceType(e.target.value);
@@ -64,12 +95,18 @@ CreateRecordProps) => {
     setOdometerMetric(event.target.value);
   };
 
-  // const cleanFields = () => {
-  //   setTaskRows([0]);
-  // };
+  /** -------------- EVENTS ----------------- */
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    const serviceOp =
+      selection?.subitem?.Name ??
+      selection?.subcategory?.Name ??
+      selection?.category?.Name ??
+      "None";
+
+    const currDate = new Date();
 
     // Helper function to check required fields
     const isValidForm = (): boolean => {
@@ -77,7 +114,8 @@ CreateRecordProps) => {
       if (!MechanicName || MechanicName.trim() === "") return false;
       if (!Odometer || Odometer.trim() === "") return false;
       if (!OdometerMetric || OdometerMetric.trim() === "") return false;
-      if (!selection.subitem && !selection.subcategory && !selection.category) return false;
+      if (!selection.subitem && !selection.subcategory && !selection.category)
+        return false;
       if (!selection.serviceType) return false;
       return true;
     };
@@ -87,11 +125,9 @@ CreateRecordProps) => {
       return;
     }
 
-
-    const currDate: Date = new Date(); // Current date and time
-
     const formData = new FormData();
     formData.append("Token", Token);
+    formData.append("Id", Id);
     formData.append("TagId", TagId);
     formData.append("EnteredDate", currDate.toString());
     formData.append("ServicedDate", ServicedDate);
@@ -100,74 +136,94 @@ CreateRecordProps) => {
       "Odometer",
       (Odometer?.toString() ?? "0") + " " + OdometerMetric
     );
-    // formData.append("ServiceType", ServiceType);
-
-    const serviceOp = selection.subitem?.Name ?? selection.subcategory?.Name ?? selection.category?.Name ?? "None";
-    formData.append("ServiceCategory", selection.category.Name);
+    formData.append("ServiceCategory", selection.category?.Name ?? "");
     formData.append("ServiceOption", serviceOp);
-    formData.append("ServiceType", selection.serviceType);
-
+    formData.append("ServiceType", selection.serviceType ?? "");
     formData.append("Comment", Comment);
-    Files.forEach((File) => {
-      formData.append("Files", File);
+
+    Files.forEach((f) => {
+      formData.append("Files", f);
     });
 
-    const fetchData = async () => {
-      try {
-        const response = await fetch(
-          "https://logmate.azurewebsites.net/api/SubmitRecord", {
-            method: "POST",
-            body: formData,
-          }
-          // "http://localhost:7071/api/SubmitRecord", {
-          //   method: "POST",
-          //   body: formData,
-          // }
-        );
+    try {
+      setIsLoading(true);
 
-        const insertedRecord = await response.json();
-        console.log("insertedRecord:", insertedRecord);
+      if (mode === "edit" && recordToEdit) {
+        // include the id so server knows which record to update
+        formData.append("Id", recordToEdit.id);
 
-        const record: ServiceRecord = {
-          id: "",
-          TagID: TagId,
-          EnteredDate: currDate.toString(),
-          ServicedDate: ServicedDate,
-          MechanicName: MechanicName,
-          Odometer: (Odometer?.toString() ?? "0") + " " + OdometerMetric,
-          ServiceCategory: selection.category.Name,
-          ServiceType: selection.serviceType,
-          ServiceOption: serviceOp,
-          Comment: Comment,
-          FileUrls: []
-        };
-        onInsert(record); // Update LogHistory
-        onClose(); // Close modal
+        // Use your update endpoint and an appropriate HTTP method.
+        // I used PUT to /api/UpdateRecord — change if your API differs.
+        const res = await fetch("https://logmate.azurewebsites.net/api/UpdateRecord", {
+        // const res = await fetch("http://localhost:7071/api/UpdateRecord", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (!res.ok) {
+          const text = await res.text();
+          throw new Error(`Update failed: ${res.status} ${text}`);
+        }
+
+        const updatedRecord = await res.json();
+        // notify parent with the server-updated record
+        onUpdate?.(updatedRecord);
+        onClose();
         clearFields();
         setIsLoading(false);
-      } catch (err: any) {
-        console.log(err);
+        return;
       }
-    };
 
-    fetchData();
+      // CREATE mode (existing flow)
+      const res = await fetch(
+        "https://logmate.azurewebsites.net/api/SubmitRecord",
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
 
-    setIsLoading(true);
-    // cleanFields();
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(`Create failed: ${res.status} ${text}`);
+      }
+
+      // const insertedRecord = await res.json();
+      const record: ServiceRecord = {
+        // Use this code to clean up the formData.append code
+        Token: "",
+        id: "",
+        TagID: TagId,
+        EnteredDate: currDate.toString(),
+        ServicedDate: ServicedDate,
+        MechanicName: MechanicName,
+        Odometer: (Odometer?.toString() ?? "0") + " " + OdometerMetric,
+        ServiceCategory: selection.category.Name,
+        ServiceType: selection.serviceType,
+        ServiceOption: serviceOp,
+        Comment: Comment,
+        FileUrls: [],
+      };
+      onInsert?.(record);
+      onClose();
+    } catch (err: any) {
+      console.log(err);
+    } finally {
+      clearFields();
+      setIsLoading(false);
+    }
   };
   if (!isOpen) return null; // Don't render the modal if not open
 
+  const title = mode === "edit" ? "Update Record" : "Create Maintenance";
+  // const buttonLabel = mode === "edit" ? "Update" : "Submit";
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 overflow-y-auto overflow-x-hidden">
-      {isLoading ? (
+      {isLoading && (
         <div className="w-full h-full bg-slate-100 bg-opacity-70 absolute z-50">
-          <LoadingScreen
-            text={"Submitting completed maintenance..."}
-          ></LoadingScreen>
+          <LoadingScreen text={"Submitting ..."}></LoadingScreen>
         </div>
-      ) : (
-        <></>
       )}
 
       {/* Modal Content */}
@@ -198,7 +254,7 @@ CreateRecordProps) => {
         {/* Body */}
         <form className="p-6 bg-white w-full" onSubmit={handleSubmit}>
           <h2 className="text-4xl font-bold mb-4 uppercase text-center">
-            Maintenance
+            {title}
           </h2>
 
           <div className="md:flex gap-4">
@@ -297,28 +353,15 @@ CreateRecordProps) => {
             <div className="w-full"></div>
           </div>
 
-
           <div className="flex w-full items-start gap-1 transition-all">
             {/* Cascading Dropdown */}
             <CascadingDropdown
-                logServiceOptions={logServiceOptions}
-                logOwnershipOptions={logOwnershipOptions}
-                onChange={(selected) => setSelection(selected)}
-              />
-
-            {/* Search + Results */}
-            {/* <div
-              className={`border border-gray-300 rounded px-2 py-1 transition-all duration-300 ${
-                expanded === "search" ? "w-[85%]" : "w-[15%]"
-              }`}
-              onClick={() => setExpanded("search")}
-            >
-              <ServiceTypeSearch logServiceOptions={logServiceOptions}
-                logOwnershipOptions={logOwnershipOptions}
-                onChange={(selected) => setSelection(selected)}/>
-            </div> */}
+              logServiceOptions={logServiceOptions}
+              logOwnershipOptions={logOwnershipOptions}
+              onChange={(selected) => setSelection(selected)}
+              value={selection}
+            />
           </div>
-
 
           <div>
             <textarea

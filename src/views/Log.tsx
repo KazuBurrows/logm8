@@ -15,6 +15,8 @@ export enum UserMode {
 }
 
 const data: ServiceTag = {
+  Token: "",
+  Id: "",
   Make: "undefiend",
   Model: "undefiend",
   Year: 0,
@@ -61,11 +63,13 @@ export default function Log() {
           if (!response.ok) {
             navigate(`/404`);
           }
-
+          
           return response.json();
         })
         .then((data) => {
           const myTag: ServiceTag = {
+            Token: data.tag.token,
+            Id: data.tag.id,
             Make: data.tag.make,
             Model: data.tag.model,
             Year: data.tag.year,
@@ -81,12 +85,13 @@ export default function Log() {
 
           setTag(myTag);
 
-          console.log(data)
+          console.log("data", data);
           const myRecords: ServiceRecord[] =[];
           try {
             data.records.forEach((record: any) => {
               myRecords.push({
-                id: "",
+                Token: record["token"],
+                id: record["id"],
                 TagID: "",
                 EnteredDate: record["enteredDate"] ?? "",
                 ServicedDate: record["servicedDate"],

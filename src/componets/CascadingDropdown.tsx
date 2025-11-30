@@ -11,13 +11,21 @@ interface ServiceOption {
 export interface CascadingDropdownProps {
   logServiceOptions: ServiceOption[];
   logOwnershipOptions: ServiceOption[];
-  onChange?: (selection: {
-    category: ServiceOption | null;
-    subcategory: ServiceOption | null;
-    subitem: ServiceOption | null;
+  value?: {
+    category: string | null;
+    subitem: string | null;
     serviceType: string | null;
-    topLevel: "service" | "ownership" | null;
-  }) => void;
+    topLevel: string | null;
+  };
+  onChange?: (selection: CascadingSelection) => void;
+}
+
+export interface CascadingSelection {
+  category: ServiceOption | null;
+  subcategory: ServiceOption | null;
+  subitem: ServiceOption | null;
+  serviceType: string | null;
+  topLevel: "service" | "ownership" | null;
 }
 
 type customServiceOption = {
@@ -31,17 +39,44 @@ type customServiceOption = {
 export default function CascadingDropdown({
   logServiceOptions,
   logOwnershipOptions,
+  value,
   onChange,
 }: CascadingDropdownProps) {
   const [topLevel, setTopLevel] = useState<"service" | "ownership" | null>(
-    null
+    value?.topLevel === "Ownership" ? "ownership" : "service"
   );
+
+  function findPath(rootNodes: any[], leafName: string): ServiceOption[] | null {
+    if (!rootNodes) return null; // prevents crash
+
+    for (const node of rootNodes) {
+      if (node.Name === leafName) {
+        return [node];
+      }
+
+      if (node.Children && node.Children.length > 0) {
+        const childPath = findPath(node.Children, leafName);
+        if (childPath) return [node, ...childPath];
+      }
+    }
+
+    return null;
+  }
+
+
+
+  const cat = (value?.category === "Ownership" ? logOwnershipOptions.find((x) => x.Name === value?.category) : logServiceOptions.find((x) => x.Name === value?.category)) ?? null;
+  const leafName = value?.subitem ?? null;
+
+  const path = leafName ? findPath(cat?.Children ?? [], leafName) : [];
   const [selectedServiceOption, setSelectedServiceOption] = useState({
-    category: null as ServiceOption | null,
-    subcategory: null as ServiceOption | null,
-    subitem: null as ServiceOption | null,
-    serviceType: null as string | null,
+    category: cat,
+    subcategory: path?.[0] ?? null,
+    subitem: path?.[1] ?? null,
+    serviceType: value?.serviceType ?? null,
   });
+
+
 
   const { category, subcategory, subitem, serviceType } = selectedServiceOption;
   const activeNode = subitem ?? subcategory ?? category;
@@ -81,36 +116,46 @@ export default function CascadingDropdown({
   }
 
   function soundex(str: string): string {
-  if (!str) return "";
+    if (!str) return "";
 
-  const s = str.toUpperCase().replace(/[^A-Z]/g, "");
-  if (!s) return "";
+    const s = str.toUpperCase().replace(/[^A-Z]/g, "");
+    if (!s) return "";
 
-  const first = s[0];
-  const mappings: Record<string, string> = {
-    B: "1", F: "1", P: "1", V: "1",
-    C: "2", G: "2", J: "2", K: "2", Q: "2", S: "2", X: "2", Z: "2",
-    D: "3", T: "3",
-    L: "4",
-    M: "5", N: "5",
-    R: "6",
-  };
+    const first = s[0];
+    const mappings: Record<string, string> = {
+      B: "1",
+      F: "1",
+      P: "1",
+      V: "1",
+      C: "2",
+      G: "2",
+      J: "2",
+      K: "2",
+      Q: "2",
+      S: "2",
+      X: "2",
+      Z: "2",
+      D: "3",
+      T: "3",
+      L: "4",
+      M: "5",
+      N: "5",
+      R: "6",
+    };
 
-  let result = first;
-  let prev = mappings[first] ?? "";
+    let result = first;
+    let prev = mappings[first] ?? "";
 
-  for (let i = 1; i < s.length; i++) {
-    const code = mappings[s[i]] ?? "";
-    if (code !== prev && code !== "") {
-      result += code;
+    for (let i = 1; i < s.length; i++) {
+      const code = mappings[s[i]] ?? "";
+      if (code !== prev && code !== "") {
+        result += code;
+      }
+      prev = code;
     }
-    prev = code;
+
+    return (result + "000").slice(0, 4);
   }
-
-  return (result + "000").slice(0, 4);
-}
-
-
 
   // Generate all leaf options
   const allOptions = [
@@ -121,110 +166,102 @@ export default function CascadingDropdown({
       getLeafCustomOptions("ownership", node)
     ),
   ];
-  const [expanded, setExpanded] = useState<"search" | "dropdown" | null>("dropdown");
+  const [expanded, setExpanded] = useState<"search" | "dropdown" | null>(
+    "dropdown"
+  );
 
   // state
-const [searchText, setSearchText] = useState("");
-const search = searchText.trim().toLowerCase();
-const searchSx = soundex(searchText.trim());
+  const [searchText, setSearchText] = useState("");
+  const search = searchText.trim().toLowerCase();
+  const searchSx = soundex(searchText.trim());
 
-// filtering logic
-const filteredOptions = allOptions.filter((x) => {
-  if (!search) return true;
+  // filtering logic
+  const filteredOptions = allOptions.filter((x) => {
+    if (!search) return true;
 
-  const fields = [
-    x.category,
-    x.subcategory ?? "",
-    x.subitem
-  ];
+    const fields = [x.category, x.subcategory ?? "", x.subitem];
 
-  // normal lower-case substring match
-  const simpleMatch = fields.some((f) =>
-    f.toLowerCase().includes(search)
-  );
-  if (simpleMatch) return true;
+    // normal lower-case substring match
+    const simpleMatch = fields.some((f) => f.toLowerCase().includes(search));
+    if (simpleMatch) return true;
 
-  // soundex fuzzy match
-  const soundexMatch = fields.some((f) =>
-    soundex(f) === searchSx
-  );
-  return soundexMatch;
-});
+    // soundex fuzzy match
+    const soundexMatch = fields.some((f) => soundex(f) === searchSx);
+    return soundexMatch;
+  });
 
   return (
     <div className="flex flex-col gap-3 max-w-md mx-auto w-full">
       {/* SEARCHABLE LEAF NODE LIST */}
-<input
-  placeholder="Search..."
-  className="w-full px-2 py-1 border border-gray-300 rounded outline-none"
-  onClick={() => setExpanded("search")}
-  value={searchText}
-  onChange={(e) => setSearchText(e.target.value)}   // <— ACTIVE FILTERING
-/>
+      <input
+        placeholder="Search..."
+        className="w-full px-2 py-1 border border-gray-300 rounded outline-none"
+        onClick={() => setExpanded("search")}
+        value={searchText}
+        onChange={(e) => setSearchText(e.target.value)} // <— ACTIVE FILTERING
+      />
 
-<div
-  className={
-    `mt-2 border-t pt-2 max-h-60 overflow-y-auto ` +
-    (expanded === "dropdown" ? "hidden" : "")
-  }
->
-  {filteredOptions.map((x) => (
-    <div
-      key={`${x.category}-${x.subitem}`}
-      className="cursor-pointer hover:bg-gray-100 px-2 py-1"
-      onClick={() => {
-        // Update topLevel
-        setTopLevel(x.topLevel as "service" | "ownership");
+      <div
+        className={
+          `mt-2 border-t pt-2 max-h-60 overflow-y-auto ` +
+          (expanded === "dropdown" ? "hidden" : "")
+        }
+      >
+        {filteredOptions.map((x) => (
+          <div
+            key={`${x.category}-${x.subitem}`}
+            className="cursor-pointer hover:bg-gray-100 px-2 py-1"
+            onClick={() => {
+              // Update topLevel
+              setTopLevel(x.topLevel as "service" | "ownership");
 
-        // Determine options source
-        const options =
-          x.topLevel === "service"
-            ? logServiceOptions
-            : logOwnershipOptions;
+              // Determine options source
+              const options =
+                x.topLevel === "service"
+                  ? logServiceOptions
+                  : logOwnershipOptions;
 
-        // Resolve depths
-        const categoryObj =
-          options.find((opt) => opt.Name === x.category) || null;
+              // Resolve depths
+              const categoryObj =
+                options.find((opt) => opt.Name === x.category) || null;
 
-        const subcategoryObj =
-          categoryObj?.Children?.find(
-            (opt) => opt.Name === x.subcategory
-          ) || null;
+              const subcategoryObj =
+                categoryObj?.Children?.find(
+                  (opt) => opt.Name === x.subcategory
+                ) || null;
 
-        const subitemObj =
-          subcategoryObj?.Children?.find(
-            (opt) => opt.Name === x.subitem
-          ) ||
-          (!subcategoryObj &&
-            categoryObj?.Children?.find(
-              (opt) => opt.Name === x.subitem
-            )) ||
-          null;
+              const subitemObj =
+                subcategoryObj?.Children?.find(
+                  (opt) => opt.Name === x.subitem
+                ) ||
+                (!subcategoryObj &&
+                  categoryObj?.Children?.find(
+                    (opt) => opt.Name === x.subitem
+                  )) ||
+                null;
 
-        // Build new selection
-        const newSelection = {
-          category: categoryObj,
-          subcategory: subcategoryObj ?? subitemObj, // <-- fallback if subcategoryObj is null
-          subitem: subitemObj,
-          serviceType: x.serviceType[0] ?? null,
-        };
+              // Build new selection
+              const newSelection = {
+                category: categoryObj,
+                subcategory: subcategoryObj ?? subitemObj, // <-- fallback if subcategoryObj is null
+                subitem: subitemObj,
+                serviceType: x.serviceType[0] ?? null,
+              };
 
-        setSelectedServiceOption(newSelection);
+              setSelectedServiceOption(newSelection);
 
-        onChange?.({
-          ...newSelection,
-          topLevel: x.topLevel as "service" | "ownership",
-        });
+              onChange?.({
+                ...newSelection,
+                topLevel: x.topLevel as "service" | "ownership",
+              });
 
-        setExpanded("dropdown");
-      }}
-    >
-      {x.subitem}
-    </div>
-  ))}
-</div>
-
-
+              setExpanded("dropdown");
+            }}
+          >
+            {x.subitem}
+          </div>
+        ))}
+      </div>
 
       {/* TOP LEVEL SELECTION */}
       <select
@@ -348,8 +385,6 @@ const filteredOptions = allOptions.filter((x) => {
           ))}
         </div>
       ) : null}
-
-      
     </div>
   );
 }

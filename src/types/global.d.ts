@@ -5,6 +5,7 @@ declare global {
   
   // Type for a single record in the "records" array
   interface ServiceRecord {
+    Token: string;
     id: string;
     TagID: string;
     EnteredDate: string | null;
@@ -46,6 +47,8 @@ declare global {
 
 
   interface ServiceTag {
+    Token: string;
+    Id: string;
     Make: string;
     Model: string;
     Year: number;
@@ -108,6 +111,8 @@ export interface SortOption {
   readonly label: string;
   readonly options: readonly TaskOption[];
 }
+
+
 
 
 
