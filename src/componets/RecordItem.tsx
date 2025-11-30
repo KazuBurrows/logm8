@@ -63,19 +63,22 @@ export const RecordItem = ({
       >
         {editingRecord?.id === record.id && (
           <Button
-            className="absolute -top-2 -right-2 z-20 w-6 h-6 bg-black/40 rounded-full flex items-center justify-center"
+            className="absolute -top-4 -right-4 z-20 w-12 h-12 bg-black/40 rounded-full flex items-center justify-center"
             type="button"
             size="xs"
             onClick={() => onEdit(record)}
           >
-            <Svg type="pencil-1" color="green-500" size="sm" />
+            <Svg type="pencil-1" color="green-500" size="lg" />
           </Button>
         )}
 
-        <div className="w-full cursor-pointer" onClick={() => {
-    toggleInfo(record.id);
-    setEditingRecord(record);   // show edit button when tapped
-  }}>
+        <div
+          className="w-full cursor-pointer"
+          onClick={() => {
+            toggleInfo(record.id);
+            setEditingRecord(record); // show edit button when tapped
+          }}
+        >
           {/* Record content */}
           <div className="flex flex-col py-3 px-4 sm:px-8">
             {/* Line 1: Service Option */}
