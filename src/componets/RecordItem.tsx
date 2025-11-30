@@ -44,9 +44,9 @@ export const RecordItem = ({
   //   Tune: "text-white bg-purple-700/60",
   // };
 
-  const hold = useHoldToEdit(() => {
-    setEditingRecord(record); // sets this card as editing
-  });
+  // const hold = useHoldToEdit(() => {
+  //   setEditingRecord(record); // sets this card as editing
+  // });
 
   function onEdit(record: ServiceRecord) {
     console.log("Editing record:", record);
@@ -56,7 +56,7 @@ export const RecordItem = ({
   return (
     <li key={record.id} className="mb-1 relative">
       <div
-        {...hold}
+        // {...hold}
         className={`w-full rounded-xl shadow-lg bg-black/60 backdrop-blur-md funnel-display-font leading-none ${
           serviceTypeClasses[record.ServiceType] || ""
         } relative`}
@@ -72,7 +72,10 @@ export const RecordItem = ({
           </Button>
         )}
 
-        <div className="w-full cursor-pointer" onClick={() => toggleInfo(record.id)}>
+        <div className="w-full cursor-pointer" onClick={() => {
+    toggleInfo(record.id);
+    setEditingRecord(record);   // show edit button when tapped
+  }}>
           {/* Record content */}
           <div className="flex flex-col py-3 px-4 sm:px-8">
             {/* Line 1: Service Option */}
