@@ -6,6 +6,7 @@ import Locations from "../views/Locations";
 import Contact from "../views/Contact";
 import Hero from "../views/Hero";
 import About from "../views/About";
+import Footer from "./Footer";
 // import Footer from "../componets/Footer";
 
 
@@ -35,9 +36,7 @@ export default function Home() {
             Our Merchant Locations
           </h2>
           <h3 className="lg:text-3xl md:text-xl sm:text-lg text-2xl lexend-font font-light text-gray-700">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-            eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
-            ad minim veniam, consequat.
+            Trusted locations to purchase your logm8 tag.
           </h3>
         </div>
         <Locations></Locations>
@@ -45,7 +44,7 @@ export default function Home() {
 
       <Contact></Contact>
       
-      {/* <Footer></Footer> */}
+      <Footer></Footer>
       
     </>
   );

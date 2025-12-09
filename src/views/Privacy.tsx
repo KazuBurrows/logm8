@@ -1,97 +1,101 @@
-// import React from "react";
-import { useState } from "react";
+import React from "react";
+import { Section } from "../componets/Section";
 import { useNavigate } from "react-router-dom";
 
-// import { Section } from "../componets/Section";
 import logmateLogo from "../assets/logm8logo3.png"; // ✅ Correct path
 
-
-interface FAQItem {
-  question: string;
-  answer: string;
-}
-
-const faqs: FAQItem[] = [
-  {
-    question: "What is Logm8?",
-    answer:
-      "Logm8 is a lightweight digital logbook for automobiles. It lets you keep a record of your vehicle’s history by scanning a Logm8 sticker attached to your vehicle.",
-  },
-  {
-    question: "How does the Logm8 sticker work?",
-    answer:
-      "Each Logm8 sticker contains a unique code. When scanned through the Logm8 app, it connects your phone to your vehicle's digital logbook via your browser.",
-  },
-  {
-    question: "Is the Logm8 app free?",
-    answer:
-      "Yes, the Logm8 app is free to download and use. It’s designed to be lightweight and easy to use.",
-  },
-  {
-    question: "Can I transfer my logbook to a new owner?",
-    answer:
-      "Yes! The Logm8 logbook stays with the vehicle. When the vehicle changes hands, the logbook can be accessed and continued by the new owner.",
-  },
-  {
-    question: "What can I store in my digital logbook?",
-    answer:
-      "You can store receipts, service records, oil changes, WOFs, registration details, and other important vehicle documents.",
-  },
-  {
-    question: "Do I need an account to use Logm8?",
-    answer:
-      "No account is required to scan a sticker and view a vehicle logbook. For uploading and editing entries, a secure login is required.",
-  },
-];
 export default function Privacy() {
-  const navigate = useNavigate();
+    const navigate = useNavigate();
 
-  const handleRedirect = () => {
-    navigate(`/`);
-  };
+    const handleRedirect = () => {
+        navigate(`/`);
+    };
+    return (
+        <Section
+            id={"privacy"}
+            className="h-full xl:px-36 lg:px-12 md:px-8 sm:px-4 lg:pt-24 pt-16"
+        >
+            <div className="max-w-4xl mx-auto px-6 pb-16">
+                <div className="flex justify-center">
+  <button
+    onClick={handleRedirect}
+    aria-label="Back to Homepage"
+  >
+    <img
+  src={logmateLogo}
+  className="max-h-24 mx-auto my-8"
+  alt="Logmate Logo"
+/>
+  </button>
+</div>
+                <h2 className="text-4xl font-bold mb-8 text-center lexend-font">
+                    Privacy Policy
+                </h2>
 
-  const [openIndex, setOpenIndex] = useState<number | null>(null);
+                <div className="space-y-8 text-gray-700 text-lg leading-relaxed">
+                    <section>
+                        <h3 className="text-2xl font-semibold mb-3">Introduction</h3>
+                        <p>
+                            At logm8, we value your privacy. This page explains how we collect,
+                            use, and protect your information when you use our app and
+                            services.
+                        </p>
+                    </section>
 
-  const toggleFAQ = (index: number) => {
-    setOpenIndex(openIndex === index ? null : index);
-  };
+                    <section>
+                        <h3 className="text-2xl font-semibold mb-3">Information We Collect</h3>
+                        <p>
+                            We only collect the information that you choose to provide to us.
+                            This may include logbook entries, receipts, service records, and
+                            other documents you upload to maintain your vehicle’s history. No
+                            additional personal data is gathered, and viewing a logbook does
+                            not require you to share any information.
+                        </p>
+                    </section>
 
-  return (
-    <div className="max-w-4xl mx-auto p-6 text-center">
-      <button
-        onClick={handleRedirect}
-        aria-label="Back to Homepage"
-      >
-        <img
-          src={logmateLogo}
-          className="inline sm:h-24 sm:w-24 h-20 w-20 mx-2 my-8"
-          alt="Logmate Logo"
-        />
-      </button>
-      <h2 className="text-3xl font-bold mb-8 text-center">Frequently Asked Questions</h2>
-      <div className="space-y-4">
-        {faqs.map((faq, index) => (
-          <div
-            key={index}
-            className="border rounded-xl overflow-hidden shadow-sm"
-          >
-            <button
-              onClick={() => toggleFAQ(index)}
-              className="w-full text-left px-4 py-3 bg-gray-100 hover:bg-gray-200 focus:outline-none flex justify-between items-center"
-            >
-              <span className="font-medium">{faq.question}</span>
-              <span className="text-xl">{openIndex === index ? "−" : "+"}</span>
-            </button>
-            {openIndex === index && (
-              <div className="px-4 py-3 bg-white text-gray-700 transition-all duration-300">
-                {faq.answer}
-              </div>
-            )}
-          </div>
-        ))}
-      </div>
-    </div>
+                    <section>
+                        <h3 className="text-2xl font-semibold mb-3">How We Use Your Data</h3>
+                        <p>
+                            Your data is used solely to maintain your vehicle’s digital
+                            history. We do not sell or share your information with third
+                            parties. Access is limited to you and those you authorize.
+                        </p>
+                    </section>
 
+                    <section>
+                        <h3 className="text-2xl font-semibold mb-3">Security</h3>
+                        <p>
+                            logm8 uses encryption and secure authentication to protect your
+                            data. We continuously update our systems to safeguard against
+                            unauthorized access.
+                        </p>
+                    </section>
 
-  );
+                    <section>
+                        <h3 className="text-2xl font-semibold mb-3">Your Rights</h3>
+                        <p>
+                            You can update or delete your logbook entries at any time. To ensure
+                            proper control, we apply custom authorization rules that allow
+                            vehicle owners to manage logs, even if those entries were created by
+                            others in the past. If you transfer your vehicle, the logbook stays
+                            linked to the logm8 sticker and will be accessible to the new owner.
+                        </p>
+                    </section>
+
+                    <section>
+                        <h3 className="text-2xl font-semibold mb-3">Contact Us</h3>
+                        <p>
+                            If you have questions about this Privacy Policy, please contact us
+                            at <span className="font-medium">support@logm8.com</span>.
+                        </p>
+                    </section>
+                </div>
+
+                {/* Bottom bar */}
+                <div className="border-t border-gray-300 mt-12 pt-6 text-center text-gray-500 text-sm">
+                    © {new Date().getFullYear()} logm8. All rights reserved.
+                </div>
+            </div>
+        </Section>
+    );
 }

@@ -4,8 +4,9 @@ import Home from './views/Home';
 import Merchant from './views/Merchant';
 import Log from './views/Log';
 import NotFound from './views/NotFound';
-import Privacy from './views/Privacy';
 import CreateTag from './componets/CreateTag';
+import FAQ from './views/FAQ';
+import Privacy from './views/Privacy';
 
 function App() {
   return (
@@ -19,7 +20,8 @@ function App() {
         <Route path="/tag/create" element={<CreateTag/>} />
         <Route path="/404" element={<NotFound/>} />
         {/* <Route path="/loading-screen" element={<LoadingScreen text={'Loading...'}/>} /> */}
-        <Route path="/faq" element={<Privacy/>} />
+        <Route path="/faq" element={<FAQ/>} />
+        <Route path="/privacy" element={<Privacy/>} />
       </Routes>
     </Router>
   );
