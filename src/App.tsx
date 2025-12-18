@@ -7,6 +7,7 @@ import NotFound from './views/NotFound';
 import CreateTag from './componets/CreateTag';
 import FAQ from './views/FAQ';
 import Privacy from './views/Privacy';
+import Admin from './views/Admin';
 
 function App() {
   return (
@@ -22,6 +23,8 @@ function App() {
         {/* <Route path="/loading-screen" element={<LoadingScreen text={'Loading...'}/>} /> */}
         <Route path="/faq" element={<FAQ/>} />
         <Route path="/privacy" element={<Privacy/>} />
+        <Route path="/admin" element={<Admin/>} />
+        
       </Routes>
     </Router>
   );
