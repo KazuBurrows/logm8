@@ -1,13 +1,11 @@
 import React, { useState } from "react";
 
 interface ReplaceTagRequest {
-  id: string;
   oldTagId: string;
   newTagId: string;
 }
 
 export default function TransferSticker() {
-  const [id, setId] = useState("");
   const [oldTagId, setOldTagId] = useState("");
   const [newTagId, setNewTagId] = useState("");
   const [loading, setLoading] = useState(false);
@@ -19,7 +17,6 @@ export default function TransferSticker() {
     setMessage("");
 
     const payload: ReplaceTagRequest = {
-      id,
       oldTagId,
       newTagId,
     };
@@ -27,6 +24,7 @@ export default function TransferSticker() {
     try {
       const response = await fetch(
         "https://logmate.azurewebsites.net/api/ReplaceNfcTag",
+        // "http://localhost:7071/api/ReplaceNfcTag",
         {
           method: "POST",
           headers: {
@@ -37,13 +35,14 @@ export default function TransferSticker() {
       );
 
       if (response.ok) {
-        setMessage("Sticker transfer successful ✅");
+        const text = await response.text();
+        setMessage(`✅ ${text}`);
       } else {
         const errorText = await response.text();
-        setMessage(`Error: ${errorText}`);
+        setMessage(`❌ Error: ${errorText}`);
       }
     } catch (error) {
-      setMessage("Network error ❌");
+      setMessage("❌ Network error");
     } finally {
       setLoading(false);
     }
@@ -57,20 +56,6 @@ export default function TransferSticker() {
       <h2 className="text-xl font-semibold text-gray-800">
         Transfer Logm8 Sticker
       </h2>
-
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Request ID
-        </label>
-        <input
-          type="text"
-          value={id}
-          onChange={(e) => setId(e.target.value)}
-          className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          placeholder="Enter request ID"
-          required
-        />
-      </div>
 
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
