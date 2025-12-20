@@ -258,7 +258,7 @@ export default function CascadingDropdown({
               setExpanded("dropdown");
             }}
           >
-            {x.subitem}
+            {x.category}: {x.subitem}
           </div>
         ))}
       </div>
