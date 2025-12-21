@@ -8,7 +8,7 @@ export default function Admin() {
   const [view, setView] = useState<AdminView>("menu");
 
   return (
-    <div className="max-w-2xl mx-auto mt-10 p-4">
+    <div className="w-2/3 mx-auto mt-10 p-4">
       {view === "menu" && (
         <>
           <h1 className="text-2xl font-bold text-gray-800 mb-6">
