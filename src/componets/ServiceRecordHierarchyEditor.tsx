@@ -8,13 +8,14 @@ type TreeProps = {
 
 
 const serviceTypes = [
-  "Maintenance",
-  "Replacement",
-  "Inspection",
-  "Tune",
-  "WOF",
-  "Registration",
-  "Certification"
+  { id: 1, name: "Maintenance" },
+  { id: 2, name: "Replacement" },
+  { id: 3, name: "Inspection" },
+  { id: 4, name: "Adjustment" },
+  { id: 5, name: "Tune" },
+  { id: 6, name: "WOF" },
+  { id: 7, name: "Registration" },
+  { id: 8, name: "Certification" }
 ];
 
 const categoryIds = [
@@ -160,7 +161,7 @@ export default function ServiceRecordHierarchyEditor() {
 
   const [modalType, setModalType] = useState<"parent" | "serviceType" | "createServiceOption" | null>(null);
   const [selectedOption, setSelectedOption] = useState<ServiceOptionResult | null>(null);
-  const [selectedServiceType, setSelectedServiceType] = useState("");
+  const [selectedServiceTypeId, setSelectedServiceTypeId] = useState(0);
   const [selectedParentId, setSelectedParentId] = useState("");
   const [newOptionName, setNewOptionName] = useState("");
   const [newOptionDescription, setNewOptionDescription] = useState("");
@@ -255,11 +256,14 @@ export default function ServiceRecordHierarchyEditor() {
 
     const payload = {
       optionId: selectedOption.id,
-      serviceType: selectedServiceType,
+      serviceTypeId: selectedServiceTypeId,
     };
 
     try {
-      const res = await fetch("https://logmate.azurewebsites.net/api/AddServiceType", {
+      const res = await fetch(
+        "https://logmate.azurewebsites.net/api/AddServiceType",
+        // "http://localhost:7071/api/AddServiceType", 
+      {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -289,7 +293,10 @@ export default function ServiceRecordHierarchyEditor() {
     };
 
     try {
-      const res = await fetch("https://logmate.azurewebsites.net/api/AddParentOption", {
+      const res = await fetch(
+        "https://logmate.azurewebsites.net/api/AddParentOption", 
+        // "http://localhost:7071/api/AddParentOption",
+      {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -318,7 +325,10 @@ export default function ServiceRecordHierarchyEditor() {
     };
 
     try {
-      const res = await fetch("https://logmate.azurewebsites.net/api/CreateServiceOption", {
+      const res = await fetch(
+        "https://logmate.azurewebsites.net/api/CreateServiceOption",
+        // "http://localhost:7071/api/CreateServiceOption",
+      {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -485,14 +495,14 @@ export default function ServiceRecordHierarchyEditor() {
 
             <select
               className="text-2xl bg-slate-200 w-full p-2 rounded"
-              value={selectedServiceType}
-              onChange={(e) => setSelectedServiceType(e.target.value)}
+              value={selectedServiceTypeId}
+              onChange={(e) => setSelectedServiceTypeId(Number(e.target.value))}
               required
             >
               <option value="">-- Select a service type --</option>
               {serviceTypes.map((s) => (
-                <option key={s} value={s}>
-                  {s}
+                <option key={`${s.id}-${s.name}`} value={s.id}>
+                  {s.name}
                 </option>
               ))}
             </select>
