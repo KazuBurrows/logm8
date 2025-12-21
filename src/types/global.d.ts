@@ -114,6 +114,19 @@ export interface SortOption {
 
 
 
+export interface ServiceOptionResult {
+  id: number;
+  name: string;
+  description?: string | null;
+  serviceTypes: string[];
+  children: ServiceOptionResult[];
+}
+
+export interface ServiceHierarchyResult {
+  MotorbikeOptions: ServiceOptionResult[];
+  OwnershipOptions: ServiceOptionResult[];
+}
+
 
 
 export {};
