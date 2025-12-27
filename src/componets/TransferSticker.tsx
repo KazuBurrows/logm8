@@ -23,8 +23,8 @@ export default function TransferSticker() {
 
     try {
       const response = await fetch(
-        "https://logmate.azurewebsites.net/api/ReplaceAssetNfcTag",
-        // "http://localhost:7071/api/ReplaceAssetNfcTag",
+        "https://logmate.azurewebsites.net/api/ReplaceNfcTag",
+        // "http://localhost:7071/api/ReplaceNfcTag",
         {
           method: "POST",
           headers: {

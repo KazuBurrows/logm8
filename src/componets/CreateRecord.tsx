@@ -154,10 +154,8 @@ export const CreateRecord = ({
 
         // Use your update endpoint and an appropriate HTTP method.
         // I used PUT to /api/UpdateRecord — change if your API differs.
-        const res = await fetch(
-          "https://logmate.azurewebsites.net/api/UpdateServiceRecord", 
-          // "http://localhost:7071/api/UpdateServiceRecord",
-          {
+        const res = await fetch("https://logmate.azurewebsites.net/api/UpdateRecord", {
+        // const res = await fetch("http://localhost:7071/api/UpdateRecord", {
           method: "POST",
           body: formData,
         });
@@ -178,8 +176,7 @@ export const CreateRecord = ({
 
       // CREATE mode (existing flow)
       const res = await fetch(
-        "https://logmate.azurewebsites.net/api/AddServiceRecord",
-        // "http://localhost:7071/api/AddServiceRecord",
+        "https://logmate.azurewebsites.net/api/SubmitRecord",
         {
           method: "POST",
           body: formData,

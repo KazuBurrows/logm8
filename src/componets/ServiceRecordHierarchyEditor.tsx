@@ -209,8 +209,8 @@ export default function ServiceRecordHierarchyEditor() {
     const fetchHierarchy = async () => {
       try {
         const res = await fetch(
-          "https://logmate.azurewebsites.net/api/GetServiceOptionHierarchy",
-          // "http://localhost:7071/api/GetServiceOptionHierarchy",
+          "https://logmate.azurewebsites.net/api/GetServiceRecordHierarchy",
+          // "http://localhost:7071/api/GetServiceRecordHierarchy",
         );
 
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -261,8 +261,8 @@ export default function ServiceRecordHierarchyEditor() {
 
     try {
       const res = await fetch(
-        "https://logmate.azurewebsites.net/api/AddServiceOptionServiceType",
-        // "http://localhost:7071/api/AddServiceOptionServiceType", 
+        "https://logmate.azurewebsites.net/api/AddServiceType",
+        // "http://localhost:7071/api/AddServiceType", 
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -294,8 +294,8 @@ export default function ServiceRecordHierarchyEditor() {
 
     try {
       const res = await fetch(
-        "https://logmate.azurewebsites.net/api/AddParentServiceOption",
-        // "http://localhost:7071/api/AddParentServiceOption",
+        "https://logmate.azurewebsites.net/api/AddParentOption", 
+        // "http://localhost:7071/api/AddParentOption",
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -326,8 +326,8 @@ export default function ServiceRecordHierarchyEditor() {
 
     try {
       const res = await fetch(
-        "https://logmate.azurewebsites.net/api/AddServiceOption",
-        // "http://localhost:7071/api/AddServiceOption",
+        "https://logmate.azurewebsites.net/api/CreateServiceOption",
+        // "http://localhost:7071/api/CreateServiceOption",
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
