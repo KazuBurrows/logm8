@@ -150,8 +150,8 @@ export default function Log() {
       try {
         
        await fetch(
-          "https://logmate.azurewebsites.net/api/GetServiceRecordHierarchy",
-          // "http://localhost:7071/api/GetServiceRecordHierarchy",
+          "https://logmate.azurewebsites.net/api/GetServiceOptionHierarchy",
+          // "http://localhost:7071/api/GetServiceOptionHierarchy",
         )
         .then(async (response) => {
           if (!response.ok) throw new Error("Failed to fetch");
