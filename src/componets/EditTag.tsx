@@ -56,8 +56,8 @@ export default function EditTag({ tag, isOpen, onClose }: ModalProps) {
     const fetchData = async () => {
       try {
         const response = await fetch(
-          "https://logmate.azurewebsites.net/api/UpdateAssetNfcTagAsync?tag=" + jsonData + "",
-          // "http://localhost:7071/api/UpdateAssetNfcTagAsync?tag=" + jsonData + "",
+          "https://logmate.azurewebsites.net/api/UpdateAssetNfcTagAsync?tag=" + encodeURIComponent(jsonData),
+          // "http://localhost:7071/api/UpdateAssetNfcTagAsync?tag=" + encodeURIComponent(jsonData),
           {
             method: "POST"
           }
