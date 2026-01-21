@@ -46,6 +46,10 @@ export default function CascadingDropdown({
     value?.topLevel === "Ownership" ? "ownership" : "service"
   );
 
+  const cat = (value?.category === "Ownership" ? logOwnershipOptions.find((x) => x.Name === value?.category) : logServiceOptions.find((x) => x.Name === value?.category)) ?? null;
+  const leafName = value?.subitem ?? null;
+
+  
   function findPath(rootNodes: any[], leafName: string): ServiceOption[] | null {
     if (!rootNodes) return null; // prevents crash
 
@@ -63,11 +67,6 @@ export default function CascadingDropdown({
     return null;
   }
 
-
-
-  const cat = (value?.category === "Ownership" ? logOwnershipOptions.find((x) => x.Name === value?.category) : logServiceOptions.find((x) => x.Name === value?.category)) ?? null;
-  const leafName = value?.subitem ?? null;
-
   const path = leafName ? findPath(cat?.Children ?? [], leafName) : [];
   const [selectedServiceOption, setSelectedServiceOption] = useState({
     category: cat,
@@ -82,6 +81,8 @@ export default function CascadingDropdown({
   const activeNode = subitem ?? subcategory ?? category;
 
   const updateSelection = (updates: Partial<typeof selectedServiceOption>) => {
+    console.log("updateSelection:", updates)
+    console.log("updateSelection:", selectedServiceOption)
     const newSelection = { ...selectedServiceOption, ...updates };
     setSelectedServiceOption(newSelection);
     onChange?.({ ...newSelection, topLevel });

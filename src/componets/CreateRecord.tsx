@@ -59,6 +59,8 @@ export const CreateRecord = ({
       setOdometer(odoNum ?? "");
       setOdometerMetric(odoMetric ?? "km");
 
+      console.log("prefill edit")
+      console.log(recordToEdit)
       // Preselect dropdown (service options)
       setSelection({
         category: recordToEdit.ServiceCategory,
@@ -100,12 +102,7 @@ export const CreateRecord = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const serviceOp =
-      selection?.subitem?.Name ??
-      selection?.subcategory?.Name ??
-      selection?.category?.Name ??
-      "None";
-
+    
     const currDate = new Date();
 
     // Helper function to check required fields
@@ -127,7 +124,6 @@ export const CreateRecord = ({
 
     const formData = new FormData();
     formData.append("Token", Token);
-    formData.append("Id", Id);
     formData.append("TagId", TagId);
     formData.append("EnteredDate", currDate.toString());
     formData.append("ServicedDate", ServicedDate);
@@ -136,9 +132,7 @@ export const CreateRecord = ({
       "Odometer",
       (Odometer?.toString() ?? "0") + " " + OdometerMetric
     );
-    formData.append("ServiceCategory", selection.category?.Name ?? "");
-    formData.append("ServiceOption", serviceOp);
-    formData.append("ServiceType", selection.serviceType ?? "");
+    
     formData.append("Comment", Comment);
 
     Files.forEach((f) => {
@@ -151,6 +145,18 @@ export const CreateRecord = ({
       if (mode === "edit" && recordToEdit) {
         // include the id so server knows which record to update
         formData.append("Id", recordToEdit.id);
+
+        const serviceOp =
+        selection?.subitem ??
+        selection?.subcategory ??
+        selection?.category ??
+        "None";
+
+        formData.append("ServiceCategory", selection.category?.Name ?? "");
+formData.append("ServiceOption", serviceOp?.Name ?? "");
+formData.append("ServiceType", selection.serviceType ?? "");
+
+
 
         // Use your update endpoint and an appropriate HTTP method.
         // I used PUT to /api/UpdateRecord — change if your API differs.
@@ -173,6 +179,17 @@ export const CreateRecord = ({
         setIsLoading(false);
         return;
       }
+
+      formData.append("Id", Id);
+      const serviceOp =
+      selection?.subitem?.Name ??
+      selection?.subcategory?.Name ??
+      selection?.category?.Name ??
+      "None";
+
+      formData.append("ServiceCategory", selection.category?.Name ?? "");
+      formData.append("ServiceOption", serviceOp);
+      formData.append("ServiceType", selection.serviceType ?? "");
 
       // CREATE mode (existing flow)
       const res = await fetch(
