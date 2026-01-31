@@ -127,6 +127,36 @@ export interface ServiceHierarchyResult {
   OwnershipOptions: ServiceOptionResult[];
 }
 
+export interface UpdateAssetNfcTagRequest {
+  TagId: string;
+  Make: string;
+  Model: string;
+  Year: number;
+  Vehicle: string;
+  Style: string;
+  Engine: number;
+  Fuel: string[];
+  Transmission: string;
+  Color: string;
+  VinNumber?: string | null;
+  LicencePlate?: string | null;
+}
+
+export interface AddServiceRecordRequest {
+  Token: string;
+  Id: string;
+  TagId: string;
+  EnteredDate: string;      // ISO string or Date string
+  ServicedDate: string;     // ISO string or Date string
+  MechanicName: string;
+  Odometer: string;         // e.g., "1200 km"
+  ServiceCategory: string;
+  ServiceOption: string;
+  ServiceType: string;
+  Comment?: string;
+  Files?: File[];           // optional array of files
+}
+
 
 
 export {};

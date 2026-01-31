@@ -53,96 +53,60 @@ export default function Log() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     const fetchData = async () => {
-      try {
-        
-        fetch(
-          "https://logmate.azurewebsites.net/api/GetLogData?token=" + token + ""
-          // "http://localhost:7071/api/GetLogData?token=" + token + ""
-        )
-        .then((response) => {
-          if (!response.ok) {
-            navigate(`/404`);
-          }
-          
-          return response.json();
-        })
-        .then((data) => {
-          const myTag: ServiceTag = {
-            Token: data.tag.token,
-            Id: data.tag.id,
-            Make: data.tag.make,
-            Model: data.tag.model,
-            Year: data.tag.year,
-            Vehicle: data.tag.vehicle,
-            Style: data.tag.style,
-            Engine: data.tag.engine,
-            Fuel: data.tag.fuel,
-            Transmission: data.tag.transmission,
-            Color: data.tag.color,
-            VinNumber: data.tag.vinNumber,
-            LicencePlate: data.tag.licencePlate
-          };
+  try {
+    const res = await fetch(
+      `${process.env.REACT_APP_API_BASE_URL}GetLogData?token=${token}`
+    );
 
-          setTag(myTag);
+    if (!res.ok) {
+      navigate("/404");
+      return;
+    }
 
-          console.log("data", data);
-          const myRecords: ServiceRecord[] =[];
-          try {
-            data.records.forEach((record: any) => {
-              myRecords.push({
-                Token: record["token"],
-                id: record["id"],
-                TagID: "",
-                EnteredDate: record["enteredDate"] ?? "",
-                ServicedDate: record["servicedDate"],
-                MechanicName: record["mechanicName"] ?? "",
-                Odometer: record["odometer"] ?? "",
-                ServiceCategory: record["serviceCategory"],
-                ServiceType: record["serviceType"],
-                Comment: record["comment"],
-                FileUrls: record["fileUrls"],
-                ServiceOption: record["serviceOption"],
-              });
-            });
+    const data = await res.json();
 
-            setServiceRecords(myRecords)
-            
-          } catch {
-            setServiceRecords([]);
-          }
+    setTag({
+      Token: data.tag.token,
+      Id: data.tag.id,
+      Make: data.tag.make,
+      Model: data.tag.model,
+      Year: data.tag.year,
+      Vehicle: data.tag.vehicle,
+      Style: data.tag.style,
+      Engine: data.tag.engine,
+      Fuel: data.tag.fuel,
+      Transmission: data.tag.transmission,
+      Color: data.tag.color,
+      VinNumber: data.tag.vinNumber,
+      LicencePlate: data.tag.licencePlate
+    });
 
-          console.log("myRecords", myRecords)
-          try {
-            setViewMode(UserMode[data.mode]);
-            console.log("viewMode:", UserMode[data.mode])
-            
-          } catch {
-            setViewMode(UserMode[1]);
-          }
+    setServiceRecords(
+      (data.records ?? []).map((record: any) => ({
+        Token: record.token,
+        id: record.id,
+        TagID: "",
+        EnteredDate: record.enteredDate ?? "",
+        ServicedDate: record.servicedDate,
+        MechanicName: record.mechanicName ?? "",
+        Odometer: record.odometer ?? "",
+        ServiceCategory: record.serviceCategory,
+        ServiceType: record.serviceType,
+        Comment: record.comment,
+        FileUrls: record.fileUrls,
+        ServiceOption: record.serviceOption,
+      }))
+    );
 
+    setViewMode(UserMode[data.mode ?? 1]);
+  } catch (err) {
+    console.error(err);
+    navigate("/404");
+  } finally {
+    setIsRetrievingData(false);
+  }
+};
 
-          setIsRetrievingData(false);
-
-          // return;
-          // try {
-          //   fetch(
-          //     "https://logmate.azurewebsites.net/api/ConsumeOneLifeUrl?token=" +
-          //       token +
-          //       ""
-          //     "http://localhost:7071/api/ConsumeOneLifeUrl?token=" + token + ""
-          //   )
-          // } catch {
-          //   console.log("failed ConsumeOneLifeUrl API call")
-          // }
-        })
-        .catch((error) => {
-          console.log(error);
-        });
-
-      } catch (err: any) {
-        console.log(err);
-      }
-    };
 
     fetchData();
 
@@ -150,7 +114,8 @@ export default function Log() {
       try {
         
        await fetch(
-          "https://logmate.azurewebsites.net/api/GetServiceRecordHierarchy",
+        `${process.env.REACT_APP_API_BASE_URL}GetServiceRecordHierarchy`
+          // "https://logmate.azurewebsites.net/api/GetServiceRecordHierarchy",
           // "http://localhost:7071/api/GetServiceRecordHierarchy",
         )
         .then(async (response) => {

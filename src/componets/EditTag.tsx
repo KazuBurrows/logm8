@@ -4,6 +4,7 @@ import { useLocation } from "react-router-dom";
 // import { Navbar } from "./Navbar";
 import { Button } from "./Button";
 import { groupedFuelOptions } from "../types/serviceOptions";
+import { UpdateAssetNfcTagRequest } from "../types/global";
 // const logmateLogo = require("../assets/logmate-logo.png");
 
 interface ModalProps {
@@ -11,6 +12,7 @@ interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
+
 
 export default function EditTag({ tag, isOpen, onClose }: ModalProps) {
   const location = useLocation();
@@ -32,50 +34,55 @@ export default function EditTag({ tag, isOpen, onClose }: ModalProps) {
   const [VinNumber, setVinNumber] = useState<string | null>(tag.VinNumber);
   const [LicencePlate, setLicencePlate] = useState<string | null>(tag.LicencePlate);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const formData = {
-      TagId,
-      Make,
-      Model,
-      Year,
-      Vehicle,
-      Style,
-      Engine,
-      Fuel,
-      Transmission,
-      Color,
-      VinNumber,
-      LicencePlate,
-    };
-    console.log("Form Data:", formData);
-    // Add your submission logic here
-    const jsonData = JSON.stringify(formData);
+  const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
 
-
-    const fetchData = async () => {
-      try {
-        const response = await fetch(
-          "https://logmate.azurewebsites.net/api/UpdateTag?tag=" + jsonData + ""
-          // "http://localhost:7071/api/UpdateTag?tag=" + jsonData + ""
-        );
-
-        const data = await response.json();
-        console.log("API Response:", data);
-
-        if (data.success) {
-          // alert(data.message);
-          onClose();
-        } else {
-          alert("Oops! Something went wrong. Please try again soon: " + data.message);
-        }
-      } catch (err: any) {
-        console.error("Fetch error:", err);
-      }
-    };
-
-    fetchData();
+  const payload: UpdateAssetNfcTagRequest = {
+    TagId,
+    Make,
+    Model,
+    Year: Number(Year) || 0,
+    Vehicle,
+    Style,
+    Engine: Number(Engine) || 0,
+    Fuel,
+    Transmission,
+    Color,
+    VinNumber,
+    LicencePlate
   };
+
+  try {
+    const response = await fetch(
+      `${process.env.REACT_APP_API_BASE_URL}UpdateAssetNfcTagAsync`,
+      // "https://logmate.azurewebsites.net/api/UpdateAssetNfcTagAsync",
+      // "http://localhost:7071/api/UpdateAssetNfcTagAsync",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(payload)
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+
+    const data = await response.json();
+    console.log("API Response:", data);
+
+    if (data.success) {
+      onClose();
+    } else {
+      alert(data.message ?? "Update failed");
+    }
+  } catch (err) {
+    console.error("Fetch error:", err);
+    alert("Network or server error");
+  }
+};
 
   useEffect(() => {
     // JSON.parse(tag.Fuel)

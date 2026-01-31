@@ -157,10 +157,10 @@ formData.append("ServiceOption", serviceOp?.Name ?? "");
 formData.append("ServiceType", selection.serviceType ?? "");
 
 
-
         // Use your update endpoint and an appropriate HTTP method.
         // I used PUT to /api/UpdateRecord — change if your API differs.
-        const res = await fetch("https://logmate.azurewebsites.net/api/UpdateRecord", {
+        const res = await fetch(`${process.env.REACT_APP_API_BASE_URL}UpdateServiceRecord`, {
+        // const res = await fetch("https://logmate.azurewebsites.net/api/UpdateRecord", {
         // const res = await fetch("http://localhost:7071/api/UpdateRecord", {
           method: "POST",
           body: formData,
@@ -193,7 +193,8 @@ formData.append("ServiceType", selection.serviceType ?? "");
 
       // CREATE mode (existing flow)
       const res = await fetch(
-        "https://logmate.azurewebsites.net/api/SubmitRecord",
+        // "https://logmate.azurewebsites.net/api/SubmitRecord",
+        `${process.env.REACT_APP_API_BASE_URL}SubmitRecord`,
         {
           method: "POST",
           body: formData,
