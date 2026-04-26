@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { LoadingScreen } from "./LoadingScreen";
 // import { groupedOptions } from "../types/serviceOptions";
-import CascadingDropdown from "./CascadingDropdown";
+// import CascadingDropdown from "./CascadingDropdown";
+import CascadingDropdownCopy from "./CascadingDropdown copy";
 
 export interface CreateRecordProps {
   isOpen: boolean; // Controls if the modal is visible
@@ -47,6 +48,24 @@ export const CreateRecord = ({
   const [Comment, setComment] = useState("");
   const [Files, setFiles] = useState<File[]>([]);
 
+  const initialDropdownSelection = useMemo(() => {
+    if (mode !== "edit" || !recordToEdit) return null;
+    const { ServiceCategory: catName, ServiceOption: optName, ServiceType: svcType } = recordToEdit;
+    for (const dir of [logServiceOptions, logOwnershipOptions]) {
+      for (const cat of dir) {
+        if (cat.Name !== catName) continue;
+        for (const sub of cat.Children ?? []) {
+          if (sub.Name === optName) return { category: cat, subcategory: sub, option: null, type: svcType };
+          for (const opt of sub.Children ?? []) {
+            if (opt.Name === optName) return { category: cat, subcategory: sub, option: opt, type: svcType };
+          }
+        }
+        return { category: cat, subcategory: null, option: null, type: svcType };
+      }
+    }
+    return null;
+  }, [mode, recordToEdit, logServiceOptions, logOwnershipOptions]);
+
   /** -------------- PREFILL ON EDIT MODE ----------------- */
   useEffect(() => {
     if (mode === "edit" && recordToEdit) {
@@ -62,12 +81,7 @@ export const CreateRecord = ({
       console.log("prefill edit")
       console.log(recordToEdit)
       // Preselect dropdown (service options)
-      setSelection({
-        category: recordToEdit.ServiceCategory,
-        subitem: recordToEdit.ServiceOption,
-        topLevel: recordToEdit.ServiceCategory,
-        serviceType: recordToEdit.ServiceType,
-      });
+      // dropdown initialValue seeds its own state; onChange will update selection
 
       setComment(recordToEdit.Comment ?? "");
     }
@@ -102,23 +116,48 @@ export const CreateRecord = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    
+
     const currDate = new Date();
 
     // Helper function to check required fields
-    const isValidForm = (): boolean => {
-      if (!ServicedDate || ServicedDate.trim() === "") return false;
-      if (!MechanicName || MechanicName.trim() === "") return false;
-      if (!Odometer || Odometer.trim() === "") return false;
-      if (!OdometerMetric || OdometerMetric.trim() === "") return false;
-      if (!selection.subitem && !selection.subcategory && !selection.category)
-        return false;
-      if (!selection.serviceType) return false;
-      return true;
+    const getValidationErrors = (): string[] => {
+      const errors: string[] = [];
+
+      if (!ServicedDate || ServicedDate.trim() === "") {
+        errors.push("Serviced Date is required");
+      }
+
+      if (!MechanicName || MechanicName.trim() === "") {
+        errors.push("Mechanic Name is required");
+      }
+
+      if (!Odometer || Odometer.trim() === "") {
+        errors.push("Odometer is required");
+      }
+
+      if (!OdometerMetric || OdometerMetric.trim() === "") {
+        errors.push("Odometer Metric is required");
+      }
+
+      if (!selection?.option && !selection?.subcategory && !selection?.category) {
+        console.log(selection)
+        errors.push("At least one of Category / Subcategory / Subitem must be selected");
+      }
+
+      if (!selection.type) {
+        errors.push("Service Type is required");
+      }
+
+      return errors;
     };
 
-    if (!isValidForm()) {
-      alert("Please fill all required fields before submitting.");
+    const errors = getValidationErrors();
+
+    if (errors.length > 0) {
+      alert(
+        "Please fix the following:\n\n" +
+        errors.map((e, i) => `${i + 1}. ${e}`).join("\n")
+      );
       return;
     }
 
@@ -132,7 +171,7 @@ export const CreateRecord = ({
       "Odometer",
       (Odometer?.toString() ?? "0") + " " + OdometerMetric
     );
-    
+
     formData.append("Comment", Comment);
 
     Files.forEach((f) => {
@@ -147,21 +186,21 @@ export const CreateRecord = ({
         formData.append("Id", recordToEdit.id);
 
         const serviceOp =
-        selection?.subitem ??
-        selection?.subcategory ??
-        selection?.category ??
-        "None";
+          selection?.option ??
+          selection?.subcategory ??
+          selection?.category ??
+          "None";
 
         formData.append("ServiceCategory", selection.category?.Name ?? "");
-formData.append("ServiceOption", serviceOp?.Name ?? "");
-formData.append("ServiceType", selection.serviceType ?? "");
+        formData.append("ServiceOption", serviceOp?.Name ?? "");
+        formData.append("ServiceType", selection.type ?? "");
 
 
         // Use your update endpoint and an appropriate HTTP method.
         // I used PUT to /api/UpdateRecord — change if your API differs.
         const res = await fetch(`${process.env.REACT_APP_API_BASE_URL}UpdateServiceRecord`, {
-        // const res = await fetch("https://logmate.azurewebsites.net/api/UpdateRecord", {
-        // const res = await fetch("http://localhost:7071/api/UpdateRecord", {
+          // const res = await fetch("https://logmate.azurewebsites.net/api/UpdateRecord", {
+          // const res = await fetch("http://localhost:7071/api/UpdateRecord", {
           method: "POST",
           body: formData,
         });
@@ -182,14 +221,14 @@ formData.append("ServiceType", selection.serviceType ?? "");
 
       formData.append("Id", Id);
       const serviceOp =
-      selection?.subitem?.Name ??
-      selection?.subcategory?.Name ??
-      selection?.category?.Name ??
-      "None";
+        selection?.option?.Name ??
+        selection?.subcategory?.Name ??
+        selection?.category?.Name ??
+        "None";
 
       formData.append("ServiceCategory", selection.category?.Name ?? "");
       formData.append("ServiceOption", serviceOp);
-      formData.append("ServiceType", selection.serviceType ?? "");
+      formData.append("ServiceType", selection.type ?? "");
 
       // CREATE mode (existing flow)
       const res = await fetch(
@@ -373,11 +412,15 @@ formData.append("ServiceType", selection.serviceType ?? "");
 
           <div className="flex w-full items-start gap-1 transition-all">
             {/* Cascading Dropdown */}
-            <CascadingDropdown
+            <CascadingDropdownCopy
+              key={recordToEdit?.id ?? "new"}
               logServiceOptions={logServiceOptions}
               logOwnershipOptions={logOwnershipOptions}
-              onChange={(selected) => setSelection(selected)}
-              value={selection}
+              initialValue={initialDropdownSelection}
+              onChange={(selected) => {
+                console.log("Dropdown changed:", selected);
+                setSelection(selected);
+              }}
             />
           </div>
 

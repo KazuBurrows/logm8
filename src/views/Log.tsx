@@ -64,37 +64,38 @@ export default function Log() {
     }
 
     const data = await res.json();
-
+    console.log("my data:", data)
     setTag({
-      Token: data.tag.token,
+      // Token: data.tag.token,
+      Token: "",
       Id: data.tag.id,
-      Make: data.tag.make,
-      Model: data.tag.model,
-      Year: data.tag.year,
-      Vehicle: data.tag.vehicle,
-      Style: data.tag.style,
-      Engine: data.tag.engine,
-      Fuel: data.tag.fuel,
-      Transmission: data.tag.transmission,
-      Color: data.tag.color,
-      VinNumber: data.tag.vinNumber,
-      LicencePlate: data.tag.licencePlate
+      Make: data.tag.Make,
+      Model: data.tag.Model,
+      Year: data.tag.Year,
+      Vehicle: data.tag.Vehicle,
+      Style: data.tag.Style,
+      Engine: data.tag.Engine,
+      Fuel: data.tag.Fuel,
+      Transmission: data.tag.Transmission,
+      Color: data.tag.Color,
+      VinNumber: data.tag.VinNumber,
+      LicencePlate: data.tag.LicencePlate
     });
 
     setServiceRecords(
       (data.records ?? []).map((record: any) => ({
-        Token: record.token,
+        Token: record.Token,
         id: record.id,
         TagID: "",
-        EnteredDate: record.enteredDate ?? "",
-        ServicedDate: record.servicedDate,
-        MechanicName: record.mechanicName ?? "",
-        Odometer: record.odometer ?? "",
-        ServiceCategory: record.serviceCategory,
-        ServiceType: record.serviceType,
-        Comment: record.comment,
-        FileUrls: record.fileUrls,
-        ServiceOption: record.serviceOption,
+        EnteredDate: record.EnteredDate ?? "",
+        ServicedDate: record.ServicedDate,
+        MechanicName: record.MechanicName ?? "",
+        Odometer: record.Odometer ?? "",
+        ServiceCategory: record.ServiceCategory,
+        ServiceType: record.ServiceType,
+        Comment: record.Comment,
+        FileUrls: record.FileUrls,
+        ServiceOption: record.ServiceOption,
       }))
     );
 

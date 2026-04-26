@@ -210,8 +210,6 @@ export default function ServiceRecordHierarchyEditor() {
       try {
         const res = await fetch(
           `${process.env.REACT_APP_API_BASE_URL}GetServiceRecordHierarchy`,
-          // "https://logmate.azurewebsites.net/api/GetServiceRecordHierarchy",
-          // "http://localhost:7071/api/GetServiceRecordHierarchy",
         );
 
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -263,8 +261,6 @@ export default function ServiceRecordHierarchyEditor() {
     try {
       const res = await fetch(
         `${process.env.REACT_APP_API_BASE_URL}AddServiceType`,
-        // "https://logmate.azurewebsites.net/api/AddServiceType",
-        // "http://localhost:7071/api/AddServiceType", 
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -297,8 +293,6 @@ export default function ServiceRecordHierarchyEditor() {
     try {
       const res = await fetch(
         `${process.env.REACT_APP_API_BASE_URL}AddParentOption`,
-        // "https://logmate.azurewebsites.net/api/AddParentOption", 
-        // "http://localhost:7071/api/AddParentOption",
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -330,8 +324,6 @@ export default function ServiceRecordHierarchyEditor() {
     try {
       const res = await fetch(
         `${process.env.REACT_APP_API_BASE_URL}CreateServiceOption`,
-        // "https://logmate.azurewebsites.net/api/CreateServiceOption",
-        // "http://localhost:7071/api/CreateServiceOption",
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },

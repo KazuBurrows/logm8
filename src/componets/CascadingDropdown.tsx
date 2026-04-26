@@ -7,6 +7,15 @@ interface ServiceOption {
   Children?: ServiceOption[];
   ServiceTypes?: string[];
 }
+type TopLevel = "service" | "ownership" | null;
+
+interface ServiceSelection {
+  category: ServiceOption | null;
+  subcategory: ServiceOption | null;
+  subitem: ServiceOption | null;
+  serviceType: string | null;
+  topLevel: TopLevel;
+}
 
 export interface CascadingDropdownProps {
   logServiceOptions: ServiceOption[];
@@ -49,7 +58,7 @@ export default function CascadingDropdown({
   const cat = (value?.category === "Ownership" ? logOwnershipOptions.find((x) => x.Name === value?.category) : logServiceOptions.find((x) => x.Name === value?.category)) ?? null;
   const leafName = value?.subitem ?? null;
 
-  
+
   function findPath(rootNodes: any[], leafName: string): ServiceOption[] | null {
     if (!rootNodes) return null; // prevents crash
 
@@ -68,25 +77,36 @@ export default function CascadingDropdown({
   }
 
   const path = leafName ? findPath(cat?.Children ?? [], leafName) : [];
-  const [selectedServiceOption, setSelectedServiceOption] = useState({
-    category: cat,
-    subcategory: path?.[0] ?? null,
-    subitem: path?.[1] ?? null,
-    serviceType: value?.serviceType ?? null,
-  });
+  // const [selectedServiceOption, setSelectedServiceOption] = useState({
+  //   category: cat,
+  //   subcategory: path?.[0] ?? null,
+  //   subitem: path?.[1] ?? null,
+  //   serviceType: value?.serviceType ?? null,
+  // });
+
+  const [selectedServiceOption, setSelectedServiceOption] = useState<ServiceSelection>({
+  category: cat,
+  subcategory: path?.[0] ?? null,
+  subitem: path?.[1] ?? null,
+  serviceType: value?.serviceType ?? null,
+  topLevel: topLevel,
+});
+
+
 
 
 
   const { category, subcategory, subitem, serviceType } = selectedServiceOption;
   const activeNode = subitem ?? subcategory ?? category;
 
-  const updateSelection = (updates: Partial<typeof selectedServiceOption>) => {
-    console.log("updateSelection:", updates)
-    console.log("updateSelection:", selectedServiceOption)
-    const newSelection = { ...selectedServiceOption, ...updates };
-    setSelectedServiceOption(newSelection);
-    onChange?.({ ...newSelection, topLevel });
-  };
+  const updateSelection = (updates: Partial<ServiceSelection>) => {
+  setSelectedServiceOption(prev => {
+    const newSelection = { ...prev, ...updates };
+    onChange?.({ ...newSelection, topLevel: newSelection.topLevel ?? topLevel });
+    return newSelection;
+  });
+};
+
 
   // Recursive function to get leaf nodes as customServiceOption
   function getLeafCustomOptions(
@@ -249,7 +269,7 @@ export default function CascadingDropdown({
                 serviceType: x.serviceType[0] ?? null,
               };
 
-              setSelectedServiceOption(newSelection);
+              // setSelectedServiceOption(newSelection);
 
               onChange?.({
                 ...newSelection,

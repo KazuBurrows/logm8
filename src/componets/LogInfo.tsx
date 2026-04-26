@@ -72,9 +72,9 @@ export default function LogInfo({ tag }: LogInfoProps) {
                   Fuel
                 </div>
                 <div className="h-md:text-2xl h-sm:text-xl text-md font-normal rounded-lg px-12 py-1">
-                  {tag.Fuel.map((x) => {
-                    return <li>{x}</li>;
-                  })}
+                  {tag?.Fuel?.map((x, i) => (
+                    <li key={i}>{x}</li>
+                  ))}
                 </div>
               </div>
             </div>
