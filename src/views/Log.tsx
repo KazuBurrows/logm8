@@ -66,36 +66,35 @@ export default function Log() {
     const data = await res.json();
     console.log("my data:", data)
     setTag({
-      // Token: data.tag.token,
       Token: "",
-      Id: data.tag.id,
-      Make: data.tag.Make,
-      Model: data.tag.Model,
-      Year: data.tag.Year,
-      Vehicle: data.tag.Vehicle,
-      Style: data.tag.Style,
-      Engine: data.tag.Engine,
-      Fuel: data.tag.Fuel,
-      Transmission: data.tag.Transmission,
-      Color: data.tag.Color,
-      VinNumber: data.tag.VinNumber,
-      LicencePlate: data.tag.LicencePlate
+      Id: data.tag.id ?? data.tag.Id,
+      Make: data.tag.Make ?? data.tag.make,
+      Model: data.tag.Model ?? data.tag.model,
+      Year: data.tag.Year ?? data.tag.year,
+      Vehicle: data.tag.Vehicle ?? data.tag.vehicle,
+      Style: data.tag.Style ?? data.tag.style,
+      Engine: data.tag.Engine ?? data.tag.engine,
+      Fuel: data.tag.Fuel ?? data.tag.fuel,
+      Transmission: data.tag.Transmission ?? data.tag.transmission,
+      Color: data.tag.Color ?? data.tag.color,
+      VinNumber: data.tag.VinNumber ?? data.tag.vinNumber ?? data.tag.vinumber,
+      LicencePlate: data.tag.LicencePlate ?? data.tag.licencePlate ?? data.tag.licenceplate,
     });
 
     setServiceRecords(
       (data.records ?? []).map((record: any) => ({
-        Token: record.Token,
-        id: record.id,
+        Token: record.Token ?? record.token,
+        id: record.id ?? record.Id,
         TagID: "",
-        EnteredDate: record.EnteredDate ?? "",
-        ServicedDate: record.ServicedDate,
-        MechanicName: record.MechanicName ?? "",
-        Odometer: record.Odometer ?? "",
-        ServiceCategory: record.ServiceCategory,
-        ServiceType: record.ServiceType,
-        Comment: record.Comment,
-        FileUrls: record.FileUrls,
-        ServiceOption: record.ServiceOption,
+        EnteredDate: record.EnteredDate ?? record.enteredDate ?? "",
+        ServicedDate: record.ServicedDate ?? record.servicedDate,
+        MechanicName: record.MechanicName ?? record.mechanicName ?? "",
+        Odometer: record.Odometer ?? record.odometer ?? "",
+        ServiceCategory: record.ServiceCategory ?? record.serviceCategory,
+        ServiceType: record.ServiceType ?? record.serviceType,
+        Comment: record.Comment ?? record.comment,
+        FileUrls: record.FileUrls ?? record.fileUrls,
+        ServiceOption: record.ServiceOption ?? record.serviceOption,
       }))
     );
 
