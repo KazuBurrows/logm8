@@ -46,6 +46,8 @@ export default function EditTag({ tag, isOpen, onClose }: ModalProps) {
     LicencePlate
   };
 
+  console.log("Submitting payload:", payload);
+
   try {
     const response = await fetch(
       `${process.env.REACT_APP_API_BASE_URL}UpdateAssetNfcTagAsync`,
@@ -60,12 +62,13 @@ export default function EditTag({ tag, isOpen, onClose }: ModalProps) {
       }
     );
 
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}`);
-    }
-
     const data = await response.json();
     console.log("API Response:", data);
+
+    if (!response.ok) {
+      console.error("API error detail:", data);
+      throw new Error(data?.message ?? `HTTP ${response.status}`);
+    }
 
     if (data.success) {
       onClose();
