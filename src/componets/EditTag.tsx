@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
-// import { Section } from "./Section";
-// import { Navbar } from "./Navbar";
+import { useLocation } from "react-router-dom";
 import { Button } from "./Button";
 import { groupedFuelOptions } from "../types/serviceOptions";
 import { UpdateAssetNfcTagRequest } from "../types/global";
@@ -14,6 +13,9 @@ interface ModalProps {
 
 
 export default function EditTag({ tag, isOpen, onClose }: ModalProps) {
+  const location = useLocation();
+  const token = new URLSearchParams(location.search).get("token") ?? "";
+
   const [isFuelOptionsOpen, setIsFuelOptionsOpen] = useState(false);
 
   const [Make, setMake] = useState<string>(tag.Make ?? "");
@@ -32,7 +34,7 @@ export default function EditTag({ tag, isOpen, onClose }: ModalProps) {
   e.preventDefault();
 
   const payload: UpdateAssetNfcTagRequest = {
-    TagId: tag.Id,
+    TagId: token,
     Make,
     Model,
     Year: Number(Year) || 0,
@@ -45,8 +47,6 @@ export default function EditTag({ tag, isOpen, onClose }: ModalProps) {
     VinNumber,
     LicencePlate
   };
-
-  console.log("Submitting payload:", payload);
 
   try {
     const response = await fetch(
@@ -63,10 +63,8 @@ export default function EditTag({ tag, isOpen, onClose }: ModalProps) {
     );
 
     const data = await response.json();
-    console.log("API Response:", data);
 
     if (!response.ok) {
-      console.error("API error detail:", data);
       throw new Error(data?.message ?? `HTTP ${response.status}`);
     }
 
@@ -82,16 +80,10 @@ export default function EditTag({ tag, isOpen, onClose }: ModalProps) {
 };
 
   useEffect(() => {
-    // JSON.parse(tag.Fuel)
-    console.log(tag.Fuel);
     if (tag?.Fuel) {
-    // Ensure it's a string[] even if it's JSON
-    const defaultFuel = Array.isArray(tag.Fuel)
-      ? tag.Fuel
-      : JSON.parse(tag.Fuel);
-
-    setFuel(defaultFuel);
-  }
+      const defaultFuel = Array.isArray(tag.Fuel) ? tag.Fuel : JSON.parse(tag.Fuel);
+      setFuel(defaultFuel);
+    }
   }, [tag.Fuel]);
 
   const VehicleTypes = ["Motorbike", "Car"];
