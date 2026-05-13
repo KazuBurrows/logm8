@@ -16,7 +16,6 @@ interface ModalProps {
 export default function EditTag({ tag, isOpen, onClose }: ModalProps) {
   const [isFuelOptionsOpen, setIsFuelOptionsOpen] = useState(false);
 
-  const [TagId] = useState<string>(tag.Id);
   const [Make, setMake] = useState<string>(tag.Make ?? "");
   const [Model, setModel] = useState<string>(tag.Model ?? "");
   const [Year, setYear] = useState<string>(tag.Year?.toString() ?? "");
@@ -33,7 +32,7 @@ export default function EditTag({ tag, isOpen, onClose }: ModalProps) {
   e.preventDefault();
 
   const payload: UpdateAssetNfcTagRequest = {
-    TagId,
+    TagId: tag.Id,
     Make,
     Model,
     Year: Number(Year) || 0,
