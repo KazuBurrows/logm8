@@ -671,31 +671,31 @@ export const Svg = ({ type, size, color }: SvgProps) => {
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
           >
-            <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+            <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
             <g
               id="SVGRepo_tracerCarrier"
-              stroke-linecap="round"
-              stroke-linejoin="round"
+              strokeLinecap="round"
+              strokeLinejoin="round"
             ></g>
             <g id="SVGRepo_iconCarrier">
               {" "}
               <path
                 d="M22 7L9 7M2 7L5 7"
                 stroke={getColorHex()}
-                stroke-width="2.4"
-                stroke-linecap="round"
+                strokeWidth="2.4"
+                strokeLinecap="round"
               ></path>{" "}
               <path
                 d="M19 12H16M5 12L12 12"
                 stroke={getColorHex()}
-                stroke-width="2.4"
-                stroke-linecap="round"
+                strokeWidth="2.4"
+                strokeLinecap="round"
               ></path>{" "}
               <path
                 d="M16 17H8"
                 stroke={getColorHex()}
-                stroke-width="2.4"
-                stroke-linecap="round"
+                strokeWidth="2.4"
+                strokeLinecap="round"
               ></path>{" "}
             </g>
           </svg>

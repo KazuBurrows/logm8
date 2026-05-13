@@ -272,6 +272,13 @@ const closeEdit = () => setIsEditOpen(false);
         case "Tune":
           tempServiceRecordStats[4] += 1;
           break;
+        case "WOF":
+        case "Registration":
+        case "Certification":
+        case "":
+        case null:
+        case undefined:
+          break;
         default:
           console.warn("Unknown service type:", service.ServiceType);
           break;
