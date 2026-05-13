@@ -4,7 +4,6 @@ import { Section } from "../componets/Section";
 interface FormData {
   name: string;
   email: string;
-  subject: string;
   message: string;
 }
 
@@ -12,7 +11,6 @@ export default function Contact() {
   const [formData, setFormData] = useState<FormData>({
     name: "",
     email: "",
-    subject: "",
     message: "",
   });
 
@@ -34,27 +32,47 @@ export default function Contact() {
 
     if (!formData.name) newErrors.push("Name is required.");
     if (!formData.email) newErrors.push("Email is required.");
-    if (!formData.subject) newErrors.push("Subject is required.");
     if (!formData.message) newErrors.push("Message is required.");
 
     setErrors(newErrors);
     return newErrors.length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
 
-    if (validateForm()) {
-      setIsSubmitting(true);
+  if (!validateForm()) return;
 
-      // Simulate an API call or form submission
-      setTimeout(() => {
-        alert("Form submitted successfully!");
-        setIsSubmitting(false);
-        setFormData({ name: "", email: "", subject: "", message: "" });
-      }, 1000);
+  setIsSubmitting(true);
+
+  try {
+    const res = await fetch(`${process.env.REACT_APP_API_BASE_URL}EmailItem`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        fromEmail: formData.email,
+        fromName: formData.name,
+        message: `${formData.message}`,
+      }),
+    });
+
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(`Failed to send: ${res.status} ${text}`);
     }
-  };
+
+    alert("Message sent successfully!");
+    setFormData({ name: "", email: "", message: "" });
+    setErrors([]);
+  } catch (err: any) {
+    setErrors([err.message ?? "Something went wrong. Please try again."]);
+  } finally {
+    setIsSubmitting(false);
+  }
+};
+
   return (
     <Section id="contact" className="h-screen lg:py-24 md:py-16 sm:py-12 py-20">
       <div className="lg:w-9/12 w-full text-center mx-auto lg:mb-24 mb-16 xl:px-18 lg:px-4 md:px-8 px-6">
@@ -105,7 +123,7 @@ export default function Contact() {
                 />
               </div>
 
-              <div>
+              {/* <div>
                 <input
                   type="text"
                   id="subject"
@@ -116,7 +134,7 @@ export default function Contact() {
                   placeholder="Subject"
                   required
                 />
-              </div>
+              </div> */}
 
               <div>
                 <textarea

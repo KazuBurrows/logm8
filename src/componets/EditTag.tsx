@@ -22,12 +22,12 @@ export default function EditTag({ tag, isOpen, onClose }: ModalProps) {
   const [isFuelOptionsOpen, setIsFuelOptionsOpen] = useState(false);
 
   const [TagId] = useState<string>(id);
-  const [Make, setMake] = useState<string>(tag.Make);
-  const [Model, setModel] = useState<string>(tag.Model);
-  const [Year, setYear] = useState<string>(tag.Year.toString());
-  const [Vehicle, setVehicle] = useState<string>(tag.Vehicle);
+  const [Make, setMake] = useState<string>(tag.Make ?? "");
+  const [Model, setModel] = useState<string>(tag.Model ?? "");
+  const [Year, setYear] = useState<string>(tag.Year?.toString() ?? "");
+  const [Vehicle, setVehicle] = useState<string>(tag.Vehicle ?? "");
   const [Style] = useState<string>("Null");
-  const [Engine, setEngine] = useState<string>(tag.Engine.toString());
+  const [Engine, setEngine] = useState<string>(tag.Engine?.toString() ?? "");
   const [Fuel, setFuel] = useState<string[]>([]);
   const [Transmission, setTransmission] = useState<string>(tag.Transmission);
   const [Color, setColor] = useState<string>(tag.Color);
