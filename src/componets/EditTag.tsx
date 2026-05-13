@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
 // import { Section } from "./Section";
 // import { Navbar } from "./Navbar";
 import { Button } from "./Button";
@@ -15,13 +14,9 @@ interface ModalProps {
 
 
 export default function EditTag({ tag, isOpen, onClose }: ModalProps) {
-  const location = useLocation();
-  const queryParams = new URLSearchParams(location.search);
-  const id = queryParams.get("token") ?? ""; // Extract the 'id' value
-  
   const [isFuelOptionsOpen, setIsFuelOptionsOpen] = useState(false);
 
-  const [TagId] = useState<string>(id);
+  const [TagId] = useState<string>(tag.Id);
   const [Make, setMake] = useState<string>(tag.Make ?? "");
   const [Model, setModel] = useState<string>(tag.Model ?? "");
   const [Year, setYear] = useState<string>(tag.Year?.toString() ?? "");
