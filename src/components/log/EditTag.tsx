@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from "react";
+﻿import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
-import { Button } from "./Button";
-import { groupedFuelOptions } from "../types/serviceOptions";
-import { UpdateAssetNfcTagRequest } from "../types/global";
+import { useApi } from "../../api/useApi";
+import { Button } from "../common/Button";
+import { groupedFuelOptions } from "../../types/serviceOptions";
+import { UpdateAssetNfcTagRequest } from "../../types/global";
 // const logmateLogo = require("../assets/logmate-logo.png");
 
 interface ModalProps {
@@ -15,6 +16,7 @@ interface ModalProps {
 export default function EditTag({ tag, isOpen, onClose }: ModalProps) {
   const location = useLocation();
   const token = new URLSearchParams(location.search).get("token") ?? "";
+  const { post } = useApi();
 
   const [isFuelOptionsOpen, setIsFuelOptionsOpen] = useState(false);
 
@@ -49,33 +51,14 @@ export default function EditTag({ tag, isOpen, onClose }: ModalProps) {
   };
 
   try {
-    const response = await fetch(
-      `${process.env.REACT_APP_API_BASE_URL}UpdateAssetNfcTagAsync`,
-      // "https://logmate.azurewebsites.net/api/UpdateAssetNfcTagAsync",
-      // "http://localhost:7071/api/UpdateAssetNfcTagAsync",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(payload)
-      }
-    );
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data?.message ?? `HTTP ${response.status}`);
-    }
-
+    const data = await post<{ success: boolean; message?: string }>("UpdateAssetNfcTagAsync", payload);
     if (data.success) {
       onClose();
     } else {
       alert(data.message ?? "Update failed");
     }
   } catch (err) {
-    console.error("Fetch error:", err);
-    alert("Network or server error");
+    alert(err instanceof Error ? err.message : "Network or server error");
   }
 };
 

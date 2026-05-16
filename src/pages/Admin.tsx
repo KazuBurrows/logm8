@@ -1,6 +1,6 @@
-import { useState } from "react";
-import TransferSticker from "../componets/TransferSticker";
-import ServiceRecordHierarchyEditor from "../componets/ServiceRecordHierarchyEditor";
+﻿import { useState } from "react";
+import TransferSticker from "../components/admin/TransferSticker";
+import ServiceRecordHierarchyEditor from "../components/admin/ServiceRecordHierarchyEditor";
 
 type AdminView = "menu" | "transfer" | "serviceHierarchy";
 

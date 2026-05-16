@@ -1,5 +1,5 @@
-import React from "react";
-import { Section } from "../componets/Section";
+﻿import React from "react";
+import { Section } from "../../components/common/Section";
 
 type FooterLink = {
   title: string;

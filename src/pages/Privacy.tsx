@@ -1,5 +1,5 @@
-import React from "react";
-import { Section } from "../componets/Section";
+﻿import React from "react";
+import { Section } from "../components/common/Section";
 import { useNavigate } from "react-router-dom";
 
 import logmateLogo from "../assets/logm8logo3.png"; // ✅ Correct path

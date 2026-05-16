@@ -1,5 +1,5 @@
-// import React, { useState } from "react";
-import { Search } from "../componets/Search";
+﻿// import React, { useState } from "react";
+import { Search } from "../../components/common/Search";
 
 interface Station {
   name: string;

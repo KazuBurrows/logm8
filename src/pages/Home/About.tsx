@@ -1,9 +1,9 @@
-import React from "react";
-import { Section } from "../componets/Section";
+﻿import React from "react";
+import { Section } from "../../components/common/Section";
 
-const img1 = require("../assets/img1.jpg");
-const img2 = require("../assets/img2.jpg");
-const img3 = require("../assets/img3.jpg");
+const img1 = require("../../assets/img1.jpg");
+const img2 = require("../../assets/img2.jpg");
+const img3 = require("../../assets/img3.jpg");
 
 type Inovation = { title: string; description: string; imgUrl: any };
 const innovation: Inovation[] = [

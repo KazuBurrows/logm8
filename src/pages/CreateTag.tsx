@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from "react";
+﻿import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
-import { Section } from "./Section";
-// import { Navbar } from "./Navbar";
-import { Button } from "./Button";
+import { apiClient } from "../api/client";
+import { Section } from "../components/common/Section";
+import { Button } from "../components/common/Button";
 import { groupedFuelOptions } from "../types/serviceOptions";
 
 export default function CreateTag() {
@@ -47,45 +47,32 @@ export default function CreateTag() {
 
     const redirectUser = async () => {
       try {
-        const eId = id;  // To conform with Server Sides variable
+        const eId = id;
         const reqString = JSON.stringify({ eId });
-        const url = `${process.env.REACT_APP_API_BASE_URL}OneLifeUrlOneStepNoDecrypt?reqString=${reqString}`;
-        // const url = `https://logmate.azurewebsites.net/api/OneLifeUrlOneStepNoDecrypt?reqString=${reqString}`;
-        // const url = `http://localhost:7071/api/OneLifeUrlOneStepNoDecrypt?reqString=${reqString}`;
-        const response = await fetch(url);
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-
-        const data = await response.json();
-        console.error("data:", data);
+        const data = await apiClient.get<{ success: boolean; url?: string }>(
+          `OneLifeUrlOneStepNoDecrypt?reqString=${reqString}`
+        );
         if (data.success && data.url) {
           window.location.href = data.url;
         } else {
           console.error("API failed:", data);
         }
-      } catch (err: any) {
+      } catch (err) {
         console.error("Redirect error:", err);
-      };
+      }
     };
-
 
     const fetchData = async () => {
       try {
-        const response = await fetch(
-          `${process.env.REACT_APP_API_BASE_URL}SubmitTag?tag=` + jsonData + ""
-          // "https://logmate.azurewebsites.net/api/SubmitTag?tag=" + jsonData + ""
-          // "http://localhost:7071/api/SubmitTag?tag=" + jsonData + ""
+        const data = await apiClient.get<{ success: boolean; message?: string }>(
+          `SubmitTag?tag=${jsonData}`
         );
-
-        const data = await response.json();
-        console.log("API Response:", data);
-
         if (data.success) {
-          // alert(data.message);
           redirectUser();
         } else {
           alert("Oops! Something went wrong. Please try again soon: " + data.message);
         }
-      } catch (err: any) {
+      } catch (err) {
         console.error("Fetch error:", err);
       }
     };

@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
-import { Section } from "./Section";
-import { Button } from "./Button";
+﻿import React, { useState, useEffect } from "react";
+import { Section } from "../common/Section";
+import { Button } from "../common/Button";
 import { useNavigate } from "react-router-dom";
 
 

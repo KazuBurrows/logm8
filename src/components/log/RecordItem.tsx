@@ -1,6 +1,6 @@
-// import { useHoldToEdit } from "../services/HoldToEdit";
-import { Button } from "./Button";
-import { Svg } from "./Svg";
+﻿
+import { Button } from "../common/Button";
+import { Svg } from "../common/Svg";
 
 export interface RecordItemProps {
   record: ServiceRecord;

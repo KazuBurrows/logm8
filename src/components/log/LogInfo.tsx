@@ -1,10 +1,10 @@
-// import React, { useState, useEffect } from "react";
+﻿
 
 import { useState } from "react";
 import EditTag from "./EditTag";
-import { Section } from "./Section";
+import { Section } from "../common/Section";
 // const bg1 = require("../assets/bg-detail.svg");
-const logmateLogo = require("../assets/logmate-logo.png");
+const logmateLogo = require("../../assets/logmate-logo.png");
 
 export interface LogInfoProps {
   tag: ServiceTag;

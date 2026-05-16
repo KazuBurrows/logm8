@@ -1,13 +1,13 @@
-import React, { useState } from "react";
+﻿import React, { useState } from "react";
 
-import { Section } from "../componets/Section";
-import { Navbar } from "../componets/Navbar";
-import Locations from "../views/Locations";
-import Contact from "../views/Contact";
-import Hero from "../views/Hero";
-import About from "../views/About";
+import { Section } from "../../components/common/Section";
+import { Navbar } from "../../components/common/Navbar";
+import Locations from "./Locations";
+import Contact from "../Contact";
+import Hero from "./Hero";
+import About from "./About";
 import Footer from "./Footer";
-// import Footer from "../componets/Footer";
+
 
 
 

@@ -1,13 +1,13 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import Home from './views/Home';
-import Merchant from './views/Merchant';
-import Log from './views/Log';
-import NotFound from './views/NotFound';
-import CreateTag from './componets/CreateTag';
-import FAQ from './views/FAQ';
-import Privacy from './views/Privacy';
-import Admin from './views/Admin';
+import Home from './pages/Home';
+import Merchant from './pages/Merchant';
+import Log from './pages/Log';
+import NotFound from './pages/NotFound';
+import CreateTag from './pages/CreateTag';
+import FAQ from './pages/FAQ';
+import Privacy from './pages/Privacy';
+import Admin from './pages/Admin';
 
 function App() {
   return (

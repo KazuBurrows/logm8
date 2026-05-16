@@ -1,5 +1,6 @@
-import React, { useState } from "react";
-import { Section } from "../componets/Section";
+﻿import React, { useState } from "react";
+import { Section } from "../components/common/Section";
+import { useApi } from "../api/useApi";
 
 interface FormData {
   name: string;
@@ -15,7 +16,7 @@ export default function Contact() {
   });
 
   const [errors, setErrors] = useState<string[]>([]);
-  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const { post, loading } = useApi();
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -39,39 +40,21 @@ export default function Contact() {
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-
-  if (!validateForm()) return;
-
-  setIsSubmitting(true);
-
-  try {
-    const res = await fetch(`${process.env.REACT_APP_API_BASE_URL}EmailItem`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
+    e.preventDefault();
+    if (!validateForm()) return;
+    try {
+      await post("EmailItem", {
         fromEmail: formData.email,
         fromName: formData.name,
-        message: `${formData.message}`,
-      }),
-    });
-
-    if (!res.ok) {
-      const text = await res.text();
-      throw new Error(`Failed to send: ${res.status} ${text}`);
+        message: formData.message,
+      });
+      alert("Message sent successfully!");
+      setFormData({ name: "", email: "", message: "" });
+      setErrors([]);
+    } catch (err) {
+      setErrors([err instanceof Error ? err.message : "Something went wrong. Please try again."]);
     }
-
-    alert("Message sent successfully!");
-    setFormData({ name: "", email: "", message: "" });
-    setErrors([]);
-  } catch (err: any) {
-    setErrors([err.message ?? "Something went wrong. Please try again."]);
-  } finally {
-    setIsSubmitting(false);
-  }
-};
+  };
 
   return (
     <Section id="contact" className="h-screen lg:py-24 md:py-16 sm:py-12 py-20">
@@ -152,9 +135,9 @@ export default function Contact() {
               <button
                 type="submit"
                 className="w-full py-3 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition"
-                disabled={isSubmitting}
+                disabled={loading}
               >
-                {isSubmitting ? "Sending..." : "Send"}
+                {loading ? "Sending..." : "Send"}
               </button>
             </form>
           </div>

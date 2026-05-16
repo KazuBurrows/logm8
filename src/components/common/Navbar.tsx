@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from "react";
+﻿import React, { useEffect, useState } from "react";
 // import { useNavigate } from "react-router-dom";
 
-const logmateLogo = require("../assets/logmate-logo.png");
+const logmateLogo = require("../../assets/logmate-logo.png");
 
 interface HamburgerButtonProps {
   onToggle: () => void;

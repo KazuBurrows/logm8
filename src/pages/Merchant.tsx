@@ -1,7 +1,7 @@
-// import React, { useState } from "react";
-import { Search } from "../componets/Search";
-import { Section } from "../componets/Section";
-import LogRecent from "../componets/LogRecent";
+﻿// import React, { useState } from "react";
+import { Search } from "../components/common/Search";
+import { Section } from "../components/common/Section";
+import LogRecent from "../components/log/LogRecent";
 
 export default function Merchant() {
   return (

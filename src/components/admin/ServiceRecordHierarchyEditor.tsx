@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
-import { ServiceHierarchyResult, ServiceOptionResult } from "../types/global";
+﻿import { useEffect, useState } from "react";
+import { ServiceHierarchyResult, ServiceOptionResult } from "../../types/global";
+import { apiClient } from "../../api/client";
 
 type TreeProps = {
   nodes?: ServiceOptionResult[] | null;
@@ -208,12 +209,6 @@ export default function ServiceRecordHierarchyEditor() {
   useEffect(() => {
     const fetchHierarchy = async () => {
       try {
-        const res = await fetch(
-          `${process.env.REACT_APP_API_BASE_URL}GetServiceRecordHierarchy`,
-        );
-
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
         const normalize = (node: any): ServiceOptionResult => ({
           id: node.Id,
           name: node.Name,
@@ -224,7 +219,7 @@ export default function ServiceRecordHierarchyEditor() {
             : [],
         });
 
-        const json: ServiceHierarchyResult = await res.json();
+        const json = await apiClient.get<ServiceHierarchyResult>("GetServiceRecordHierarchy");
         setData({
           MotorbikeOptions: json.MotorbikeOptions.map(normalize),
           OwnershipOptions: json.OwnershipOptions.map(normalize),
@@ -259,21 +254,8 @@ export default function ServiceRecordHierarchyEditor() {
     };
 
     try {
-      const res = await fetch(
-        `${process.env.REACT_APP_API_BASE_URL}AddServiceType`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-      if (!res.ok) {
-        throw new Error(`HTTP ${res.status}`);
-      }
-
-      console.log("Service type added successfully");
-      closeModal(); // optional
-
+      await apiClient.post("AddServiceType", payload);
+      closeModal();
     } catch (err) {
       console.error("Failed to add service type", err);
     }
@@ -291,21 +273,8 @@ export default function ServiceRecordHierarchyEditor() {
     };
 
     try {
-      const res = await fetch(
-        `${process.env.REACT_APP_API_BASE_URL}AddParentOption`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-      if (!res.ok) {
-        throw new Error(`HTTP ${res.status}`);
-      }
-
-      console.log("Parent added successfully");
-      closeModal(); // optional
-
+      await apiClient.post("AddParentOption", payload);
+      closeModal();
     } catch (err) {
       console.error("Failed to add parent", err);
     }
@@ -322,21 +291,8 @@ export default function ServiceRecordHierarchyEditor() {
     };
 
     try {
-      const res = await fetch(
-        `${process.env.REACT_APP_API_BASE_URL}CreateServiceOption`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-      if (!res.ok) {
-        throw new Error(`HTTP ${res.status}`);
-      }
-
-      console.log("Service option created successfully");
-      closeModal(); // optional
-
+      await apiClient.post("CreateServiceOption", payload);
+      closeModal();
     } catch (err) {
       console.error("Failed to create service option", err);
     }

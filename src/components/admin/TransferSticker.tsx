@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+﻿import React, { useState } from "react";
+import { apiClient } from "../../api/client";
 
 interface ReplaceTagRequest {
   oldTagId: string;
@@ -22,28 +23,10 @@ export default function TransferSticker() {
     };
 
     try {
-      const response = await fetch(
-        `${process.env.REACT_APP_API_BASE_URL}ReplaceNfcTag`,
-        // "https://logmate.azurewebsites.net/api/ReplaceNfcTag",
-        // "http://localhost:7071/api/ReplaceNfcTag",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(payload),
-        }
-      );
-
-      if (response.ok) {
-        const text = await response.text();
-        setMessage(`✅ ${text}`);
-      } else {
-        const errorText = await response.text();
-        setMessage(`❌ Error: ${errorText}`);
-      }
-    } catch (error) {
-      setMessage("❌ Network error");
+      const text = await apiClient.postText("ReplaceNfcTag", payload);
+      setMessage(`✅ ${text}`);
+    } catch (err) {
+      setMessage(`❌ ${err instanceof Error ? err.message : "Network error"}`);
     } finally {
       setLoading(false);
     }

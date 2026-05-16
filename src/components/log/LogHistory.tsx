@@ -1,15 +1,15 @@
-import React, { useEffect, useRef, useState } from "react";
+﻿import React, { useEffect, useRef, useState } from "react";
 
-import { Section } from "./Section";
-import { Button } from "./Button";
+import { Section } from "../common/Section";
+import { Button } from "../common/Button";
 import { CreateRecord } from "./CreateRecord";
-import { Svg } from "./Svg";
-import { groupedOptions } from "../types/serviceOptions";
-import { sortedOptions } from "../types/sortOptions";
-import { UserMode } from "../views/Log";
-import { TaskOption } from "../types/global";
+import { Svg } from "../common/Svg";
+import { groupedOptions } from "../../types/serviceOptions";
+import { sortedOptions } from "../../types/sortOptions";
+import { UserMode } from "../../pages/Log";
+import { TaskOption } from "../../types/global";
 import { RecordItem } from "./RecordItem";
-// import CascadingDropdown from "./CascadingDropdown";
+
 
 
 

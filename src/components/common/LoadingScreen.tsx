@@ -1,8 +1,7 @@
-import * as React from "react";
+﻿import * as React from "react";
 import { Section } from "./Section";
 
-// import LoadingLogm8White from "../assets/LoadingLogm8White.gif";
-const LoadingLogm8White = require("../assets/LoadingLogm8White.gif");
+import LoadingLogm8White from "../../assets/LoadingLogm8White.gif";
 
 export interface LoadingScreenProps {
   text: string;

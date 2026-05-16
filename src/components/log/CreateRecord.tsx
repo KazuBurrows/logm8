@@ -1,9 +1,8 @@
-import React, { useEffect, useMemo, useState } from "react";
+﻿import React, { useEffect, useMemo, useState } from "react";
 import { useLocation } from "react-router-dom";
-import { LoadingScreen } from "./LoadingScreen";
-// import { groupedOptions } from "../types/serviceOptions";
-// import CascadingDropdown from "./CascadingDropdown";
-import CascadingDropdownCopy from "./CascadingDropdown copy";
+import { apiClient } from "../../api/client";
+import { LoadingScreen } from "../common/LoadingScreen";
+import CascadingDropdownCopy from "./CascadingDropdown";
 
 export interface CreateRecordProps {
   isOpen: boolean; // Controls if the modal is visible
@@ -196,21 +195,7 @@ export const CreateRecord = ({
         formData.append("ServiceType", selection.type ?? "");
 
 
-        // Use your update endpoint and an appropriate HTTP method.
-        // I used PUT to /api/UpdateRecord — change if your API differs.
-        const res = await fetch(`${process.env.REACT_APP_API_BASE_URL}UpdateServiceRecord`, {
-          // const res = await fetch("https://logmate.azurewebsites.net/api/UpdateRecord", {
-          // const res = await fetch("http://localhost:7071/api/UpdateRecord", {
-          method: "POST",
-          body: formData,
-        });
-
-        if (!res.ok) {
-          const text = await res.text();
-          throw new Error(`Update failed: ${res.status} ${text}`);
-        }
-
-        const updatedRecord = await res.json();
+        const updatedRecord = await apiClient.post<ServiceRecord>("UpdateServiceRecord", formData);
         // notify parent with the server-updated record
         onUpdate?.(updatedRecord);
         onClose();
@@ -231,21 +216,7 @@ export const CreateRecord = ({
       formData.append("ServiceType", selection.type ?? "");
 
       // CREATE mode (existing flow)
-      const res = await fetch(
-        // "https://logmate.azurewebsites.net/api/SubmitRecord",
-        `${process.env.REACT_APP_API_BASE_URL}SubmitRecord`,
-        {
-          method: "POST",
-          body: formData,
-        }
-      );
-
-      if (!res.ok) {
-        const text = await res.text();
-        throw new Error(`Create failed: ${res.status} ${text}`);
-      }
-
-      // const insertedRecord = await res.json();
+      await apiClient.post("SubmitRecord", formData);
       const record: ServiceRecord = {
         // Use this code to clean up the formData.append code
         Token: "",
