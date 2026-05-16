@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 import { Section } from "../common/Section";
 import { Button } from "../common/Button";
@@ -9,9 +9,6 @@ import { sortedOptions } from "../../types/sortOptions";
 import { UserMode } from "../../pages/Log";
 import { TaskOption } from "../../types/global";
 import { RecordItem } from "./RecordItem";
-
-
-
 
 
 export interface LogHistoryProps {

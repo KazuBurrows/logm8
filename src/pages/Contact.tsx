@@ -1,4 +1,4 @@
-﻿import React, { useState } from "react";
+import React, { useState } from "react";
 import { Section } from "../components/common/Section";
 import { useApi } from "../api/useApi";
 

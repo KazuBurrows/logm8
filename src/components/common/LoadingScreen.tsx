@@ -1,4 +1,4 @@
-﻿import * as React from "react";
+import * as React from "react";
 import { Section } from "./Section";
 
 import LoadingLogm8White from "../../assets/LoadingLogm8White.gif";

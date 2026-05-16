@@ -1,4 +1,3 @@
-﻿import React from "react";
 import { Section } from "../../components/common/Section";
 
 const img1 = require("../../assets/img1.jpg");

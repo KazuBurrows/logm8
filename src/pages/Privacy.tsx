@@ -1,8 +1,7 @@
-﻿import React from "react";
 import { Section } from "../components/common/Section";
 import { useNavigate } from "react-router-dom";
 
-import logmateLogo from "../assets/logm8logo3.png"; // ✅ Correct path
+import logmateLogo from "../assets/logm8logo3.png";
 
 export default function Privacy() {
     const navigate = useNavigate();
@@ -17,17 +16,17 @@ export default function Privacy() {
         >
             <div className="max-w-4xl mx-auto px-6 pb-16">
                 <div className="flex justify-center">
-  <button
-    onClick={handleRedirect}
-    aria-label="Back to Homepage"
-  >
-    <img
-  src={logmateLogo}
-  className="max-h-24 mx-auto my-8"
-  alt="Logmate Logo"
-/>
-  </button>
-</div>
+                    <button
+                        onClick={handleRedirect}
+                        aria-label="Back to Homepage"
+                    >
+                        <img
+                            src={logmateLogo}
+                            className="max-h-24 mx-auto my-8"
+                            alt="Logmate Logo"
+                        />
+                    </button>
+                </div>
                 <h2 className="text-4xl font-bold mb-8 text-center lexend-font">
                     Privacy Policy
                 </h2>

@@ -1,4 +1,4 @@
-﻿import React, { useState } from "react";
+import React, { useState } from "react";
 import { apiClient } from "../../api/client";
 
 interface ReplaceTagRequest {

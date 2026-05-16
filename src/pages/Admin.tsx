@@ -1,4 +1,4 @@
-﻿import { useState } from "react";
+import { useState } from "react";
 import TransferSticker from "../components/admin/TransferSticker";
 import ServiceRecordHierarchyEditor from "../components/admin/ServiceRecordHierarchyEditor";
 

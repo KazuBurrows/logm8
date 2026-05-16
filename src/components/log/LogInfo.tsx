@@ -1,5 +1,3 @@
-﻿
-
 import { useState } from "react";
 import EditTag from "./EditTag";
 import { Section } from "../common/Section";

@@ -1,4 +1,3 @@
-﻿
 import { Button } from "../common/Button";
 import { Svg } from "../common/Svg";
 

@@ -1,4 +1,3 @@
-﻿// import React, { useState } from "react";
 import { Search } from "../components/common/Search";
 import { Section } from "../components/common/Section";
 import LogRecent from "../components/log/LogRecent";
