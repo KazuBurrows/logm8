@@ -5,11 +5,11 @@ export function useApi() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
-  const get = useCallback(async <T>(path: string): Promise<T> => {
+  const get = useCallback(async <T>(path: string, headers?: Record<string, string>): Promise<T> => {
     setLoading(true);
     setError(null);
     try {
-      return await apiClient.get<T>(path);
+      return await apiClient.get<T>(path, headers);
     } catch (err) {
       const e = err instanceof Error ? err : new Error(String(err));
       setError(e);
@@ -19,11 +19,11 @@ export function useApi() {
     }
   }, []);
 
-  const post = useCallback(async <T>(path: string, body: unknown): Promise<T> => {
+  const post = useCallback(async <T>(path: string, body: unknown, headers?: Record<string, string>): Promise<T> => {
     setLoading(true);
     setError(null);
     try {
-      return await apiClient.post<T>(path, body);
+      return await apiClient.post<T>(path, body, headers);
     } catch (err) {
       const e = err instanceof Error ? err : new Error(String(err));
       setError(e);

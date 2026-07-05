@@ -1,4 +1,4 @@
-import { Section } from "../components/common/Section";
+import { Section } from "../shared/components/Section";
 import { useNavigate } from "react-router-dom";
 
 import logmateLogo from "../assets/logm8logo3.png";

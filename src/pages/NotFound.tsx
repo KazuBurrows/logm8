@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 
-import { Section } from "../components/common/Section"
+import { Section } from "../shared/components/Section"
 const logmateLogo = require("../assets/logmate-logo.png");
 
 

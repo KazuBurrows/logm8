@@ -4,6 +4,7 @@ module.exports = {
       extend: {
         animation: {
           'infinite-scroll': 'infinite-scroll 25s linear infinite',
+          'shake': 'shake 0.4s ease-in-out',
         },
         textShadow: {
           sm: "1px 1px 2px rgba(0, 0, 0, 0.5)",
@@ -15,7 +16,14 @@ module.exports = {
           'infinite-scroll': {
             from: { transform: 'translateX(0)' },
             to: { transform: 'translateX(-100%)' },
-          }
+          },
+          'shake': {
+            '0%, 100%': { transform: 'translateX(0)' },
+            '20%': { transform: 'translateX(-6px)' },
+            '40%': { transform: 'translateX(6px)' },
+            '60%': { transform: 'translateX(-4px)' },
+            '80%': { transform: 'translateX(4px)' },
+          },
         },
         fontSize: {
           'xs': '0.75rem',
