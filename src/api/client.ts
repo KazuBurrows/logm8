@@ -1,3 +1,4 @@
+import axios, { AxiosError, AxiosInstance, AxiosRequestConfig } from "axios";
 import { dispatchToast } from "../shared/components/Toast/toastService";
 
 const BASE_URL = process.env.REACT_APP_API_BASE_URL ?? "";
@@ -5,40 +6,62 @@ const FUNCTION_KEY = process.env.REACT_APP_API_KEY ?? "";
 
 export class ApiError extends Error {
   status: number;
+  title?: string;
+  conflictingIds?: number[];
 
-  constructor(status: number, message: string) {
+  constructor(status: number, message: string, title?: string, conflictingIds?: number[]) {
     super(message);
     this.name = "ApiError";
     this.status = status;
+    this.title = title;
+    this.conflictingIds = conflictingIds;
   }
 }
 
-function buildHeaders(body?: BodyInit | null): HeadersInit {
-  const headers: Record<string, string> = {};
-  if (FUNCTION_KEY) headers["x-functions-key"] = FUNCTION_KEY;
-  if (!(body instanceof FormData)) headers["Content-Type"] = "application/json";
-  return headers;
+/**
+ * Every response now comes wrapped by ApiResponseFactory as
+ * { title, status, detail, extensions }. The Functions worker's JSON
+ * serializer casing isn't guaranteed, so reads check both casings; the
+ * "item"/"id"/"ids" extension keys are literal Dictionary<string,object>
+ * keys server-side and are always lowercase.
+ */
+function field<T>(body: unknown, name: string): T | undefined {
+  if (!body || typeof body !== "object") return undefined;
+  const pascal = name[0].toUpperCase() + name.slice(1);
+  const record = body as Record<string, unknown>;
+  return (record[name] ?? record[pascal]) as T | undefined;
 }
 
-interface FailureEnvelope {
-  success: false;
-  message?: string;
+function isEnvelope(body: unknown): boolean {
+  return field(body, "detail") !== undefined || field(body, "extensions") !== undefined;
 }
 
-function isFailureEnvelope(data: unknown): data is FailureEnvelope {
-  return typeof data === "object" && data !== null && (data as Record<string, unknown>).success === false;
-}
+function unwrapPayload(body: unknown): unknown {
+  if (!isEnvelope(body)) return body;
 
-function extractMessage(rawText: string, fallback: string): string {
-  try {
-    const parsed = JSON.parse(rawText);
-    if (parsed && typeof parsed === "object" && typeof parsed.message === "string") {
-      return parsed.message;
-    }
-  } catch {
-    // not JSON, fall through to raw text
+  const extensions = field<Record<string, unknown>>(body, "extensions");
+  if (extensions) {
+    if ("item" in extensions) return extensions.item;
+    if ("id" in extensions) return extensions.id;
+    if (Object.keys(extensions).length > 0) return extensions;
   }
-  return rawText || fallback;
+  return field<string>(body, "detail");
+}
+
+function extractApiError(err: AxiosError): ApiError {
+  const body = err.response?.data;
+  const status = err.response?.status ?? 0;
+  const detail = field<string>(body, "detail");
+  const title = field<string>(body, "title");
+  const extensions = field<Record<string, unknown>>(body, "extensions");
+  const conflictingIds = status === 409 ? (extensions?.ids as number[] | undefined) : undefined;
+
+  return new ApiError(
+    status,
+    detail || title || err.message || "Something went wrong. Please try again.",
+    title,
+    conflictingIds
+  );
 }
 
 function notifyError(err: unknown): void {
@@ -47,61 +70,37 @@ function notifyError(err: unknown): void {
   dispatchToast(message, "error");
 }
 
-async function doFetch(path: string, init?: RequestInit): Promise<Response> {
+const http: AxiosInstance = axios.create({ baseURL: BASE_URL });
+
+async function request<T>(config: AxiosRequestConfig): Promise<T> {
+  const isFormData = config.data instanceof FormData;
+
   try {
-    const res = await fetch(`${BASE_URL}${path}`, {
-      ...init,
-      headers: { ...buildHeaders(init?.body), ...init?.headers },
+    const res = await http.request({
+      ...config,
+      headers: {
+        ...(FUNCTION_KEY ? { "x-functions-key": FUNCTION_KEY } : {}),
+        ...(isFormData ? {} : { "Content-Type": "application/json" }),
+        ...config.headers,
+      },
     });
-
-    if (!res.ok) {
-      const rawText = await res.text().catch(() => res.statusText);
-      throw new ApiError(res.status, extractMessage(rawText, res.statusText));
-    }
-
-    return res;
+    return unwrapPayload(res.data) as T;
   } catch (err) {
-    notifyError(err);
-    throw err;
+    const apiErr = axios.isAxiosError(err)
+      ? extractApiError(err)
+      : err instanceof Error
+      ? err
+      : new Error(String(err));
+    notifyError(apiErr);
+    throw apiErr;
   }
-}
-
-async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
-  const res = await doFetch(path, init);
-
-  let data: unknown;
-  try {
-    data = await res.json();
-  } catch {
-    return undefined as T;
-  }
-
-  if (isFailureEnvelope(data)) {
-    const err = new ApiError(res.status, data.message || "Request failed");
-    notifyError(err);
-    throw err;
-  }
-
-  return data as T;
-}
-
-async function apiFetchText(path: string, init?: RequestInit): Promise<string> {
-  const res = await doFetch(path, init);
-  return res.text();
 }
 
 export const apiClient = {
-  get: <T>(path: string, headers?: Record<string, string>) => apiFetch<T>(path, { headers }),
+  get: <T>(path: string, headers?: Record<string, string>) =>
+    request<T>({ method: "GET", url: path, headers }),
   post: <T>(path: string, body: unknown, headers?: Record<string, string>) =>
-    apiFetch<T>(path, {
-      method: "POST",
-      body: body instanceof FormData ? body : JSON.stringify(body),
-      headers,
-    }),
+    request<T>({ method: "POST", url: path, data: body, headers }),
   postText: (path: string, body: unknown, headers?: Record<string, string>) =>
-    apiFetchText(path, {
-      method: "POST",
-      body: body instanceof FormData ? body : JSON.stringify(body),
-      headers,
-    }),
+    request<string>({ method: "POST", url: path, data: body, headers }),
 };

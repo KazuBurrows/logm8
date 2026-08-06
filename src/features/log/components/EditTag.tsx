@@ -51,12 +51,8 @@ export default function EditTag({ tag, isOpen, onClose }: ModalProps) {
   };
 
   try {
-    const data = await post<{ success: boolean; message?: string }>("UpdateAssetNfcTagAsync", payload);
-    if (data.success) {
-      onClose();
-    } else {
-      alert(data.message ?? "Update failed");
-    }
+    await post("UpdateAssetNfcTagAsync", payload);
+    onClose();
   } catch (err) {
     alert(err instanceof Error ? err.message : "Network or server error");
   }

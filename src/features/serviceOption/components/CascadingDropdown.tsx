@@ -149,6 +149,16 @@ export default function CascadingDropdown({
     return null;
   }, [selectedCategory, selectedSubcategory, selectedOption]);
 
+  // Default to the first available service type whenever the list changes
+  // (e.g. a new category/subcategory/option is selected) unless the current
+  // selection is still valid for the new list.
+  useEffect(() => {
+    if (!serviceTypesToShow || serviceTypesToShow.length === 0) return;
+    setSelectedType((prev) =>
+      prev && serviceTypesToShow.includes(prev) ? prev : serviceTypesToShow[0]
+    );
+  }, [serviceTypesToShow]);
+
   // ── Notify parent on selection change ────────────────────────────────────
 
   const onChangeRef = useRef(onChange);

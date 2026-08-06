@@ -219,7 +219,7 @@ export default function ServiceRecordHierarchyEditor() {
             : [],
         });
 
-        const json = await apiClient.get<ServiceHierarchyResult>("GetServiceRecordHierarchy");
+        const json = await apiClient.get<ServiceHierarchyResult>("GetServiceOptionHierarchy");
         setData({
           MotorbikeOptions: json.MotorbikeOptions.map(normalize),
           OwnershipOptions: json.OwnershipOptions.map(normalize),
@@ -254,7 +254,7 @@ export default function ServiceRecordHierarchyEditor() {
     };
 
     try {
-      await apiClient.post("AddServiceType", payload);
+      await apiClient.post("AddServiceOptionServiceType", payload);
       closeModal();
     } catch (err) {
       console.error("Failed to add service type", err);
@@ -273,7 +273,7 @@ export default function ServiceRecordHierarchyEditor() {
     };
 
     try {
-      await apiClient.post("AddParentOption", payload);
+      await apiClient.post("AddParentServiceOption", payload);
       closeModal();
     } catch (err) {
       console.error("Failed to add parent", err);
@@ -291,7 +291,7 @@ export default function ServiceRecordHierarchyEditor() {
     };
 
     try {
-      await apiClient.post("CreateServiceOption", payload);
+      await apiClient.post("AddServiceOption", payload);
       closeModal();
     } catch (err) {
       console.error("Failed to create service option", err);

@@ -2,42 +2,49 @@ import { useCallback } from "react";
 import { useApi } from "../../../api/useApi";
 
 interface ServiceRecordDto {
-  token: string;
-  id: string;
-  tagId: string;
-  enteredDate: string | null;
-  servicedDate: string;
-  mechanicName: string;
-  odometer: string;
-  certified: boolean | null;
-  serviceCategory: string;
-  serviceType: string;
-  serviceOption: string;
-  comment: string;
-  fileUrls: string[];
-}
-
-interface ServiceRecordResponse {
-  success: boolean;
-  message?: string;
-  data: ServiceRecordDto;
+  Token?: string;
+  token?: string;
+  id?: string;
+  Id?: string;
+  TagId?: string;
+  tagId?: string;
+  EnteredDate?: string | null;
+  enteredDate?: string | null;
+  ServicedDate?: string;
+  servicedDate?: string;
+  MechanicName?: string;
+  mechanicName?: string;
+  Odometer?: string;
+  odometer?: string;
+  Certified?: boolean | null;
+  certified?: boolean | null;
+  ServiceCategory?: string;
+  serviceCategory?: string;
+  ServiceType?: string;
+  serviceType?: string;
+  ServiceOption?: string;
+  serviceOption?: string;
+  Comment?: string;
+  comment?: string;
+  FileUrls?: string[];
+  fileUrls?: string[];
 }
 
 function toServiceRecord(dto: ServiceRecordDto): ServiceRecord {
   return {
-    Token: dto.token,
-    id: dto.id,
-    TagId: dto.tagId,
-    EnteredDate: dto.enteredDate,
-    ServicedDate: dto.servicedDate,
-    MechanicName: dto.mechanicName,
-    Odometer: dto.odometer,
-    ServiceCategory: dto.serviceCategory,
-    ServiceType: dto.serviceType,
-    ServiceOption: dto.serviceOption,
-    Comment: dto.comment,
-    FileUrls: dto.fileUrls ?? [],
-    Certified: dto.certified ?? undefined,
+    Token: (dto.Token ?? dto.token) as string,
+    id: (dto.id ?? dto.Id) as string,
+    TagId: (dto.TagId ?? dto.tagId) as string,
+    EnteredDate: dto.EnteredDate ?? dto.enteredDate ?? null,
+    ServicedDate: (dto.ServicedDate ?? dto.servicedDate) as string,
+    MechanicName: (dto.MechanicName ?? dto.mechanicName) as string,
+    Odometer: (dto.Odometer ?? dto.odometer) as string,
+    ServiceCategory: (dto.ServiceCategory ?? dto.serviceCategory) as string,
+    ServiceType: (dto.ServiceType ?? dto.serviceType) as string,
+    ServiceOption: (dto.ServiceOption ?? dto.serviceOption) as string,
+    Comment: (dto.Comment ?? dto.comment) as string,
+    FileUrls: dto.FileUrls ?? dto.fileUrls ?? [],
+    Certified: dto.Certified ?? dto.certified ?? undefined,
   };
 }
 
@@ -51,11 +58,11 @@ export function useServiceRecord() {
       const headers: Record<string, string> = {};
       if (token) headers["Authorization"] = token;
       if (tagId) headers["X-Tag-Id"] = tagId;
-      const response = await post<ServiceRecordResponse>("SubmitRecord", formData, headers);
-      if (!response?.data?.id) {
+      const dto = await post<ServiceRecordDto>("SubmitRecord", formData, headers);
+      if (!(dto?.id ?? dto?.Id)) {
         throw new Error("Server returned an unexpected response while creating the record.");
       }
-      return toServiceRecord(response.data);
+      return toServiceRecord(dto);
     },
     [post]
   );
@@ -67,11 +74,11 @@ export function useServiceRecord() {
       const headers: Record<string, string> = {};
       if (token) headers["Authorization"] = token;
       if (tagId) headers["X-Tag-Id"] = tagId;
-      const response = await post<ServiceRecordResponse>("UpdateServiceRecord", formData, headers);
-      if (!response?.data?.id) {
+      const dto = await post<ServiceRecordDto>("UpdateServiceRecord", formData, headers);
+      if (!(dto?.id ?? dto?.Id)) {
         throw new Error("Server returned an unexpected response while updating the record.");
       }
-      return toServiceRecord(response.data);
+      return toServiceRecord(dto);
     },
     [post]
   );

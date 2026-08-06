@@ -6,15 +6,12 @@ import { RecordModal } from "../../serviceRecord/components/RecordModal";
 import { Svg } from "../../../shared/components/Svg";
 import { groupedOptions } from "../../../shared/types/serviceOptions";
 import { sortedOptions } from "../../../shared/types/sortOptions";
-import { UserMode } from "../pages/Log";
+import { UserMode, useLogData } from "../context/LogDataContext";
 import { TaskOption } from "../../../shared/types/global";
 import { RecordItem } from "../../serviceRecord/components/RecordItem";
 
 
 export interface LogHistoryProps {
-  logServiceRecords: ServiceRecord[];
-  logServiceOptions: ServiceOption[];
-  logOwnershipOptions: ServiceOption[];
   viewMode: string;
 }
 
@@ -68,12 +65,14 @@ function toKm(value: string): number {
 }
 
 
-export default function LogHistory({
-  logServiceRecords,
-  viewMode,
-  logServiceOptions,
-  logOwnershipOptions,
-}: LogHistoryProps) {
+export default function LogHistory({ viewMode }: LogHistoryProps) {
+  const {
+    serviceRecords,
+    serviceOptions: logServiceOptions,
+    ownershipOptions: logOwnershipOptions,
+    addRecord,
+    updateRecord,
+  } = useLogData();
 
 
 const glowClasses: Record<string, string> = {
@@ -116,22 +115,6 @@ const closeEdit = () => setIsEditOpen(false);
   };
 
   const [editingRecord, setEditingRecord] = useState<ServiceRecord|null>(null);
-
-
-  // State to hold the service logs
-  const [serviceRecords, setServiceRecords] =
-    useState<ServiceRecord[]>(logServiceRecords);
-
-  const updateRecords = (newRecord: ServiceRecord) => {
-    setServiceRecords((prevRecords) => [newRecord, ...prevRecords]);
-  };
-
-  const replaceRecord = (updatedRecord: ServiceRecord) => {
-    setServiceRecords((prevRecords) =>
-      prevRecords.map((r) => (r.id === updatedRecord.id ? updatedRecord : r))
-    );
-  };
-
 
   const [selectedSortType, setSelectedSortType] = useState<string>("");
   const sortedRecords = React.useMemo(() => {
@@ -568,7 +551,7 @@ const closeEdit = () => setIsEditOpen(false);
         mode="create"
         isOpen={isCreateOpen}
         onClose={closeCreate}
-        onInsert={updateRecords}
+        onInsert={addRecord}
         logServiceOptions={logServiceOptions}
         logOwnershipOptions={logOwnershipOptions}
       />
@@ -577,7 +560,7 @@ const closeEdit = () => setIsEditOpen(false);
         mode="edit"
         recordToEdit={filteredRecords.find(r => r.id === editingRecord?.id)}
         isOpen={isEditOpen}
-        onUpdate={replaceRecord}
+        onUpdate={updateRecord}
         onClose={closeEdit}
         logServiceOptions={logServiceOptions}
         logOwnershipOptions={logOwnershipOptions}

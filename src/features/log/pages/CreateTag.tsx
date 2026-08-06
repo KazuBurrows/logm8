@@ -57,11 +57,11 @@ export default function CreateTag() {
 
     const redirectUser = async () => {
       try {
-        const data = await getRedirectUrl(id);
-        if (data.success && data.url && isSafeRedirectUrl(data.url)) {
-          window.location.href = data.url;
+        const url = await getRedirectUrl(id);
+        if (url && isSafeRedirectUrl(url)) {
+          window.location.href = url;
         } else {
-          console.error("API failed or returned an unsafe URL:", data);
+          console.error("API returned a missing or unsafe URL:", url);
         }
       } catch (err) {
         console.error("Redirect error:", err);
@@ -70,13 +70,10 @@ export default function CreateTag() {
 
     const fetchData = async () => {
       try {
-        const data = await submitTag(jsonData, id);
-        if (data.success) {
-          redirectUser();
-        } else {
-          alert("Oops! Something went wrong. Please try again soon: " + data.message);
-        }
+        await submitTag(jsonData, id);
+        redirectUser();
       } catch (err) {
+        // ApiError is already surfaced via the toast in the api client
         console.error("Fetch error:", err);
       }
     };

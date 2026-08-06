@@ -23,7 +23,7 @@ export default function TransferSticker() {
     };
 
     try {
-      const text = await apiClient.postText("ReplaceNfcTag", payload, {
+      const text = await apiClient.postText("ReplaceAssetNfcTag", payload, {
         Authorization: oldTagId,
         "X-Tag-Id": oldTagId,
       });
