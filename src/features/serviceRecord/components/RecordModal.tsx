@@ -83,8 +83,6 @@ export const RecordModal = ({
       setOdometer(odoNum ?? "");
       setOdometerMetric(odoMetric ?? "km");
 
-      console.log("prefill edit")
-      console.log(recordToEdit)
       // Preselect dropdown (service options)
       // dropdown initialValue seeds its own state; onChange will update selection
 
@@ -164,7 +162,6 @@ export const RecordModal = ({
       }
 
       if (!selection?.option && !selection?.subcategory && !selection?.category) {
-        console.log(selection)
         errors.push("At least one of Category / Subcategory / Subitem must be selected");
       }
 
@@ -242,8 +239,8 @@ export const RecordModal = ({
       onInsert?.(newRecord);
       onClose();
     } catch (err: any) {
-      console.log(err);
-      if (!(err instanceof ApiError)) {
+      console.error(err);
+      if (!(err instanceof ApiError) || err.status === 404) {
         dispatchToast("Something went wrong while saving the record. Please try again.", "error");
       }
     } finally {
@@ -403,7 +400,6 @@ export const RecordModal = ({
               logOwnershipOptions={logOwnershipOptions}
               initialValue={initialDropdownSelection}
               onChange={(selected) => {
-                console.log("Dropdown changed:", selected);
                 setSelection(selected);
               }}
             />

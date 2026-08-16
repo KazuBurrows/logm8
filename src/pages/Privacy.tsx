@@ -27,13 +27,13 @@ export default function Privacy() {
                         />
                     </button>
                 </div>
-                <h2 className="text-4xl font-bold mb-8 text-center lexend-font">
+                <h1 className="text-4xl font-bold mb-8 text-center lexend-font">
                     Privacy Policy
-                </h2>
+                </h1>
 
                 <div className="space-y-8 text-gray-700 text-lg leading-relaxed">
                     <section>
-                        <h3 className="text-2xl font-semibold mb-3">Introduction</h3>
+                        <h2 className="text-2xl font-semibold mb-3">Introduction</h2>
                         <p>
                             At logm8, we value your privacy. This page explains how we collect,
                             use, and protect your information when you use our app and
@@ -42,7 +42,7 @@ export default function Privacy() {
                     </section>
 
                     <section>
-                        <h3 className="text-2xl font-semibold mb-3">Information We Collect</h3>
+                        <h2 className="text-2xl font-semibold mb-3">Information We Collect</h2>
                         <p>
                             We only collect the information that you choose to provide to us.
                             This may include logbook entries, receipts, service records, and
@@ -53,7 +53,7 @@ export default function Privacy() {
                     </section>
 
                     <section>
-                        <h3 className="text-2xl font-semibold mb-3">How We Use Your Data</h3>
+                        <h2 className="text-2xl font-semibold mb-3">How We Use Your Data</h2>
                         <p>
                             Your data is used solely to maintain your vehicle’s digital
                             history. We do not sell or share your information with third
@@ -62,7 +62,7 @@ export default function Privacy() {
                     </section>
 
                     <section>
-                        <h3 className="text-2xl font-semibold mb-3">Security</h3>
+                        <h2 className="text-2xl font-semibold mb-3">Security</h2>
                         <p>
                             logm8 uses encryption and secure authentication to protect your
                             data. We continuously update our systems to safeguard against
@@ -71,7 +71,7 @@ export default function Privacy() {
                     </section>
 
                     <section>
-                        <h3 className="text-2xl font-semibold mb-3">Your Rights</h3>
+                        <h2 className="text-2xl font-semibold mb-3">Your Rights</h2>
                         <p>
                             You can update or delete your logbook entries at any time. To ensure
                             proper control, we apply custom authorization rules that allow
@@ -82,7 +82,7 @@ export default function Privacy() {
                     </section>
 
                     <section>
-                        <h3 className="text-2xl font-semibold mb-3">Contact Us</h3>
+                        <h2 className="text-2xl font-semibold mb-3">Contact Us</h2>
                         <p>
                             If you have questions about this Privacy Policy, please contact us
                             at <span className="font-medium">support@logm8.com</span>.

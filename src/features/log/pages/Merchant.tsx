@@ -8,7 +8,7 @@ export default function Merchant() {
       {/* Left Column for Icon Links */}
       <div className="w-16 bg-gray-800 text-white flex flex-col items-center py-4">
         {/* Icon Links */}
-        <a href="#home" className="mb-6">
+        <a href="#home" aria-label="Home" className="mb-6">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             className="h-8 w-8 hover:text-green-400"
@@ -24,7 +24,7 @@ export default function Merchant() {
             />
           </svg>
         </a>
-        <a href="#profile" className="mb-6">
+        <a href="#profile" aria-label="Profile" className="mb-6">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             className="h-8 w-8 hover:text-green-400"
@@ -40,7 +40,7 @@ export default function Merchant() {
             />
           </svg>
         </a>
-        <a href="#settings" className="mb-6">
+        <a href="#settings" aria-label="Settings" className="mb-6">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             className="h-8 w-8 hover:text-green-400"

@@ -68,7 +68,7 @@ export default function FAQ() {
   alt="Logmate Logo"
 />
       </button>
-      <h2 className="text-3xl font-bold mb-8 text-center">Frequently Asked Questions</h2>
+      <h1 className="text-3xl font-bold mb-8 text-center">Frequently Asked Questions</h1>
       <div className="space-y-4">
         {faqs.map((faq, index) => (
           <div

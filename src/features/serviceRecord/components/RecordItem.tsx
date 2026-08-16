@@ -48,7 +48,6 @@ export const RecordItem = ({
   // });
 
   function onEdit(record: ServiceRecord) {
-    console.log("Editing record:", record);
     openEditModal();
   }
 

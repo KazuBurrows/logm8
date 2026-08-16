@@ -4,6 +4,8 @@ import { useLog } from "../api/useLog";
 import { Section } from "../../../shared/components/Section";
 import { Button } from "../../../shared/components/Button";
 import { groupedFuelOptions } from "../../../shared/types/serviceOptions";
+import { ApiError } from "../../../api/client";
+import { dispatchToast } from "../../../shared/components/Toast/toastService";
 
 function isSafeRedirectUrl(url: string): boolean {
   try {
@@ -51,8 +53,6 @@ export default function CreateTag() {
       VinNumber,
       LicencePlate,
     };
-    console.log("Form Data:", formData);
-    // Add your submission logic here
     const jsonData = JSON.stringify(formData);
 
     const redirectUser = async () => {
@@ -73,8 +73,11 @@ export default function CreateTag() {
         await submitTag(jsonData, id);
         redirectUser();
       } catch (err) {
-        // ApiError is already surfaced via the toast in the api client
+        // ApiError is surfaced via the toast in the api client, except 404s
         console.error("Fetch error:", err);
+        if (err instanceof ApiError && err.status === 404) {
+          dispatchToast("Something went wrong while saving the tag. Please try again.", "error");
+        }
       }
     };
 
@@ -83,9 +86,6 @@ export default function CreateTag() {
 
   useEffect(() => {
     setTagId(id.replace(/ /g, "+"));
-    // setTagId(encodeURIComponent(id));
-
-    // console.log(TagId)
   }, [id]);
 
   const VehicleTypes = ["Motorbike", "Car"];

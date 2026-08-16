@@ -28,8 +28,6 @@ function populateRecordFilter(records: ServiceRecord[]) {
   }
 
   const groupedByCategory = groupBy(records, (r) => r.ServiceCategory);
-  console.log(groupedByCategory);
-
 
   Object.entries(groupedByCategory).forEach(([category, serviceRecords]) => {
     const records = Array.from(

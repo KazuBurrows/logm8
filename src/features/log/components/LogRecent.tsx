@@ -45,7 +45,7 @@ export default function LogRecent() {
               <th className="p-3">Service Type</th>
               <th className="p-3">Service Comment</th>
               <th className="p-3">Serviced By</th>
-              <th className="p-3"></th>
+              <th className="p-3"><span className="sr-only">Actions</span></th>
             </tr>
           </thead>
           <tbody className="font-light">

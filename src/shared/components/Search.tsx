@@ -17,7 +17,11 @@ export const Search = ({ id, placeHolder, className = "", children }: SearchProp
           placeholder={placeHolder}
           className="md:w-4/12 sm:w-6/12 w-7/12 py-2 px-4 border border-gray-300 rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-sm"
         />
-        <button className="p-3 bg-blue-500 text-white font-semibold rounded-full shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-1 flex items-center justify-center space-x-2">
+        <button
+          type="button"
+          aria-label="Search"
+          className="p-3 bg-blue-500 text-white font-semibold rounded-full shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-1 flex items-center justify-center space-x-2"
+        >
           <svg
             xmlns="http://www.w3.org/2000/svg"
             className="h-5 w-5"
