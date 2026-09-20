@@ -1,8 +1,6 @@
 import { useCallback } from "react";
 import { useApi } from "../../../api/useApi";
-import { getCached, setCached } from "../../../shared/utils/sessionCache";
-
-const CACHE_TTL_MS = 48 * 60 * 60 * 1000; // 48 hours
+import { getCached, setCached, CACHE_TTL_MS } from "../../../shared/utils/sessionCache";
 
 export function useLog() {
   const { loading, error, get } = useApi();

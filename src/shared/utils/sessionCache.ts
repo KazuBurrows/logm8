@@ -1,5 +1,7 @@
 const KEY_PREFIX = "logm8:cache:";
 
+export const CACHE_TTL_MS = 15 * 60 * 1000; // 15 minutes
+
 interface CacheEntry<T> {
   value: T;
   expiresAt: number;
@@ -35,5 +37,20 @@ export function clearCached(key: string): void {
     sessionStorage.removeItem(KEY_PREFIX + key);
   } catch {
     // ignore
+  }
+}
+
+export function clearAllCached(): void {
+  try {
+    const keysToRemove: string[] = [];
+    for (let i = 0; i < sessionStorage.length; i++) {
+      const key = sessionStorage.key(i);
+      if (key && key.startsWith(KEY_PREFIX)) {
+        keysToRemove.push(key);
+      }
+    }
+    keysToRemove.forEach((key) => sessionStorage.removeItem(key));
+  } catch {
+    // sessionStorage unavailable — nothing to clear, caller proceeds with a cold cache anyway
   }
 }

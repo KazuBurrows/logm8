@@ -91,6 +91,7 @@ export function LogDataProvider({ token, onNotFound, children }: LogDataProvider
             Comment: record.Comment ?? record.comment,
             FileUrls: record.FileUrls ?? record.fileUrls,
             ServiceOption: record.ServiceOption ?? record.serviceOption,
+            canEdit: record.canEdit ?? record.CanEdit ?? false,
           }))
         );
         setViewMode(UserMode[data.mode ?? 1]);

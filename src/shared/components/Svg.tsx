@@ -2,81 +2,85 @@ import * as React from "react";
 
 export interface SvgProps {
   type:
-    | "download1"
-    | "download2"
-    | "add1"
-    | "add2"
-    | "add3"
-    | "add4"
-    | "angle-small-down1"
-    | "angle-small-down2"
-    | "badge-check1"
-    | "badge-check2"
-    | "check"
-    | "cross"
-    | "cross-circle"
-    | "marker1"
-    | "marker2"
-    | "marker3"
-    | "plus"
-    | "search1"
-    | "search2"
-    | "addImage1"
-    | "addImage2"
-    | "addImage3"
-    | "document-circle-arrow-up1"
-    | "document-circle-arrow-up2"
-    | "document-circle-arrow-up3"
-    | "file-download1"
-    | "file-download2"
-    | "file-download3"
-    | "inbox-in1"
-    | "inbox-in2"
-    | "sort-1"
-    | "pencil-1";
+  | "download1"
+  | "download2"
+  | "add1"
+  | "add2"
+  | "add3"
+  | "add4"
+  | "angle-small-down1"
+  | "angle-small-down2"
+  | "badge-check1"
+  | "badge-check2"
+  | "check"
+  | "cross"
+  | "cross-circle"
+  | "marker1"
+  | "marker2"
+  | "marker3"
+  | "plus"
+  | "search1"
+  | "search2"
+  | "addImage1"
+  | "addImage2"
+  | "addImage3"
+  | "document-circle-arrow-up1"
+  | "document-circle-arrow-up2"
+  | "document-circle-arrow-up3"
+  | "file-download1"
+  | "file-download2"
+  | "file-download3"
+  | "inbox-in1"
+  | "inbox-in2"
+  | "sort-1"
+  | "pencil-1"
+  | "bars-1"
+  | "bars-2"
+  | "info-1"
+  | "info-2";
   size?: "sm" | "md" | "base" | "lg" | "xl" | "2xl" | "5xl";
   color?:
-    | "white"
-    | "slate-50"
-    | "slate-100"
-    | "slate-200"
-    | "slate-300"
-    | "slate-400"
-    | "slate-500"
-    | "slate-600"
-    | "slate-700"
-    | "rose-50"
-    | "rose-100"
-    | "rose-200"
-    | "rose-300"
-    | "rose-400"
-    | "rose-500"
-    | "rose-600"
-    | "rose-700"
-    | "sky-50"
-    | "sky-100"
-    | "sky-200"
-    | "sky-300"
-    | "sky-400"
-    | "sky-500"
-    | "sky-600"
-    | "sky-700"
-    | "green-50"
-    | "green-100"
-    | "green-200"
-    | "green-300"
-    | "green-400"
-    | "green-500"
-    | "green-600"
-    | "green-700"
-    | "blue-50"
-    | "blue-100"
-    | "blue-200"
-    | "blue-300"
-    | "blue-400"
-    | "blue-500"
-    | "blue-600"
-    | "blue-700";
+  | "white"
+  | "slate-50"
+  | "slate-100"
+  | "slate-200"
+  | "slate-300"
+  | "slate-400"
+  | "slate-500"
+  | "slate-600"
+  | "slate-700"
+  | "rose-50"
+  | "rose-100"
+  | "rose-200"
+  | "rose-300"
+  | "rose-400"
+  | "rose-500"
+  | "rose-600"
+  | "rose-700"
+  | "sky-50"
+  | "sky-100"
+  | "sky-200"
+  | "sky-300"
+  | "sky-400"
+  | "sky-500"
+  | "sky-600"
+  | "sky-700"
+  | "green-50"
+  | "green-100"
+  | "green-200"
+  | "green-300"
+  | "green-400"
+  | "green-500"
+  | "green-600"
+  | "green-700"
+  | "blue-50"
+  | "blue-100"
+  | "blue-200"
+  | "blue-300"
+  | "blue-400"
+  | "blue-500"
+  | "blue-600"
+  | "blue-700";
 }
 
 /** Primary UI component for user interaction */
@@ -703,16 +707,62 @@ export const Svg = ({ type, size, color }: SvgProps) => {
       case "pencil-1":
         return (
           <svg
-  xmlns="http://www.w3.org/2000/svg"
-  viewBox="2 2 20 20"
-  width={get_width()}
-  height={get_height()}
-  fill={getColorHex()}
->
-  <path d="M3 17.25V21h3.75L17.81 9.94c.39-.39.39-1.02 0-1.41l-3.34-3.34a.9959.9959 0 0 0-1.41 0L3 17.25Zm2.92.58l7.96-7.96 1.58 1.58-7.96 7.96H5.92v-1.58ZM18.71 2.29l2.34 2.34c.39.39.39 1.02 0 1.41l-1.83 1.83-3.75-3.75 1.83-1.83c.39-.39 1.02-.39 1.41 0Z" />
-</svg>
-
-
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="2 2 20 20"
+            width={get_width()}
+            height={get_height()}
+            fill={getColorHex()}
+          >
+            <path d="M3 17.25V21h3.75L17.81 9.94c.39-.39.39-1.02 0-1.41l-3.34-3.34a.9959.9959 0 0 0-1.41 0L3 17.25Zm2.92.58l7.96-7.96 1.58 1.58-7.96 7.96H5.92v-1.58ZM18.71 2.29l2.34 2.34c.39.39.39 1.02 0 1.41l-1.83 1.83-3.75-3.75 1.83-1.83c.39-.39 1.02-.39 1.41 0Z" />
+          </svg>
+        );
+      case "bars-1":
+        return (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 640 640"
+            width={get_width()}
+            height={get_height()}
+            fill={getColorHex()}
+          >
+            <path d="M256 144C256 117.5 277.5 96 304 96L336 96C362.5 96 384 117.5 384 144L384 496C384 522.5 362.5 544 336 544L304 544C277.5 544 256 522.5 256 496L256 144zM64 336C64 309.5 85.5 288 112 288L144 288C170.5 288 192 309.5 192 336L192 496C192 522.5 170.5 544 144 544L112 544C85.5 544 64 522.5 64 496L64 336zM496 160L528 160C554.5 160 576 181.5 576 208L576 496C576 522.5 554.5 544 528 544L496 544C469.5 544 448 522.5 448 496L448 208C448 181.5 469.5 160 496 160z" />
+          </svg>
+        );
+      case "bars-2":
+        return (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 640 640"
+            width={get_width()}
+            height={get_height()}
+            fill={getColorHex()}
+          >
+            <path d="M160 96C124.7 96 96 124.7 96 160L96 480C96 515.3 124.7 544 160 544L480 544C515.3 544 544 515.3 544 480L544 160C544 124.7 515.3 96 480 96L160 96zM216 288C229.3 288 240 298.7 240 312L240 424C240 437.3 229.3 448 216 448C202.7 448 192 437.3 192 424L192 312C192 298.7 202.7 288 216 288zM400 376C400 362.7 410.7 352 424 352C437.3 352 448 362.7 448 376L448 424C448 437.3 437.3 448 424 448C410.7 448 400 437.3 400 424L400 376zM320 192C333.3 192 344 202.7 344 216L344 424C344 437.3 333.3 448 320 448C306.7 448 296 437.3 296 424L296 216C296 202.7 306.7 192 320 192z" />
+          </svg>
+        );
+      case "info-1":
+        return (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 640 640"
+            width={get_width()}
+            height={get_height()}
+            fill={getColorHex()}
+          >
+            <path d="M320 576C461.4 576 576 461.4 576 320C576 178.6 461.4 64 320 64C178.6 64 64 178.6 64 320C64 461.4 178.6 576 320 576zM288 224C288 206.3 302.3 192 320 192C337.7 192 352 206.3 352 224C352 241.7 337.7 256 320 256C302.3 256 288 241.7 288 224zM280 288L328 288C341.3 288 352 298.7 352 312L352 400L360 400C373.3 400 384 410.7 384 424C384 437.3 373.3 448 360 448L280 448C266.7 448 256 437.3 256 424C256 410.7 266.7 400 280 400L304 400L304 336L280 336C266.7 336 256 325.3 256 312C256 298.7 266.7 288 280 288z" />
+          </svg>
+        );
+      case "info-2":
+        return (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 640 640"
+            width={get_width()}
+            height={get_height()}
+            fill={getColorHex()}
+          >
+            <path d="M272 112C272 85.5 293.5 64 320 64C346.5 64 368 85.5 368 112C368 138.5 346.5 160 320 160C293.5 160 272 138.5 272 112zM224 256C224 238.3 238.3 224 256 224L320 224C337.7 224 352 238.3 352 256L352 512L384 512C401.7 512 416 526.3 416 544C416 561.7 401.7 576 384 576L256 576C238.3 576 224 561.7 224 544C224 526.3 238.3 512 256 512L288 512L288 288L256 288C238.3 288 224 273.7 224 256z" />
+          </svg>
         );
       default:
         return (

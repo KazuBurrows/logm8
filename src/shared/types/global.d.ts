@@ -20,6 +20,7 @@ declare global {
     // CompletedTasks: TaskCompleted[];
     // PendingCompletedTasks: PendingTaskCompleted[] | null;
     Certified?: boolean;
+    canEdit?: boolean;
   }
   
   interface ServiceOption {

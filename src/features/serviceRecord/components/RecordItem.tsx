@@ -1,23 +1,9 @@
-import { Button } from "../../../shared/components/Button";
-import { Svg } from "../../../shared/components/Svg";
-
 export interface RecordItemProps {
   record: ServiceRecord;
-  toggleInfo: (id: string) => void;
-  expandedItemId: string | null;
-  editingRecord: ServiceRecord | null;
-  setEditingRecord: (record: ServiceRecord) => void;
-  openEditModal: () => void;
+  openRecord: () => void;
 }
 
-export const RecordItem = ({
-  record,
-  toggleInfo,
-  expandedItemId,
-  editingRecord,
-  setEditingRecord,
-  openEditModal,
-}: RecordItemProps) => {
+export const RecordItem = ({ record, openRecord }: RecordItemProps) => {
   // Neon/futuristic color scheme for each service type
   const serviceTypeClasses: Record<string, string> = {
     Maintenance: "text-white bg-blue-900/50",
@@ -25,6 +11,14 @@ export const RecordItem = ({
     Inspection: "text-white bg-green-900/50",
     Adjustment: "text-white bg-yellow-900/50",
     Tune: "text-white bg-purple-900/50",
+  };
+
+  const serviceAccentClasses: Record<string, string> = {
+    Maintenance: "border-blue-500",
+    Replacement: "border-red-500",
+    Inspection: "border-green-500",
+    Adjustment: "border-yellow-500",
+    Tune: "border-purple-500",
   };
 
   const glowClasses: Record<string, string> = {
@@ -43,39 +37,20 @@ export const RecordItem = ({
   //   Tune: "text-white bg-purple-700/60",
   // };
 
-  // const hold = useHoldToEdit(() => {
-  //   setEditingRecord(record); // sets this card as editing
-  // });
-
-  function onEdit(record: ServiceRecord) {
-    openEditModal();
-  }
-
   return (
     <li key={record.id} className="mb-1 relative">
       <div
-        // {...hold}
-        className={`w-full rounded-xl shadow-lg bg-black/60 backdrop-blur-md funnel-display-font leading-none ${
-          serviceTypeClasses[record.ServiceType] || ""
+        className={`w-full rounded-2xl border-l-4 shadow-lg backdrop-blur-md funnel-display-font leading-none ${
+          serviceAccentClasses[record.ServiceType] || "border-white/20"
         } relative`}
+        style={{
+          backgroundImage:
+            "linear-gradient(to top left, rgba(148,163,184,0.09), rgba(2,6,23,0.5) 55%, rgba(2,6,23,0.5) 100%)",
+        }}
       >
-        {editingRecord?.id === record.id && (
-          <Button
-            className="absolute -top-4 -right-4 z-20 w-12 h-12 bg-black/40 rounded-full flex items-center justify-center"
-            type="button"
-            size="xs"
-            onClick={() => onEdit(record)}
-          >
-            <Svg type="pencil-1" color="green-500" size="lg" />
-          </Button>
-        )}
-
         <div
           className="w-full cursor-pointer"
-          onClick={() => {
-            toggleInfo(record.id);
-            setEditingRecord(record); // show edit button when tapped
-          }}
+          onClick={openRecord}
         >
           {/* Record content */}
           <div className="flex flex-col py-3 px-4 sm:px-8">
@@ -129,44 +104,6 @@ export const RecordItem = ({
               </div>
             </div>
           </div>
-
-          {/* Expand Button */}
-          <div className="flex justify-center">
-            <Button
-              className="mx-auto flex p-0 m-[-25px] translate-y-[-13px]"
-              type="button"
-              size="small"
-              onClick={toggleInfo}
-              param={record.id}
-            >
-              <Svg type="angle-small-down2" size="md" color="white" />
-            </Button>
-          </div>
-
-          {/* Expanded section */}
-          {expandedItemId === record.id && (
-            <div className="bg-black/30 text-white/80 text-left py-2 px-4 sm:px-8 rounded-b-2xl border-t border-gray-700">
-              <div className="text-sm text-white/90 font-thin">
-                {record.Comment}
-              </div>
-
-              <div className="px-4 py-2 flex flex-wrap gap-4">
-                {record.FileUrls?.map((fileUrl, fileIndex) => (
-                  <li key={fileIndex} className="list-none inline-flex px-2">
-                    <a
-                      href={fileUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-center text-cyan-400 hover:text-cyan-300 text-lg roboto-flex-font flex items-center gap-1"
-                    >
-                      <Svg type="file-download1" size="2xl" color="sky-300" />
-                      File {fileIndex + 1}
-                    </a>
-                  </li>
-                ))}
-              </div>
-            </div>
-          )}
         </div>
       </div>
     </li>

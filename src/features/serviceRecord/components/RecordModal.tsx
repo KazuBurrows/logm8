@@ -1,10 +1,14 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import { useLocation } from "react-router-dom";
 import { useServiceRecord } from "../api/useServiceRecord";
 import { LoadingScreen } from "../../../shared/components/LoadingScreen";
 import CascadingDropdown from "../../serviceOption/components/CascadingDropdown";
 import { ApiError } from "../../../api/client";
 import { dispatchToast } from "../../../shared/components/Toast/toastService";
+import { useSlideInPanel } from "../../../shared/hooks/useSlideInPanel";
+import { Svg } from "../../../shared/components/Svg";
+import { Tile } from "../../../shared/components/Tile";
 
 const MAX_FILES = 10;
 const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024;
@@ -40,6 +44,7 @@ export const RecordModal = ({
   const token = queryParams.get("token"); // Extract the 'token' value
 
   const { loading, submitRecord, updateServiceRecord } = useServiceRecord();
+  const { mounted, slideClass, slideStyle } = useSlideInPanel(isOpen);
 
   // Form values
   const [Token] = useState(token ?? "");
@@ -247,153 +252,139 @@ export const RecordModal = ({
       clearFields();
     }
   };
-  if (!isOpen) return null; // Don't render the modal if not open
+  if (!mounted) return null; // Stay rendered through the slide-out, then unmount
 
   const isView = mode === "view";
   const title = mode === "edit" ? "Update Record" : isView ? "Service Record" : "Create Maintenance";
   // const buttonLabel = mode === "edit" ? "Update" : "Submit";
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 overflow-y-auto overflow-x-hidden">
-      {loading && (
-        <div className="w-full h-full bg-slate-100 bg-opacity-70 absolute z-50">
-          <LoadingScreen text={"Submitting ..."}></LoadingScreen>
-        </div>
-      )}
+  const fieldLabel = "block text-sm text-white/50 leading-none mb-2";
+  const fieldInput =
+    "w-full bg-transparent text-xl font-light text-white placeholder-white/30 outline-none [color-scheme:dark] disabled:text-white/60 disabled:cursor-not-allowed";
 
-      {/* Modal Content */}
-      <div className="bg-white py-2 sm:rounded-lg shadow-lg sm:w-fit w-full sm:h-fit h-full">
+  const odometerUnits = [
+    { id: "huey", value: "km", label: "KM" },
+    { id: "dewey", value: "miles", label: "Miles" },
+    { id: "louie", value: "hours", label: "Hours" },
+  ];
+
+  return (
+    <div
+      className={`fixed inset-0 z-50 overflow-y-auto overflow-x-hidden text-white funnel-display-font bg-gradient-to-b from-zinc-800 via-zinc-900 to-black ${slideClass}`}
+      style={slideStyle}
+    >
+      {/* Portaled: the sliding panel is transformed and scrollable, so an overlay inside it would scroll away with the content. */}
+      {loading &&
+        createPortal(
+          <div className="fixed inset-0 z-[60] bg-black">
+            <LoadingScreen text={"Submitting ..."} variant="dark" />
+          </div>,
+          document.body
+        )}
+
+      <div className="max-w-md mx-auto px-4 pt-6 pb-12">
         {/* Header */}
-        <div className="flex px-4 py-2 border-b">
+        <div className="flex items-center gap-4 mb-6">
           <button
+            type="button"
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 focus:outline-none ml-auto"
+            aria-label="Close"
+            className="w-11 h-11 shrink-0 rounded-full bg-white/10 flex items-center justify-center"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={2}
-              stroke="currentColor"
-              className="w-10 h-10"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
+            <span className="rotate-90 flex">
+              <Svg type="angle-small-down1" size="lg" color="white" />
+            </span>
           </button>
+          <h2 className="text-3xl font-light tracking-tight">{title}</h2>
         </div>
 
         {/* Body */}
-        <form className="p-6 bg-white w-full" onSubmit={handleSubmit}>
-          <h2 className="text-4xl font-bold mb-4 uppercase text-center">
-            {title}
-          </h2>
+        <form className="flex flex-col gap-3" onSubmit={handleSubmit}>
+          <Tile className="p-4">
+            <label className={fieldLabel} htmlFor="ServicedDate">
+              Serviced Date
+            </label>
+            <input
+              type="date"
+              id="ServicedDate"
+              className={fieldInput}
+              defaultValue={ServicedDate}
+              onFocus={(e) => !isView && e.target.showPicker?.()}
+              onChange={(e) => setServicedDate(e.target.value)}
+              required={!isView}
+              disabled={isView}
+            />
+          </Tile>
 
-          <div className="md:flex gap-4">
-            <div className="w-full mb-4">
+          <Tile className="p-4">
+            <label className={fieldLabel} htmlFor="MechanicName">
+              Serviced By
+            </label>
+            <input
+              type="text"
+              id="MechanicName"
+              className={fieldInput}
+              placeholder="Bruce McLaren"
+              value={MechanicName}
+              onChange={(e) => setMechanicName(e.target.value)}
+              disabled={isView}
+            />
+          </Tile>
+
+          <Tile className="p-4">
+            <div className="flex items-center justify-between gap-2 mb-2">
               <label
-                className="block text-sm font-medium mb-1"
-                htmlFor="ServicedDate"
+                className="text-sm text-white/50 leading-none"
+                htmlFor="Odometer"
               >
-                Serviced Date
+                Odometer
               </label>
-              <input
-                type="date"
-                id="ServicedDate"
-                className="w-full p-2 mr-24 border rounded disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed"
-                defaultValue={ServicedDate}
-                onFocus={(e) => !isView && e.target.showPicker?.()}
-                onChange={(e) => setServicedDate(e.target.value)}
-                required={!isView}
+              <fieldset
+                className="inline-flex rounded-full bg-white/10 p-1 text-sm"
                 disabled={isView}
-              />
-            </div>
-            <div className="mb-4 w-full">
-              <label
-                className="block text-sm font-medium mb-1"
-                htmlFor="MechanicName"
               >
-                Serviced By
-              </label>
-              <input
-                type="text"
-                id="MechanicName"
-                className="w-full p-2 border rounded disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed"
-                placeholder="Bruce McLaren"
-                value={MechanicName}
-                onChange={(e) => setMechanicName(e.target.value)}
-                disabled={isView}
-              />
+                {odometerUnits.map((unit) => (
+                  <label
+                    key={unit.id}
+                    htmlFor={unit.id}
+                    className={`px-3 py-1 rounded-full transition-colors ${
+                      isView ? "cursor-not-allowed" : "cursor-pointer"
+                    } ${
+                      OdometerMetric === unit.value
+                        ? "bg-[#4a5fc9] text-white"
+                        : "text-white/60"
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      id={unit.id}
+                      name="drone"
+                      value={unit.value}
+                      checked={OdometerMetric === unit.value}
+                      onChange={handleOdoChange}
+                      className="sr-only"
+                    />
+                    {unit.label}
+                  </label>
+                ))}
+              </fieldset>
             </div>
-          </div>
+            <input
+              type="number"
+              id="Odometer"
+              className={`${fieldInput} [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none`}
+              placeholder="150000"
+              value={Odometer}
+              onChange={(e) => setOdometer(e.target.value)}
+              disabled={isView}
+            />
+          </Tile>
 
-          <div className="md:flex gap-4">
-            <div className="w-full mb-4">
-              <div className="flex gap-2">
-                <label
-                  className="block text-sm font-medium my-auto"
-                  htmlFor="Odometer"
-                >
-                  Odometer
-                </label>
-                <fieldset
-                  className="my-2 text-sm gap-2 inline-flex justify-center border border-slate-300 rounded-full disabled:opacity-50"
-                  onChange={handleOdoChange}
-                  disabled={isView}
-                >
-                  <div className="p-2 flex gap-1">
-                    <input
-                      type="radio"
-                      id="huey"
-                      name="drone"
-                      value="km"
-                      checked={OdometerMetric === "km"}
-                    />
-                    <label htmlFor="huey">KM</label>
-                  </div>
-
-                  <div className="p-2 flex gap-1">
-                    <input
-                      type="radio"
-                      id="dewey"
-                      name="drone"
-                      value="miles"
-                      checked={OdometerMetric === "miles"}
-                    />
-                    <label htmlFor="dewey">Miles</label>
-                  </div>
-
-                  <div className="p-2 flex gap-1">
-                    <input
-                      type="radio"
-                      id="louie"
-                      name="drone"
-                      value="hours"
-                      checked={OdometerMetric === "hours"}
-                    />
-                    <label htmlFor="louie">Hours</label>
-                  </div>
-                </fieldset>
-              </div>
-
-              <input
-                type="number"
-                id="Odometer"
-                className="w-full p-2 border rounded disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed"
-                placeholder="150000"
-                value={Odometer}
-                onChange={(e) => setOdometer(e.target.value)}
-                disabled={isView}
-              />
-            </div>
-            <div className="w-full"></div>
-          </div>
-
-          <div className={`flex w-full items-start gap-1 transition-all${isView ? " pointer-events-none opacity-60" : ""}`}>
-            {/* Cascading Dropdown */}
+          <Tile
+            className={`p-4 transition-all${
+              isView ? " pointer-events-none opacity-60" : ""
+            }`}
+          >
             <CascadingDropdown
               key={recordToEdit?.id ?? "new"}
               logServiceOptions={logServiceOptions}
@@ -403,52 +394,67 @@ export const RecordModal = ({
                 setSelection(selected);
               }}
             />
-          </div>
+          </Tile>
 
-          <div>
+          <Tile className="p-4">
+            <label className={fieldLabel} htmlFor="Comment">
+              Comment
+            </label>
             <textarea
-              className="w-full h-24 bg-gray-200 mt-4 p-2 rounded disabled:opacity-60 disabled:cursor-not-allowed"
+              id="Comment"
+              className="w-full h-24 bg-transparent resize-none text-lg font-light text-white placeholder-white/30 outline-none disabled:text-white/60 disabled:cursor-not-allowed"
               placeholder={isView ? "" : "Mobil - 10w-40 - 2qrts"}
               value={Comment}
               onChange={handleTextAreaChange}
               maxLength={250}
               disabled={isView}
             />
-            <p className="text-sm text-gray-500 text-right">
+            <p className="text-sm text-white/40 text-right">
               {Comment.length}/250
             </p>
-          </div>
-          <div>
-            {isView ? (
-              recordToEdit?.FileUrls?.length ? (
-                <div className="mt-2 flex flex-col gap-1">
-                  {recordToEdit.FileUrls.map((url: string, i: number) => (
-                    <a key={i} href={url} target="_blank" rel="noreferrer" className="text-rose-500 hover:underline text-sm truncate">
-                      {url.split("/").pop() || `File ${i + 1}`}
-                    </a>
-                  ))}
-                </div>
-              ) : null
-            ) : (
+          </Tile>
+
+          {mode !== "create" && recordToEdit?.FileUrls?.length ? (
+            <Tile className="p-4">
+              <div className={fieldLabel}>Files</div>
+              <div className="flex flex-col gap-1">
+                {recordToEdit.FileUrls.map((url: string, i: number) => (
+                  <a
+                    key={i}
+                    href={url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-blue-400 hover:underline text-sm truncate"
+                  >
+                    {url.split("/").pop() || `File ${i + 1}`}
+                  </a>
+                ))}
+              </div>
+            </Tile>
+          ) : null}
+
+          {!isView && (
+            <Tile className="p-4">
+              <label className={fieldLabel} htmlFor="Reciept">
+                Receipts
+              </label>
               <input
                 type="file"
                 id="Reciept"
-                className="p-2 w-full bg-gray-100"
+                className="w-full text-sm text-white/70 file:mr-3 file:rounded-full file:border-0 file:bg-white/10 file:px-4 file:py-2 file:text-white file:cursor-pointer"
                 multiple
                 onChange={handleFilesChange}
               />
-            )}
-          </div>
+            </Tile>
+          )}
 
           {!isView && (
-            <div className="flex justify-center">
-              <button
-                type="submit"
-                className="w-1/2 p-2 bg-rose-500 text-white font-bold uppercase rounded mt-4 hover:bg-rose-600"
-              >
-                Submit
-              </button>
-            </div>
+            <button
+              type="submit"
+              className="w-full h-14 mt-2 rounded-full bg-[#4a5fc9] text-white text-xl font-medium"
+            >
+              Submit
+            </button>
           )}
         </form>
       </div>

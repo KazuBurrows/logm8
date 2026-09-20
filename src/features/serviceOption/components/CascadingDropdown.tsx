@@ -1,4 +1,6 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Svg } from "../../../shared/components/Svg";
+import { BottomSheet, sheetRowClass } from "../../../shared/components/BottomSheet";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -38,23 +40,74 @@ function collectLeaves(nodes: ServiceOption[]): ServiceOption[] {
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
-interface SelectProps {
+interface SelectOption {
   value: number | string;
-  onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
-  placeholder: string;
-  children: React.ReactNode;
+  label: string;
 }
 
-function NeonSelect({ value, onChange, placeholder, children }: SelectProps) {
+interface SelectProps {
+  value: number | string;
+  onChange: (value: string) => void;
+  placeholder: string;
+  options: SelectOption[];
+}
+
+/**
+ * A select that opens a bottom sheet of large tap targets instead of the
+ * native picker, which is small and inconsistent on phones. Choosing the
+ * placeholder row clears the selection.
+ */
+function NeonSelect({ value, onChange, placeholder, options }: SelectProps) {
+  const [open, setOpen] = useState(false);
+  const close = useCallback(() => setOpen(false), []);
+
+  const selected = options.find((o) => String(o.value) === String(value));
+
+  const choose = (next: string) => {
+    onChange(next);
+    close();
+  };
+
   return (
-    <select
-      value={value}
-      onChange={onChange}
-      className="w-full p-2 border rounded text-sm"
-    >
-      <option value="">{placeholder}</option>
-      {children}
-    </select>
+    <>
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className="w-full min-h-12 flex items-center justify-between gap-2 rounded-2xl bg-white/10 px-4 py-3 text-left text-base font-light"
+      >
+        <span className={selected ? "text-white" : "text-white/50"}>
+          {selected?.label ?? placeholder}
+        </span>
+        <Svg type="angle-small-down1" size="md" color="white" />
+      </button>
+
+      <BottomSheet isOpen={open} onClose={close} title={placeholder}>
+        <button
+          type="button"
+          onClick={() => choose("")}
+          data-selected={!selected}
+          className={sheetRowClass(!selected)}
+        >
+          <span className={selected ? "text-white/40" : ""}>{placeholder}</span>
+          {!selected && <Svg type="check" size="md" color="white" />}
+        </button>
+        {options.map((option) => {
+          const active = String(option.value) === String(value);
+          return (
+            <button
+              key={option.value}
+              type="button"
+              onClick={() => choose(String(option.value))}
+              data-selected={active}
+              className={sheetRowClass(active)}
+            >
+              <span>{option.label}</span>
+              {active && <Svg type="check" size="md" color="white" />}
+            </button>
+          );
+        })}
+      </BottomSheet>
+    </>
   );
 }
 
@@ -68,17 +121,17 @@ interface ServiceTypeInputProps {
 function ServiceTypeSelector({ types, selected, onChange }: ServiceTypeInputProps) {
   return (
     <div className="flex flex-col gap-2">
-      <p className="block text-sm font-medium mb-1">Service Type</p>
+      <p className="block text-sm text-white/50 leading-none mb-1">Service Type</p>
       <div className="flex flex-wrap gap-2">
         {types.map((type) => (
           <button
             key={type}
             type="button"
             onClick={() => onChange(type)}
-            className={`px-3 py-1 rounded border text-sm transition-colors ${
+            className={`px-4 py-2 rounded-full text-base font-light transition-colors ${
               selected === type
-                ? "bg-rose-500 text-white border-rose-500"
-                : "bg-white text-gray-700 border-gray-300 hover:border-gray-400"
+                ? "bg-[#4a5fc9] text-white"
+                : "bg-white/10 text-white/70"
             }`}
           >
             {type}
@@ -96,14 +149,14 @@ interface ModeToggleProps {
 
 function ModeToggle({ mode, onChange }: ModeToggleProps) {
   return (
-    <div className="inline-flex border border-slate-300 rounded-full p-1">
+    <div className="inline-flex self-start rounded-full bg-white/10 p-1">
       {(["service", "ownership"] as OptionMode[]).map((m) => (
         <button
           key={m}
           type="button"
           onClick={() => onChange(m)}
-          className={`px-4 py-1 rounded-full text-sm font-medium capitalize transition-colors ${
-            mode === m ? "bg-rose-500 text-white" : "text-gray-600 hover:text-gray-800"
+          className={`px-4 py-1 rounded-full text-sm capitalize transition-colors ${
+            mode === m ? "bg-[#4a5fc9] text-white" : "text-white/60"
           }`}
         >
           {m}
@@ -128,6 +181,7 @@ export default function CascadingDropdown({
   const [selectedType, setSelectedType] = useState<string | null>(initialValue?.type ?? null);
   const [searchText, setSearchText] = useState("");
   const [searchFocused, setSearchFocused] = useState(false);
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   const optionDirectory = mode === "service" ? logServiceOptions : logOwnershipOptions;
 
@@ -184,23 +238,23 @@ export default function CascadingDropdown({
     setSearchText("");
   };
 
-  const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const found = optionDirectory.find((x) => x.Id === Number(e.target.value)) ?? null;
+  const handleCategoryChange = (value: string) => {
+    const found = optionDirectory.find((x) => x.Id === Number(value)) ?? null;
     setSelectedCategory(found);
     setSelectedSubcategory(null);
     setSelectedOption(null);
     setSelectedType(null);
   };
 
-  const handleSubcategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const found = selectedCategory?.Children?.find((x) => x.Id === Number(e.target.value)) ?? null;
+  const handleSubcategoryChange = (value: string) => {
+    const found = selectedCategory?.Children?.find((x) => x.Id === Number(value)) ?? null;
     setSelectedSubcategory(found);
     setSelectedOption(null);
     setSelectedType(null);
   };
 
-  const handleOptionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const found = selectedSubcategory?.Children?.find((x) => x.Id === Number(e.target.value)) ?? null;
+  const handleOptionChange = (value: string) => {
+    const found = selectedSubcategory?.Children?.find((x) => x.Id === Number(value)) ?? null;
     setSelectedOption(found);
     setSelectedType(null);
   };
@@ -213,6 +267,7 @@ export default function CascadingDropdown({
   const handleSearchSelect = (leaf: ServiceOption) => {
     setSearchText(leaf.Name);
     setSearchFocused(false);
+    searchInputRef.current?.blur(); // dismiss the on-screen keyboard
 
     // Walk tree to find parent chain
     for (const cat of optionDirectory) {
@@ -242,19 +297,40 @@ export default function CascadingDropdown({
       <div className="relative">
         <div className="relative">
           <input
+            ref={searchInputRef}
             type="text"
             placeholder="Search all options..."
+            autoComplete="off"
+            enterKeyHint="search"
             value={searchText}
             onChange={(e) => setSearchText(e.target.value)}
-            onFocus={() => setSearchFocused(true)}
+            onFocus={() => {
+              setSearchFocused(true);
+              // Once the keyboard is up, bring the field (and its results) into view.
+              setTimeout(
+                () =>
+                  searchInputRef.current?.scrollIntoView({
+                    block: "center",
+                    behavior: "smooth",
+                  }),
+                300
+              );
+            }}
             onBlur={() => setTimeout(() => setSearchFocused(false), 150)}
-            className="w-full p-2 border rounded text-sm pr-8"
+            onKeyDown={(e) => {
+              // The keyboard's Enter/Go key would otherwise submit the whole form.
+              if (e.key === "Enter") {
+                e.preventDefault();
+                if (searchResults[0]) handleSearchSelect(searchResults[0]);
+              }
+            }}
+            className="w-full rounded-2xl bg-white/10 px-3 py-3 pr-9 text-base font-light text-white placeholder-white/30 outline-none"
           />
           {searchText && (
             <button
               type="button"
               onClick={() => { setSearchText(""); setSearchFocused(false); }}
-              className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-white/50"
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                 <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
@@ -265,13 +341,13 @@ export default function CascadingDropdown({
 
         {/* Search results dropdown */}
         {showSearchResults && (
-          <div className="absolute z-20 top-full mt-1 w-full bg-white border border-gray-200 rounded shadow-md overflow-hidden">
+          <div className="absolute z-20 top-full mt-1 w-full max-h-64 overflow-y-auto overscroll-contain bg-zinc-800 border border-white/10 rounded-2xl shadow-lg">
             {searchResults.map((result) => (
               <button
                 key={result.Id}
                 type="button"
                 onMouseDown={() => handleSearchSelect(result)}
-                className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 border-b border-gray-100 last:border-0"
+                className="w-full text-left px-4 py-3 text-base font-light text-white hover:bg-white/10 border-b border-white/10 last:border-0"
               >
                 {result.Name}
               </button>
@@ -280,7 +356,7 @@ export default function CascadingDropdown({
         )}
 
         {searchText && searchFocused && searchResults.length === 0 && (
-          <div className="absolute z-20 top-full mt-1 w-full bg-white border border-gray-200 rounded px-3 py-2 text-sm text-gray-400">
+          <div className="absolute z-20 top-full mt-1 w-full bg-zinc-800 border border-white/10 rounded-2xl px-4 py-3 text-base font-light text-white/50">
             No results found
           </div>
         )}
@@ -288,9 +364,9 @@ export default function CascadingDropdown({
 
       {/* Divider */}
       <div className="flex items-center gap-2">
-        <div className="flex-1 h-px bg-gray-200" />
-        <span className="text-xs text-gray-400">or browse</span>
-        <div className="flex-1 h-px bg-gray-200" />
+        <div className="flex-1 h-px bg-white/10" />
+        <span className="text-xs text-white/40">or browse</span>
+        <div className="flex-1 h-px bg-white/10" />
       </div>
 
       {/* Cascading selects */}
@@ -299,22 +375,16 @@ export default function CascadingDropdown({
           value={selectedCategory?.Id ?? ""}
           onChange={handleCategoryChange}
           placeholder="Select Category"
-        >
-          {optionDirectory.map((cat) => (
-            <option key={cat.Id} value={cat.Id}>{cat.Name}</option>
-          ))}
-        </NeonSelect>
+          options={optionDirectory.map((cat) => ({ value: cat.Id, label: cat.Name }))}
+        />
 
         {showSubcategory && (
           <NeonSelect
             value={selectedSubcategory?.Id ?? ""}
             onChange={handleSubcategoryChange}
             placeholder="Select Subcategory"
-          >
-            {selectedCategory!.Children!.map((sub) => (
-              <option key={sub.Id} value={sub.Id}>{sub.Name}</option>
-            ))}
-          </NeonSelect>
+            options={selectedCategory!.Children!.map((sub) => ({ value: sub.Id, label: sub.Name }))}
+          />
         )}
 
         {showOption && (
@@ -322,11 +392,8 @@ export default function CascadingDropdown({
             value={selectedOption?.Id ?? ""}
             onChange={handleOptionChange}
             placeholder="Select Option"
-          >
-            {selectedSubcategory!.Children!.map((opt) => (
-              <option key={opt.Id} value={opt.Id}>{opt.Name}</option>
-            ))}
-          </NeonSelect>
+            options={selectedSubcategory!.Children!.map((opt) => ({ value: opt.Id, label: opt.Name }))}
+          />
         )}
 
         {serviceTypesToShow && (
@@ -340,11 +407,11 @@ export default function CascadingDropdown({
 
       {/* Current selection summary */}
       {(selectedCategory || selectedType) && (
-        <div className="mt-1 px-3 py-2 rounded bg-gray-100 text-sm text-gray-500">
-          <span className="text-gray-700">{selectedCategory?.Name}</span>
-          {selectedSubcategory && <><span className="mx-1 text-gray-400">›</span><span className="text-gray-700">{selectedSubcategory.Name}</span></>}
-          {selectedOption && <><span className="mx-1 text-gray-400">›</span><span className="text-gray-700">{selectedOption.Name}</span></>}
-          {selectedType && <><span className="mx-1 text-gray-400">·</span><span className="text-rose-500">{selectedType}</span></>}
+        <div className="mt-1 px-4 py-3 rounded-2xl bg-white/10 text-sm text-white/50">
+          <span className="text-white">{selectedCategory?.Name}</span>
+          {selectedSubcategory && <><span className="mx-1 text-white/40">›</span><span className="text-white">{selectedSubcategory.Name}</span></>}
+          {selectedOption && <><span className="mx-1 text-white/40">›</span><span className="text-white">{selectedOption.Name}</span></>}
+          {selectedType && <><span className="mx-1 text-white/40">·</span><span className="text-blue-400">{selectedType}</span></>}
         </div>
       )}
     </div>
