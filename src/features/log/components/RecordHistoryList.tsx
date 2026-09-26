@@ -66,7 +66,6 @@ export function RecordHistoryList({
 
   const [isPinned, setIsPinned] = useState(false);
   const [barBox, setBarBox] = useState<{ left: number; width: number; height: number } | null>(null);
-  const [tooltipPos, setTooltipPos] = useState<{ left: number; top: number; above: boolean } | null>(null);
 
   // CSS `sticky` doesn't work here: LogHistoryPanel's Section and the page
   // wrapper above it both set overflow-hidden, which breaks native sticky.
@@ -108,36 +107,6 @@ export function RecordHistoryList({
     };
   }, []);
 
-  // The tab bar scrolls horizontally (overflow-x-auto), which forces
-  // overflow-y to auto too, so a tooltip positioned inside it gets clipped.
-  // Render the tooltip outside the bar instead, fixed to viewport coordinates
-  // measured from the active tab button.
-  useEffect(() => {
-    const updateTooltipPos = () => {
-      const btn = tabButtonRefs.current[activeTab];
-      const bar = barRef.current;
-      if (!btn || !bar) return;
-      const btnRect = btn.getBoundingClientRect();
-      const barRect = bar.getBoundingClientRect();
-      const above = barRect.top >= 32;
-      setTooltipPos({
-        left: btnRect.left + btnRect.width / 2,
-        top: above ? barRect.top - 8 : barRect.bottom + 8,
-        above,
-      });
-    };
-
-    updateTooltipPos();
-    const bar = barRef.current;
-    window.addEventListener("resize", updateTooltipPos);
-    window.addEventListener("scroll", updateTooltipPos, true);
-    bar?.addEventListener("scroll", updateTooltipPos);
-    return () => {
-      window.removeEventListener("resize", updateTooltipPos);
-      window.removeEventListener("scroll", updateTooltipPos, true);
-      bar?.removeEventListener("scroll", updateTooltipPos);
-    };
-  }, [activeTab, isPinned, barBox]);
 
   return (
     <div className="w-full mx-auto px-2" ref={containerRef}>
@@ -162,7 +131,7 @@ export function RecordHistoryList({
           setSelectedServiceTypes={setSelectedServiceTypes}
         />
         <div
-          className="flex gap-2 flex-1 min-w-0 overflow-x-scroll ml-12 pr-8 pb-1 [scrollbar-width:thin] [scrollbar-color:rgba(255,255,255,0.35)_transparent] [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-white/35 [&::-webkit-scrollbar-thumb]:rounded-full"
+          className="flex gap-1 flex-1 min-w-0 overflow-x-scroll ml-12 pr-8 pb-1 [scrollbar-width:thin] [scrollbar-color:rgba(255,255,255,0.35)_transparent] [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-white/35 [&::-webkit-scrollbar-thumb]:rounded-full"
         >
           {TABS.map((tab) => (
           <button
@@ -172,30 +141,17 @@ export function RecordHistoryList({
             }}
             type="button"
             onClick={() => setActiveTab(tab.key)}
-            className={`shrink-0 w-10 h-10 flex items-center justify-center rounded-full text-sm transition-colors ${
+            className={`shrink-0 h-10 px-4 whitespace-nowrap flex items-center justify-center rounded-full text-sm transition-colors ${
               activeTab === tab.key
                 ? "bg-orange-500 text-white shadow-[0_0_8px_rgba(249,115,22,0.4)]"
                 : "bg-white/10 text-white/70"
             }`}
           >
-            {tab.label[0]}
+            {tab.label}
           </button>
         ))}
         </div>
       </div>
-
-      {tooltipPos && (
-        <span
-          className="pointer-events-none fixed whitespace-nowrap rounded-full bg-black/80 px-3 py-1 text-xs text-white shadow-lg z-40"
-          style={{
-            left: tooltipPos.left,
-            top: tooltipPos.top,
-            transform: `translate(-50%, ${tooltipPos.above ? "-100%" : "0"})`,
-          }}
-        >
-          {TABS.find((tab) => tab.key === activeTab)?.label} records
-        </span>
-      )}
 
       <ul className={`w-full mx-auto ${isPinned ? "mt-14" : ""}`}>
         {!records.length && (

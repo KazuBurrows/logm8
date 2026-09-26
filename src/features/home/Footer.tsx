@@ -1,12 +1,12 @@
 import { Section } from "../../shared/components/Section";
 
-type FooterLink = {
+export type FooterLink = {
   title: string;
   description: string;
   href: string;
 };
 
-const footerLinks: FooterLink[] = [
+export const footerLinks: FooterLink[] = [
   {
     title: "Company",
     description: "Learn more about logm8 and our mission.",
