@@ -22,7 +22,7 @@ export interface TagFormFieldsProps {
   onChange: <K extends keyof TagFormValues>(key: K, value: TagFormValues[K]) => void;
 }
 
-const VehicleTypes = ["Motorbike", "Car"];
+const VehicleTypes = ["Motorbike"];
 
 const fieldLabel = "block text-sm text-white/50 leading-none mb-2";
 const fieldInput =

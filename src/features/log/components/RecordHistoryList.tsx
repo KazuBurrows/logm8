@@ -33,11 +33,13 @@ const LOG_INFO_HEADER_HEIGHT = 64;
 
 export interface RecordHistoryListProps {
   serviceRecords: ServiceRecord[];
+  isCheckingForUpdates?: boolean;
   openRecord: (record: ServiceRecord) => void;
 }
 
 export function RecordHistoryList({
   serviceRecords,
+  isCheckingForUpdates = false,
   openRecord,
 }: RecordHistoryListProps) {
   const [activeTab, setActiveTab] = useState<TabKey>("all");
@@ -154,7 +156,16 @@ export function RecordHistoryList({
       </div>
 
       <ul className={`w-full mx-auto ${isPinned ? "mt-14" : ""}`}>
-        {!records.length && (
+        {isCheckingForUpdates && (
+          <li
+            role="status"
+            className="flex items-center justify-center gap-2 py-3 text-sm text-white/60 funnel-display-font"
+          >
+            <span className="h-4 w-4 shrink-0 rounded-full border-2 border-white/20 border-t-blue-400 animate-spin" />
+            Checking for the latest updates…
+          </li>
+        )}
+        {!records.length && !isCheckingForUpdates && (
           <h2 className="mx-4 text-2xl funnel-display-font font-semibold text-center">
             {serviceRecords.length
               ? "No service records match this filter."

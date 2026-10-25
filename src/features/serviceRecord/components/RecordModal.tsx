@@ -143,9 +143,6 @@ export const RecordModal = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-
-    const currDate = new Date();
-
     // Helper function to check required fields
     const getValidationErrors = (): string[] => {
       const errors: string[] = [];
@@ -190,7 +187,6 @@ export const RecordModal = ({
     const formData = new FormData();
     formData.append("Token", Token);
     formData.append("TagId", TagId);
-    formData.append("EnteredDate", currDate.toString());
     formData.append("ServicedDate", ServicedDate);
     formData.append("MechanicName", MechanicName);
     formData.append(

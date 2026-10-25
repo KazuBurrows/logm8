@@ -5,16 +5,12 @@ import { getCached, setCached, CACHE_TTL_MS } from "../../../shared/utils/sessio
 export function useLog() {
   const { loading, error, get } = useApi();
 
+  // With lastUpdated, the server only returns records with LastModified >= lastUpdated;
+  // records are cached per tag by LogDataProvider (see logCache.ts), not here.
   const getLogData = useCallback(
-    async (token: string): Promise<any> => {
-      const cacheKey = `logData:${token}`;
-      const cached = getCached<any>(cacheKey);
-      if (cached) return cached;
-
-      const data = await get<any>(`GetLogData?token=${token}`, { Authorization: token, "X-Tag-Id": token });
-      setCached(cacheKey, data, CACHE_TTL_MS);
-      setCached(`logHistory:${token}`, data.records ?? [], CACHE_TTL_MS);
-      return data;
+    async (token: string, lastUpdated?: string): Promise<any> => {
+      const since = lastUpdated ? `&lastUpdated=${encodeURIComponent(lastUpdated)}` : "";
+      return get<any>(`GetLogData?token=${token}${since}`, { Authorization: token, "X-Tag-Id": token });
     },
     [get]
   );

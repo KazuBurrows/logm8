@@ -9,6 +9,7 @@ declare global {
     id: string;
     TagId: string;
     EnteredDate: string | null;
+    LastModified: string | null;
     ServicedDate: string;
     MechanicName: string;
     Odometer: string;
@@ -20,6 +21,7 @@ declare global {
     // CompletedTasks: TaskCompleted[];
     // PendingCompletedTasks: PendingTaskCompleted[] | null;
     Certified?: boolean;
+    UserId?: string | null;
     canEdit?: boolean;
   }
   
@@ -147,7 +149,6 @@ export interface AddServiceRecordRequest {
   Token: string;
   Id: string;
   TagId: string;
-  EnteredDate: string;      // ISO string or Date string
   ServicedDate: string;     // ISO string or Date string
   MechanicName: string;
   Odometer: string;         // e.g., "1200 km"

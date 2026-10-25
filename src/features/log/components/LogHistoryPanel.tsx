@@ -41,6 +41,7 @@ function populateRecordFilter(records: ServiceRecord[]) {
 export default function LogHistoryPanel() {
   const {
     serviceRecords,
+    isCheckingForUpdates,
     serviceOptions: logServiceOptions,
     ownershipOptions: logOwnershipOptions,
     updateRecord,
@@ -75,6 +76,7 @@ export default function LogHistoryPanel() {
       </div> */}
       <RecordHistoryList
         serviceRecords={serviceRecords}
+        isCheckingForUpdates={isCheckingForUpdates}
         openRecord={openRecord}
       />
 
