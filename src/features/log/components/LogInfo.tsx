@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import EditTag from "./EditTag";
 import { Section } from "../../../shared/components/Section";
-import { Button } from "../../../shared/components/Button";
 import { Svg } from "../../../shared/components/Svg";
+import { IconButton } from "../../../shared/components/IconButton";
 import { RecordModal } from "../../serviceRecord/components/RecordModal";
 import { useLogData, UserMode } from "../context/LogDataContext";
 import { StatsPanel } from "./StatsPanel";
@@ -109,25 +109,26 @@ export default function LogInfo({ tag, viewMode }: LogInfoProps) {
           isScrolled ? "bg-canvas/90 backdrop-blur-md shadow-lg shadow-black/30" : ""
         }`}
       >
-        <img
-          src={logmateLogo}
-          alt="logm8-logo"
-          className="h-12 z-20 bg-black/40 ring-1 ring-line rounded-full"
-          onClick={() => openEditTag()}
-        ></img>
+        <button
+          type="button"
+          aria-label="Edit vehicle details"
+          onClick={openEditTag}
+          className="z-20 rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+        >
+          <img
+            src={logmateLogo}
+            alt=""
+            className="h-12 bg-black/40 ring-1 ring-line rounded-full"
+          />
+        </button>
         <div className="flex items-center gap-2">
-          <Button
-            type="button"
-            size="xs"
-            className="bg-raised border border-line text-fg w-9 h-9 flex items-center justify-center"
-            onClick={() => openMenu()}
-          >
-            <div className="flex flex-col items-center justify-center gap-1">
+          <IconButton label="Menu" onClick={openMenu}>
+            <span aria-hidden="true" className="flex flex-col items-center justify-center gap-1">
               <span className="block w-4 h-0.5 bg-current"></span>
               <span className="block w-4 h-0.5 bg-current"></span>
               <span className="block w-4 h-0.5 bg-current"></span>
-            </div>
-          </Button>
+            </span>
+          </IconButton>
         </div>
       </div>
       <Section
@@ -152,22 +153,12 @@ export default function LogInfo({ tag, viewMode }: LogInfoProps) {
               <div className="flex items-center justify-between">
                 <p className="h-md:text-4xl h-sm:text-3xl text-2xl leading-none text-shadow font-semibold text-fg-muted">{tag.Year}</p>
                 <div className="flex items-center gap-2">
-                  <Button
-                    type="button"
-                    size="xs"
-                    className="bg-raised border border-line text-fg w-9 h-9 flex items-center justify-center"
-                    onClick={() => openStats()}
-                  >
+                  <IconButton label="Statistics" onClick={openStats}>
                     <Svg type="bars-1" size="md" color="current" />
-                  </Button>
-                  <Button
-                    type="button"
-                    size="xs"
-                    className="bg-raised border border-line text-fg w-9 h-9 flex items-center justify-center"
-                    onClick={() => openInfo()}
-                  >
+                  </IconButton>
+                  <IconButton label="Vehicle info" onClick={openInfo}>
                     <Svg type="info-1" size="lg" color="current" />
-                  </Button>
+                  </IconButton>
                 </div>
               </div>
 

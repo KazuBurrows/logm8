@@ -129,7 +129,7 @@ function ServiceTypeSelector({ types, selected, onChange }: ServiceTypeInputProp
             key={type}
             type="button"
             onClick={() => onChange(type)}
-            className={`px-4 py-2 rounded-full text-base font-light transition-colors flex items-center gap-2 ${
+            className={`min-h-11 px-4 py-2 rounded-full text-base font-light transition-colors flex items-center gap-2 ${
               selected === type
                 ? "bg-accent text-accent-fg"
                 : "bg-raised text-fg-soft"
@@ -159,7 +159,7 @@ function ModeToggle({ mode, onChange }: ModeToggleProps) {
           key={m}
           type="button"
           onClick={() => onChange(m)}
-          className={`px-4 py-1 rounded-full text-sm capitalize transition-colors ${
+          className={`min-h-11 px-4 rounded-full text-sm capitalize transition-colors ${
             mode === m ? "bg-accent text-accent-fg" : "text-fg-soft"
           }`}
         >
@@ -328,13 +328,14 @@ export default function CascadingDropdown({
                 if (searchResults[0]) handleSearchSelect(searchResults[0]);
               }
             }}
-            className="w-full rounded-card bg-raised px-3 py-3 pr-9 text-base font-light text-fg placeholder-fg-muted/70 outline-none"
+            className="w-full rounded-card bg-raised px-3 py-3 pr-11 text-base font-light text-fg placeholder-fg-muted/70 outline-none"
           />
           {searchText && (
             <button
               type="button"
+              aria-label="Clear search"
               onClick={() => { setSearchText(""); setSearchFocused(false); }}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-fg-muted"
+              className="absolute right-0 top-1/2 -translate-y-1/2 w-11 h-11 flex items-center justify-center text-fg-muted"
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                 <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />

@@ -41,6 +41,9 @@ module.exports = {
         card: "1rem", // cards, tiles, inputs
         sheet: "1.5rem", // sheets and large containers
       },
+      // Tailwind 3.3 has no spacing scale for min-height (3.4 adds one), so
+      // classes like min-h-11 (the 44px tap-target minimum) need it here.
+      minHeight: ({ theme }) => ({ ...theme("spacing") }),
     },
   },
   plugins: [],

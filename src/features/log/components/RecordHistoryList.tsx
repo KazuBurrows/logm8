@@ -143,8 +143,9 @@ export function RecordHistoryList({
               tabButtonRefs.current[tab.key] = el;
             }}
             type="button"
+            aria-pressed={activeTab === tab.key}
             onClick={() => setActiveTab(tab.key)}
-            className={`shrink-0 h-10 px-4 gap-2 whitespace-nowrap flex items-center justify-center rounded-full text-sm transition-colors ${
+            className={`shrink-0 h-11 px-4 gap-2 whitespace-nowrap flex items-center justify-center rounded-full text-sm transition-colors ${
               activeTab === tab.key ? "bg-accent text-accent-fg" : "bg-raised text-fg-soft"
             }`}
           >

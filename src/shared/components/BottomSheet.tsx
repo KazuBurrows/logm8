@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { Svg } from "./Svg";
+import { IconButton } from "./IconButton";
 import { useSlideInPanel } from "../hooks/useSlideInPanel";
 import { useEscapeAndScrollLock } from "../hooks/useEscapeAndScrollLock";
 
@@ -48,14 +49,9 @@ export function BottomSheet({ isOpen, onClose, title, footer, children }: Bottom
       >
         <div className="flex items-center justify-between px-5 pt-5 pb-3">
           <h3 className="text-2xl font-light tracking-tight">{title}</h3>
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="Close"
-            className="w-10 h-10 rounded-full bg-raised flex items-center justify-center"
-          >
-            <Svg type="cross" size="sm" color="white" />
-          </button>
+          <IconButton label="Close" onClick={onClose}>
+            <Svg type="cross" size="sm" color="current" />
+          </IconButton>
         </div>
         <div
           ref={listRef}

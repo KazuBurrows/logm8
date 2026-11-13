@@ -99,7 +99,7 @@ export function TagFormFields({ values, onChange }: TagFormFieldsProps) {
               key={type}
               type="button"
               onClick={() => onChange("Vehicle", type)}
-              className={`px-5 py-2 rounded-full text-base transition-colors ${
+              className={`min-h-11 px-5 py-2 rounded-full text-base transition-colors ${
                 values.Vehicle === type ? "bg-accent text-accent-fg" : "text-fg-soft"
               }`}
             >

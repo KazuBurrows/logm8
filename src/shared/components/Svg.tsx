@@ -785,5 +785,7 @@ export const Svg = ({ type, size, color }: SvgProps) => {
     }
   };
 
-  return <>{get_svg()}</>;
+  // Icons are decorative: the control around them carries the accessible name.
+  const svg = get_svg();
+  return svg ? React.cloneElement(svg, { "aria-hidden": true, focusable: "false" }) : null;
 };

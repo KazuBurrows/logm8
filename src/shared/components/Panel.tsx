@@ -1,5 +1,6 @@
 import React, { useId } from "react";
 import { Svg } from "./Svg";
+import { IconButton } from "./IconButton";
 import { AmbientGlow } from "./AmbientGlow";
 import { useSlideInPanel } from "../hooks/useSlideInPanel";
 import { useEscapeAndScrollLock } from "../hooks/useEscapeAndScrollLock";
@@ -44,16 +45,11 @@ export function Panel({
       <AmbientGlow />
       <div className="relative w-full max-w-md mx-auto flex-1 px-4 pt-[calc(1.5rem+env(safe-area-inset-top))] pb-12">
         <div className="flex items-center gap-4 mb-6">
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label={closeLabel}
-            className="w-11 h-11 shrink-0 rounded-full bg-raised border border-line flex items-center justify-center"
-          >
+          <IconButton label={closeLabel} onClick={onClose}>
             <span className="rotate-90 flex">
-              <Svg type="angle-small-down1" size="lg" color="white" />
+              <Svg type="angle-small-down1" size="lg" color="current" />
             </span>
-          </button>
+          </IconButton>
           <h2 id={titleId} className="text-3xl font-light tracking-tight min-w-0">
             {title}
           </h2>

@@ -241,7 +241,7 @@ export const RecordModal = ({
 
   const fieldLabel = "block text-sm text-fg-muted leading-none mb-2";
   const fieldInput =
-    "w-full bg-transparent text-xl font-light text-fg placeholder-fg-muted/70 outline-none [color-scheme:dark] disabled:text-fg-soft disabled:cursor-not-allowed";
+    "w-full min-h-11 bg-transparent text-xl font-light text-fg placeholder-fg-muted/70 outline-none [color-scheme:dark] disabled:text-fg-soft disabled:cursor-not-allowed";
 
   const odometerUnits = [
     { id: "huey", value: "km", label: "KM" },
@@ -309,7 +309,7 @@ export const RecordModal = ({
                 <label
                   key={unit.id}
                   htmlFor={unit.id}
-                  className={`px-3 py-1 rounded-full transition-colors ${
+                  className={`min-h-11 px-3 inline-flex items-center rounded-full transition-colors ${
                     isView ? "cursor-not-allowed" : "cursor-pointer"
                   } ${
                     OdometerMetric === unit.value
@@ -386,7 +386,7 @@ export const RecordModal = ({
                   href={url}
                   target="_blank"
                   rel="noreferrer"
-                  className="text-fg underline underline-offset-2 text-sm truncate"
+                  className="min-h-11 flex items-center text-fg underline underline-offset-2 text-sm truncate"
                 >
                   {url.split("/").pop() || `File ${i + 1}`}
                 </a>
@@ -403,7 +403,7 @@ export const RecordModal = ({
             <input
               type="file"
               id="Reciept"
-              className="w-full text-sm text-fg-soft file:mr-3 file:rounded-full file:border-0 file:bg-raised file:px-4 file:py-2 file:text-fg file:cursor-pointer"
+              className="w-full text-sm text-fg-soft file:mr-3 file:rounded-full file:border-0 file:bg-raised file:px-4 file:py-3 file:text-fg file:cursor-pointer"
               multiple
               onChange={handleFilesChange}
             />

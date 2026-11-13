@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 
 import { Svg } from "../../../shared/components/Svg";
+import { IconButton } from "../../../shared/components/IconButton";
 import { groupedOptions } from "../../../shared/types/serviceOptions";
 import { sortedOptions } from "../../../shared/types/sortOptions";
 
@@ -52,13 +53,9 @@ export function SortFilterControls({
   return (
     <div className="relative">
       <div className="flex px-2">
-        <button
-          type="button"
-          className="w-[40px] rounded-full px-1 py-1 bg-raised border border-line text-fg text-center ml-auto mb-1 mr-1"
-          onClick={() => setIsOpen(true)}
-        >
-          <Svg type="sort-1" size="2xl" color="current" />
-        </button>
+        <IconButton label="Sort and filter" onClick={() => setIsOpen(true)} className="ml-auto mb-1 mr-1">
+          <Svg type="sort-1" size="md" color="current" />
+        </IconButton>
       </div>
 
       {/* Sort & Filter Modal — portalled to <body> because the parent bar's
