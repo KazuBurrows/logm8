@@ -370,7 +370,7 @@ export default function CascadingDropdown({
       {/* Divider */}
       <div className="flex items-center gap-2">
         <div className="flex-1 h-px bg-line" />
-        <span className="text-xs text-fg-muted">or browse</span>
+        <span className="text-sm text-fg-muted">or browse</span>
         <div className="flex-1 h-px bg-line" />
       </div>
 

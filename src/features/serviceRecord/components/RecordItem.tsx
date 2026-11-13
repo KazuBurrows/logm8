@@ -1,4 +1,5 @@
 import { serviceTypeStyle } from "../../../shared/theme/serviceTypes";
+import { formatServicedDate } from "../utils/recordDisplay";
 
 export interface RecordItemProps {
   record: ServiceRecord;
@@ -7,65 +8,41 @@ export interface RecordItemProps {
 
 export const RecordItem = ({ record, openRecord }: RecordItemProps) => {
   const typeStyle = serviceTypeStyle(record.ServiceType);
+  const odometer = record.Odometer?.trim();
 
   return (
-    <li key={record.id} className="mb-1 relative">
+    <li className="mb-1 relative">
       <div
-        className={`w-full rounded-card bg-surface border border-line border-l-4 shadow-lg funnel-display-font leading-none ${typeStyle.edge} relative`}
+        className={`w-full rounded-card bg-surface border border-line border-l-4 shadow-lg funnel-display-font ${typeStyle.edge} relative`}
       >
+        {/* Spans inside: a button may only contain phrasing content. */}
         <button
           type="button"
-          className="w-full text-left rounded-card focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+          className="w-full text-left rounded-card focus:outline-none focus-visible:ring-2 focus-visible:ring-accent flex items-center gap-3 py-3 px-4 sm:px-8"
           onClick={openRecord}
         >
-          {/* Record content (spans: a button may only contain phrasing content) */}
-          <span className="flex flex-col py-3 px-4 sm:px-8">
-            {/* Line 1: Service Option */}
-            <span className="block font-semibold capitalize text-xl text-fg tracking-wide mb-1">
+          <span className="flex-1 min-w-0">
+            <span className="line-clamp-2 break-words font-semibold capitalize text-xl leading-tight text-fg tracking-wide">
               {record.ServiceOption}
             </span>
-
-            {/* Line 2: Month + Year + Odometer */}
-            <span className="flex justify-between items-center">
-              <span className="flex flex-col text-left text-white/80">
-                {(() => {
-                  const date = new Date(record.ServicedDate);
-                  const months = [
-                    "Jan",
-                    "Feb",
-                    "Mar",
-                    "Apr",
-                    "May",
-                    "Jun",
-                    "Jul",
-                    "Aug",
-                    "Sep",
-                    "Oct",
-                    "Nov",
-                    "Dec",
-                  ];
-                  return (
-                    <>
-                      <span className="block text-sm uppercase tracking-wider text-white/25">
-                        {months[date.getMonth()]}{" "}
-                        <span className="text-white/50">
-                          {date.getFullYear()}
-                        </span>
-                      </span>
-                      <span className="block text-sm capitalize tracking-wider text-white/25">
-                        {record.Odometer}
-                      </span>
-                    </>
-                  );
-                })()}
-              </span>
-
-              <span
-                className={`text-sm font-thin capitalize px-3 py-1 rounded-full ${typeStyle.badge}`}
-              >
-                {record.ServiceType}
-              </span>
+            {/* Metadata: 14px in fg-muted (6.96:1 on surface) to meet WCAG AA. */}
+            <span className="block mt-1 text-sm leading-snug text-fg-muted tabular-nums">
+              <time dateTime={record.ServicedDate}>{formatServicedDate(record.ServicedDate)}</time>
+              {odometer && (
+                <>
+                  <span aria-hidden="true" className="mx-1.5">
+                    ·
+                  </span>
+                  <span className="capitalize">{odometer}</span>
+                </>
+              )}
             </span>
+          </span>
+
+          <span
+            className={`shrink-0 text-sm font-medium capitalize px-3 py-1 rounded-full ${typeStyle.badge}`}
+          >
+            {record.ServiceType}
           </span>
         </button>
       </div>
