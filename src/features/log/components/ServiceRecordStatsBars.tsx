@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Tile } from "../../../shared/components/Tile";
+import { serviceTypeStyle } from "../../../shared/theme/serviceTypes";
 
 const SERVICE_TYPES = [
   "Maintenance",
@@ -13,14 +14,6 @@ type ServiceType = (typeof SERVICE_TYPES)[number];
 
 // Types that are valid records but not shown as a bar.
 const IGNORED_TYPES = new Set(["WOF", "Registration", "Certification", ""]);
-
-const barClasses: Record<ServiceType, string> = {
-  Maintenance: "bg-[#4a5fc9]",
-  Replacement: "bg-[#e0522f]",
-  Inspection: "bg-[#2fa866]",
-  Adjustment: "bg-[#f2c230]",
-  Tune: "bg-[#8b5cf6]",
-};
 
 export interface ServiceRecordStatsBarsProps {
   serviceRecords: ServiceRecord[];
@@ -64,12 +57,15 @@ export function ServiceRecordStatsBars({
         return (
           <div key={type}>
             <div className="flex items-baseline justify-between mb-2">
-              <span className="text-base">{type}</span>
+              <span className="flex items-center gap-2 text-base">
+                <span aria-hidden="true" className={`w-2.5 h-2.5 rounded-full ${serviceTypeStyle(type).dot}`} />
+                {type}
+              </span>
               <span className="text-2xl font-light leading-none tabular-nums">{value}</span>
             </div>
             <div aria-hidden="true" className="h-2 rounded-full bg-raised overflow-hidden">
               <div
-                className={`h-full rounded-full transition-[width] duration-700 ease-out ${barClasses[type]}`}
+                className={`h-full rounded-full transition-[width] duration-700 ease-out ${serviceTypeStyle(type).bar}`}
                 style={{ width: `${pct}%` }}
               />
             </div>

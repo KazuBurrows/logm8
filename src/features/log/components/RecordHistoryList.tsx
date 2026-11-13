@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { RecordItem } from "../../serviceRecord/components/RecordItem";
 import { SortFilterControls } from "./SortFilterControls";
 import { useSortedFilteredRecords } from "../hooks/useSortedFilteredRecords";
+import { serviceTypeStyle } from "../../../shared/theme/serviceTypes";
 
 type TabKey =
   | "all"
@@ -143,12 +144,16 @@ export function RecordHistoryList({
             }}
             type="button"
             onClick={() => setActiveTab(tab.key)}
-            className={`shrink-0 h-10 px-4 whitespace-nowrap flex items-center justify-center rounded-full text-sm transition-colors ${
-              activeTab === tab.key
-                ? "bg-orange-500 text-white shadow-[0_0_8px_rgba(249,115,22,0.4)]"
-                : "bg-raised text-fg-soft"
+            className={`shrink-0 h-10 px-4 gap-2 whitespace-nowrap flex items-center justify-center rounded-full text-sm transition-colors ${
+              activeTab === tab.key ? "bg-accent text-accent-fg" : "bg-raised text-fg-soft"
             }`}
           >
+            {SERVICE_TYPE_BY_TAB[tab.key] && (
+              <span
+                aria-hidden="true"
+                className={`w-2 h-2 rounded-full ${serviceTypeStyle(SERVICE_TYPE_BY_TAB[tab.key]).dot}`}
+              />
+            )}
             {tab.label}
           </button>
         ))}

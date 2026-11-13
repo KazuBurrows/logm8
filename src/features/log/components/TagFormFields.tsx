@@ -217,7 +217,7 @@ export function TagFormFields({ values, onChange }: TagFormFieldsProps) {
                   className={sheetRowClass(active)}
                 >
                   <span className="capitalize">{opt.label}</span>
-                  {active && <Svg type="check" size="md" color="white" />}
+                  {active && <Svg type="check" size="md" color="current" />}
                 </button>
               );
             })}

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Svg } from "../../../shared/components/Svg";
 import { BottomSheet, sheetRowClass } from "../../../shared/components/BottomSheet";
+import { hasTypeColour, serviceTypeStyle } from "../../../shared/theme/serviceTypes";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -89,7 +90,7 @@ function NeonSelect({ value, onChange, placeholder, options }: SelectProps) {
           className={sheetRowClass(!selected)}
         >
           <span className={selected ? "text-fg-muted" : ""}>{placeholder}</span>
-          {!selected && <Svg type="check" size="md" color="white" />}
+          {!selected && <Svg type="check" size="md" color="current" />}
         </button>
         {options.map((option) => {
           const active = String(option.value) === String(value);
@@ -102,7 +103,7 @@ function NeonSelect({ value, onChange, placeholder, options }: SelectProps) {
               className={sheetRowClass(active)}
             >
               <span>{option.label}</span>
-              {active && <Svg type="check" size="md" color="white" />}
+              {active && <Svg type="check" size="md" color="current" />}
             </button>
           );
         })}
@@ -128,12 +129,15 @@ function ServiceTypeSelector({ types, selected, onChange }: ServiceTypeInputProp
             key={type}
             type="button"
             onClick={() => onChange(type)}
-            className={`px-4 py-2 rounded-full text-base font-light transition-colors ${
+            className={`px-4 py-2 rounded-full text-base font-light transition-colors flex items-center gap-2 ${
               selected === type
                 ? "bg-accent text-accent-fg"
                 : "bg-raised text-fg-soft"
             }`}
           >
+            {hasTypeColour(type) && (
+              <span aria-hidden="true" className={`w-2 h-2 rounded-full ${serviceTypeStyle(type).dot}`} />
+            )}
             {type}
           </button>
         ))}
@@ -411,7 +415,7 @@ export default function CascadingDropdown({
           <span className="text-fg">{selectedCategory?.Name}</span>
           {selectedSubcategory && <><span className="mx-1 text-fg-muted">›</span><span className="text-fg">{selectedSubcategory.Name}</span></>}
           {selectedOption && <><span className="mx-1 text-fg-muted">›</span><span className="text-fg">{selectedOption.Name}</span></>}
-          {selectedType && <><span className="mx-1 text-fg-muted">·</span><span className="text-accent">{selectedType}</span></>}
+          {selectedType && <><span className="mx-1 text-fg-muted">·</span><span className={serviceTypeStyle(selectedType).text}>{selectedType}</span></>}
         </div>
       )}
     </div>

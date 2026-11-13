@@ -20,11 +20,22 @@ module.exports = {
           soft: "#cbd5e1", // secondary text
           muted: "#94a3b8", // metadata and labels; >= 4.5:1 on canvas, surface and raised
         },
+        // Neutral on purpose: hue is reserved for record types (below), so
+        // actions and selected states never read as a type.
         accent: {
-          DEFAULT: "#3b82f6", // primary actions and selected states
-          fg: "#ffffff", // text/icons on accent
+          DEFAULT: "#e2e8f0", // primary actions and selected states
+          fg: "#020617", // text/icons on accent
         },
-        glow: "#3b82f6", // decorative ambient glow only
+        glow: "#1e40af", // decorative ambient glow only
+        // Record-type colours. Map types to these only through
+        // src/shared/theme/serviceTypes.ts, never directly in components.
+        type: {
+          maintenance: { DEFAULT: "#3b82f6", fg: "#93c5fd" },
+          replacement: { DEFAULT: "#ef4444", fg: "#fca5a5" },
+          inspection: { DEFAULT: "#22c55e", fg: "#86efac" },
+          adjustment: { DEFAULT: "#facc15", fg: "#fef08a" },
+          tune: { DEFAULT: "#8b5cf6", fg: "#c4b5fd" },
+        },
       },
       borderRadius: {
         card: "1rem", // cards, tiles, inputs

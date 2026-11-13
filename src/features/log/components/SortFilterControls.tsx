@@ -5,14 +5,12 @@ import { Svg } from "../../../shared/components/Svg";
 import { groupedOptions } from "../../../shared/types/serviceOptions";
 import { sortedOptions } from "../../../shared/types/sortOptions";
 
-// Same palette as ServiceRecordStatsBars; groups cycle through it.
-const groupClasses = [
-  { fill: "bg-[#4a5fc9] text-white", track: "bg-[#4a5fc9]/25" },
-  { fill: "bg-[#e0522f] text-white", track: "bg-[#e0522f]/25" },
-  { fill: "bg-[#2fa866] text-white", track: "bg-[#2fa866]/25" },
-  { fill: "bg-[#f2c230] text-slate-900", track: "bg-[#f2c230]/25" },
-  { fill: "bg-[#8b5cf6] text-white", track: "bg-[#8b5cf6]/25" },
-];
+// Neutral on purpose: these groups are categories and sort orders, not
+// record types, so they don't borrow the type colours.
+const optionClasses = {
+  checked: "bg-accent text-accent-fg",
+  unchecked: "bg-surface border border-line text-fg",
+};
 
 export interface SortFilterControlsProps {
   selectedSortType: string;
@@ -82,23 +80,21 @@ export function SortFilterControls({
                     setSelectedSortType("");
                     setSelectedServiceTypes([]);
                   }}
-                  className="rounded-3xl px-5 py-3 bg-[#e0522f]/25 text-xl font-medium leading-none"
+                  className="rounded-full px-5 py-3 bg-raised border border-line text-xl font-medium leading-none"
                 >
                   Reset
                 </button>
                 <button
                   type="button"
                   onClick={() => setIsOpen(false)}
-                  className="flex items-center gap-2 rounded-3xl px-5 py-3 bg-[#2fa866] text-white text-xl font-medium leading-none"
+                  className="flex items-center gap-2 rounded-full px-5 py-3 bg-accent text-accent-fg text-xl font-medium leading-none"
                 >
-                  <Svg type="check" color="white" size="md" />
+                  <Svg type="check" color="current" size="md" />
                   Done
                 </button>
               </div>
 
-              {groups.map((group, groupIndex) => {
-                const colors = groupClasses[groupIndex % groupClasses.length];
-
+              {groups.map((group) => {
                 return (
                   <fieldset key={group.label} className="flex flex-col gap-3">
                     <legend className="mb-3 text-6xl font-light leading-none tracking-tight capitalize">
@@ -114,8 +110,8 @@ export function SortFilterControls({
                       return (
                         <label
                           key={opt.value}
-                          className={`rounded-3xl p-4 flex items-center justify-between cursor-pointer transition-colors duration-300 ${
-                            checked ? colors.fill : colors.track
+                          className={`rounded-card p-4 flex items-center justify-between cursor-pointer transition-colors duration-300 ${
+                            checked ? optionClasses.checked : optionClasses.unchecked
                           }`}
                         >
                           <span className="text-xl font-medium leading-none capitalize">

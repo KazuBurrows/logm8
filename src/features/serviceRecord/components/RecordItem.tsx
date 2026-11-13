@@ -1,48 +1,17 @@
+import { serviceTypeStyle } from "../../../shared/theme/serviceTypes";
+
 export interface RecordItemProps {
   record: ServiceRecord;
   openRecord: () => void;
 }
 
 export const RecordItem = ({ record, openRecord }: RecordItemProps) => {
-  // Neon/futuristic color scheme for each service type
-  const serviceTypeClasses: Record<string, string> = {
-    Maintenance: "text-white bg-blue-900/50",
-    Replacement: "text-white bg-red-900/50",
-    Inspection: "text-white bg-green-900/50",
-    Adjustment: "text-white bg-yellow-900/50",
-    Tune: "text-white bg-purple-900/50",
-  };
-
-  const serviceAccentClasses: Record<string, string> = {
-    Maintenance: "border-l-blue-500",
-    Replacement: "border-l-red-500",
-    Inspection: "border-l-green-500",
-    Adjustment: "border-l-yellow-500",
-    Tune: "border-l-purple-500",
-  };
-
-  const glowClasses: Record<string, string> = {
-    Maintenance: "drop-shadow-[0_0_2px_rgba(59,130,246,0.7)]",
-    Replacement: "drop-shadow-[0_0_2px_rgba(248,113,113,0.7)]",
-    Inspection: "drop-shadow-[0_0_2px_rgba(34,197,94,0.7)]",
-    Adjustment: "drop-shadow-[0_0_2px_rgba(253,224,71,0.7)]",
-    Tune: "drop-shadow-[0_0_2px_rgba(139,92,246,0.7)]",
-  };
-
-  // const serviceStatClasses: Record<string, string> = {
-  //   Maintenance: "text-white bg-blue-700/60",
-  //   Replacement: "text-white bg-red-700/60",
-  //   Inspection: "text-white bg-green-700/60",
-  //   Adjustment: "text-white bg-yellow-700/60",
-  //   Tune: "text-white bg-purple-700/60",
-  // };
+  const typeStyle = serviceTypeStyle(record.ServiceType);
 
   return (
     <li key={record.id} className="mb-1 relative">
       <div
-        className={`w-full rounded-card bg-surface border border-line border-l-4 shadow-lg funnel-display-font leading-none ${
-          serviceAccentClasses[record.ServiceType] || "border-l-fg-muted"
-        } relative`}
+        className={`w-full rounded-card bg-surface border border-line border-l-4 shadow-lg funnel-display-font leading-none ${typeStyle.edge} relative`}
       >
         <div
           className="w-full cursor-pointer"
@@ -91,10 +60,7 @@ export const RecordItem = ({ record, openRecord }: RecordItemProps) => {
               </div>
 
               <div
-                className={`text-sm font-thin capitalize px-3 py-1 rounded-full ${
-                  serviceTypeClasses[record.ServiceType] ||
-                  "text-fg-soft bg-raised"
-                } ${glowClasses[record.ServiceType] || ""}`}
+                className={`text-sm font-thin capitalize px-3 py-1 rounded-full ${typeStyle.badge}`}
               >
                 {record.ServiceType}
               </div>

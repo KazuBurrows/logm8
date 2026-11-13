@@ -148,7 +148,7 @@ export default function LogInfo({ tag, viewMode }: LogInfoProps) {
                 {tag.Model}
               </h3>
               <div className="flex items-center justify-between">
-                <p className="h-md:text-4xl h-sm:text-3xl text-2xl leading-none text-shadow font-semibold text-accent">{tag.Year}</p>
+                <p className="h-md:text-4xl h-sm:text-3xl text-2xl leading-none text-shadow font-semibold text-fg-muted">{tag.Year}</p>
                 <div className="flex items-center gap-2">
                   <Button
                     type="button"
