@@ -2,6 +2,7 @@ import React, { useMemo } from "react";
 import { Panel } from "../../../shared/components/Panel";
 import { Tile } from "../../../shared/components/Tile";
 import { ServiceRecordStatsBars } from "./ServiceRecordStatsBars";
+import { parseOdometer, parseServicedDate } from "../../serviceRecord/utils/recordDisplay";
 
 export interface StatsPanelProps {
   isOpen: boolean;
@@ -26,12 +27,10 @@ export function StatsPanel({ isOpen, onClose, serviceRecords }: StatsPanelProps)
     return latest as ServiceRecord | null;
   }, [serviceRecords]);
 
-  const lastDate = latestRecord ? new Date(latestRecord.ServicedDate) : null;
+  const lastDate = parseServicedDate(latestRecord?.ServicedDate);
 
-  // Odometer is stored as "<number> <unit>", e.g. "1200 km" or "350 hours".
-  const [odoValue, odoUnit] = (latestRecord?.Odometer ?? "").trim().split(/\s+/);
-  const odoNumber = Number(odoValue);
-  const hasOdometer = odoValue !== "" && !Number.isNaN(odoNumber);
+  // Shown in the latest record's own unit; mixed units aren't converted.
+  const odometer = parseOdometer(latestRecord?.Odometer);
 
   return (
     <Panel isOpen={isOpen} onClose={onClose} title="Statistics" closeLabel="Close statistics">
@@ -41,10 +40,12 @@ export function StatsPanel({ isOpen, onClose, serviceRecords }: StatsPanelProps)
           <div className={statLabel}>Current reading</div>
           <div className="flex items-baseline gap-2">
             <span className="text-5xl font-light leading-none tracking-tight tabular-nums">
-              {hasOdometer ? odoNumber.toLocaleString() : "—"}
+              {odometer.value !== null
+                ? odometer.value.toLocaleString("en-GB", { maximumFractionDigits: 1 })
+                : "—"}
             </span>
-            {hasOdometer && odoUnit && (
-              <span className="text-lg text-fg-soft">{odoUnit}</span>
+            {odometer.value !== null && odometer.unit && (
+              <span className="text-lg text-fg-soft">{odometer.unit}</span>
             )}
           </div>
         </Tile>

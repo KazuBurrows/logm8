@@ -6,6 +6,7 @@ import { useSortedFilteredRecords } from "../hooks/useSortedFilteredRecords";
 import { serviceTypeStyle } from "../../../shared/theme/serviceTypes";
 import { Svg } from "../../../shared/components/Svg";
 import { groupByMonth, matchesSearch } from "../utils/groupRecords";
+import { recordTitle } from "../../serviceRecord/utils/recordDisplay";
 
 type TabKey =
   | "all"
@@ -65,7 +66,7 @@ export function RecordHistoryList({
     return filteredRecords.filter((r) => {
       if (activeTab === "ownership" && r.ServiceCategory !== "Ownership") return false;
       if (serviceType && r.ServiceType !== serviceType) return false;
-      return matchesSearch(r.ServiceOption, query);
+      return matchesSearch(recordTitle(r), query);
     });
   }, [filteredRecords, activeTab, query]);
 

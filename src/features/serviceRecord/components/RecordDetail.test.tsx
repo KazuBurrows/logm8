@@ -42,6 +42,7 @@ test("shows the record's details read-only", async () => {
   expect(await screen.findByRole("dialog", { name: "Oil Change" })).toBeInTheDocument();
   expect(screen.getByText("28 October 2026")).toBeInTheDocument();
   expect(screen.getByText("Bruce McLaren")).toBeInTheDocument();
+  expect(screen.getByText("41,250 km")).toBeInTheDocument();
   expect(
     screen.getByText((_, el) => el?.tagName === "DD" && el.textContent === "Engine›Oil›Oil Change")
   ).toBeInTheDocument();
@@ -69,4 +70,9 @@ test("empty fields say so instead of rendering blank", async () => {
   expect(screen.getByText("No comment")).toBeInTheDocument();
   expect(screen.getByText("No receipts")).toBeInTheDocument();
   expect(screen.getByText("Not recorded")).toBeInTheDocument();
+});
+
+test("a record without an option name is titled by its category", async () => {
+  renderDetail({ record: { ...record, ServiceOption: "" } });
+  expect(await screen.findByRole("dialog", { name: "Engine" })).toBeInTheDocument();
 });

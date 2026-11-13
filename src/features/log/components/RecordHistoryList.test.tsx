@@ -71,3 +71,17 @@ test("tapping a row opens that record", () => {
   fireEvent.click(screen.getByRole("button", { name: /Chain Lube/ }));
   expect(openRecord).toHaveBeenCalledWith(records[2]);
 });
+
+test("untitled records show their category and can be found by it", () => {
+  render(
+    <RecordHistoryList
+      serviceRecords={[...records, rec("5", "", "2026-08-01")]}
+      openRecord={() => {}}
+    />
+  );
+  // "Engine" is the category the helper gives every record.
+  fireEvent.change(screen.getByRole("searchbox"), { target: { value: "engine" } });
+  expect(rowTitles()).toHaveLength(1);
+  expect(rowTitles()[0]).toMatch(/^Engine/);
+  expect(rowTitles()[0]).toMatch(/1,000 km/);
+});

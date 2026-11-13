@@ -4,6 +4,7 @@ import { Section } from "../../../shared/components/Section";
 import { RecordModal } from "../../serviceRecord/components/RecordModal";
 import { RecordDetail } from "../../serviceRecord/components/RecordDetail";
 import { categoryPathNames } from "../../serviceRecord/utils/serviceSelection";
+import { recordTitle } from "../../serviceRecord/utils/recordDisplay";
 import { groupedOptions } from "../../../shared/types/serviceOptions";
 import { useLogData } from "../context/LogDataContext";
 import { TaskOption } from "../../../shared/types/global";
@@ -27,8 +28,8 @@ function populateRecordFilter(records: ServiceRecord[]) {
     const records = Array.from(
       new Map(
         serviceRecords.map((r): [string, TaskOption] => [
-          r.ServiceOption,
-          { value: r.ServiceOption, label: r.ServiceOption },
+          recordTitle(r),
+          { value: recordTitle(r), label: recordTitle(r) },
         ])
       ).values()
     );

@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { recordTitle } from "../../serviceRecord/utils/recordDisplay";
 
 function toKm(value: string): number {
   const [valueStr, metric] = value.split(" ");
@@ -23,10 +24,10 @@ export function useSortedFilteredRecords(serviceRecords: ServiceRecord[]) {
 
     switch (selectedSortType) {
       case "Service Name A-Z":
-        records.sort((a, b) => a.ServiceOption.localeCompare(b.ServiceOption));
+        records.sort((a, b) => recordTitle(a).localeCompare(recordTitle(b)));
         break;
       case "Service Name Z-A":
-        records.sort((a, b) => b.ServiceOption.localeCompare(a.ServiceOption));
+        records.sort((a, b) => recordTitle(b).localeCompare(recordTitle(a)));
         break;
       case "Odometer High-Low":
         records.sort((a, b) => toKm(b.Odometer) - toKm(a.Odometer));
@@ -68,7 +69,7 @@ export function useSortedFilteredRecords(serviceRecords: ServiceRecord[]) {
   );
   const filteredRecords = selectedServiceTypes.length
     ? sortedRecords.filter((record) =>
-        selectedServiceTypes.includes(record.ServiceOption)
+        selectedServiceTypes.includes(recordTitle(record))
       )
     : sortedRecords;
 

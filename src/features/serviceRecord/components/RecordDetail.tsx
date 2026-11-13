@@ -3,7 +3,12 @@ import { Panel } from "../../../shared/components/Panel";
 import { Svg } from "../../../shared/components/Svg";
 import { Tile } from "../../../shared/components/Tile";
 import { serviceTypeStyle } from "../../../shared/theme/serviceTypes";
-import { fileNameFromUrl, formatServicedDate } from "../utils/recordDisplay";
+import {
+  fileNameFromUrl,
+  formatOdometer,
+  formatServicedDate,
+  recordTitle,
+} from "../utils/recordDisplay";
 
 export interface RecordDetailProps {
   isOpen: boolean;
@@ -43,7 +48,7 @@ export function RecordDetail({
     <Panel
       isOpen={isOpen}
       onClose={onClose}
-      title={record?.ServiceOption || "Service record"}
+      title={record ? recordTitle(record) : "Service record"}
       closeLabel="Close record"
       footer={
         canEdit ? (
@@ -67,7 +72,7 @@ export function RecordDetail({
                 {record.MechanicName?.trim() || <span className="text-fg-muted">Not recorded</span>}
               </Field>
               <Field name="Odometer">
-                {record.Odometer?.trim() || <span className="text-fg-muted">Not recorded</span>}
+                {formatOdometer(record.Odometer) || <span className="text-fg-muted">Not recorded</span>}
               </Field>
               <Field name="Category">
                 {categoryPath.length ? (

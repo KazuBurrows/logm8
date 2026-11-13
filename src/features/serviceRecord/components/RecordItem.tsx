@@ -1,5 +1,5 @@
 import { serviceTypeStyle } from "../../../shared/theme/serviceTypes";
-import { formatServicedDate } from "../utils/recordDisplay";
+import { formatOdometer, formatServicedDate, recordTitle } from "../utils/recordDisplay";
 
 export interface RecordItemProps {
   record: ServiceRecord;
@@ -8,7 +8,7 @@ export interface RecordItemProps {
 
 export const RecordItem = ({ record, openRecord }: RecordItemProps) => {
   const typeStyle = serviceTypeStyle(record.ServiceType);
-  const odometer = record.Odometer?.trim();
+  const odometer = formatOdometer(record.Odometer);
 
   return (
     <li className="mb-1 relative">
@@ -23,7 +23,7 @@ export const RecordItem = ({ record, openRecord }: RecordItemProps) => {
         >
           <span className="flex-1 min-w-0">
             <span className="line-clamp-2 break-words font-semibold capitalize text-xl leading-tight text-fg tracking-wide">
-              {record.ServiceOption}
+              {recordTitle(record)}
             </span>
             {/* Metadata: 14px in fg-muted (6.96:1 on surface) to meet WCAG AA. */}
             <span className="block mt-1 text-sm leading-snug text-fg-muted tabular-nums">
@@ -33,7 +33,7 @@ export const RecordItem = ({ record, openRecord }: RecordItemProps) => {
                   <span aria-hidden="true" className="mx-1.5">
                     ·
                   </span>
-                  <span className="capitalize">{odometer}</span>
+                  <span>{odometer}</span>
                 </>
               )}
             </span>
