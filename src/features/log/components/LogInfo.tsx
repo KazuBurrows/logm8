@@ -103,7 +103,7 @@ export default function LogInfo({ tag, viewMode }: LogInfoProps) {
       )}
 
       <div
-        className={`fixed inset-x-0 top-0 z-10 flex items-center justify-between pt-[calc(0.5rem+env(safe-area-inset-top))] pb-2 pl-[calc(0.5rem+env(safe-area-inset-left))] pr-[calc(0.5rem+env(safe-area-inset-right))] transition-colors duration-300 funnel-display-font ${
+        className={`fixed inset-x-0 top-0 z-40 flex items-center justify-between pt-[calc(0.5rem+env(safe-area-inset-top))] pb-2 pl-[calc(0.5rem+env(safe-area-inset-left))] pr-[calc(0.5rem+env(safe-area-inset-right))] transition-colors duration-300 funnel-display-font ${
           isScrolled ? "bg-canvas/90 backdrop-blur-md shadow-lg shadow-black/30" : ""
         }`}
       >
