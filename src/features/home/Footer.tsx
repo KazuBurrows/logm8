@@ -10,7 +10,8 @@ export const footerLinks: FooterLink[] = [
   {
     title: "Company",
     description: "Learn more about logm8 and our mission.",
-    href: "/company",
+    // The app has no /company route; the about page lives on the main site.
+    href: "https://logm8.com/pages/about-us",
   },
   {
     title: "Support",
