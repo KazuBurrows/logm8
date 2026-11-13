@@ -1,36 +1,34 @@
 import React from "react";
-import { Panel } from "./Panel";
+import { BottomSheet, sheetRowClass } from "./BottomSheet";
 
+// Support and About Us are left out: the page footer already links to Support
+// and Company (about logm8), so the menu only carries what the footer doesn't.
 const NAV_LINKS = [
   { label: "Home", href: "https://logm8.com/" },
   { label: "Shop", href: "https://logm8.com/collections/all" },
-  { label: "Support", href: "https://logm8.com/pages/support" },
-  { label: "About Us", href: "https://logm8.com/pages/about-us" },
   { label: "Contact", href: "https://logm8.com/pages/contact" },
 ];
 
 export interface NavMenuPanelProps {
   isOpen: boolean;
+  /** Should be stable (e.g. useCallback), it is an effect dependency. */
   onClose: () => void;
 }
 
+/** Compact menu sheet with links to the logm8 website. */
 export function NavMenuPanel({ isOpen, onClose }: NavMenuPanelProps) {
   return (
-    <Panel isOpen={isOpen} onClose={onClose} title="Menu" closeLabel="Close menu">
-      <nav className="flex flex-col gap-3">
+    <BottomSheet isOpen={isOpen} onClose={onClose} title="Menu">
+      <nav aria-label="logm8 website" className="flex flex-col gap-1">
         {NAV_LINKS.map(({ label, href }) => (
-          <a
-            key={label}
-            href={href}
-            className="h-24 rounded-card p-5 flex items-end justify-between bg-surface border border-line text-fg"
-          >
-            <span className="text-4xl font-light leading-none tracking-tight">{label}</span>
-            <span aria-hidden="true" className="text-2xl leading-none text-fg-muted">
+          <a key={label} href={href} className={sheetRowClass(false)}>
+            <span className="text-fg">{label}</span>
+            <span aria-hidden="true" className="text-fg-muted">
               ↗
             </span>
           </a>
         ))}
       </nav>
-    </Panel>
+    </BottomSheet>
   );
 }

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import EditTag from "./EditTag";
 import { Section } from "../../../shared/components/Section";
 import { Svg } from "../../../shared/components/Svg";
@@ -55,9 +55,7 @@ export default function LogInfo({ tag, viewMode }: LogInfoProps) {
   const openMenu = () => {
     setIsMenuOpen(true);
   };
-  const closeMenu = () => {
-    setIsMenuOpen(false);
-  };
+  const closeMenu = useCallback(() => setIsMenuOpen(false), []);
 
   const [isScrolled, setIsScrolled] = useState(false);
   useEffect(() => {

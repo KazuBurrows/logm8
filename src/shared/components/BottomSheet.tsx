@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useId, useRef } from "react";
 import { createPortal } from "react-dom";
 import { Svg } from "./Svg";
 import { IconButton } from "./IconButton";
@@ -24,6 +24,7 @@ export function BottomSheet({ isOpen, onClose, title, footer, children }: Bottom
   const { mounted, shown, slideClass, slideStyle } = useSlideInPanel(isOpen, "bottom");
   useEscapeAndScrollLock(mounted, onClose);
 
+  const titleId = useId();
   const listRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (shown) {
@@ -44,11 +45,13 @@ export function BottomSheet({ isOpen, onClose, title, footer, children }: Bottom
         onClick={onClose}
       />
       <div
+        role="dialog"
+        aria-labelledby={titleId}
         className={`absolute inset-x-0 bottom-0 mx-auto max-w-md max-h-[75vh] flex flex-col rounded-t-sheet bg-surface border-t border-line ${slideClass}`}
         style={slideStyle}
       >
         <div className="flex items-center justify-between px-5 pt-5 pb-3">
-          <h3 className="text-2xl font-light tracking-tight">{title}</h3>
+          <h3 id={titleId} className="text-2xl font-light tracking-tight">{title}</h3>
           <IconButton label="Close" onClick={onClose}>
             <Svg type="cross" size="sm" color="current" />
           </IconButton>
