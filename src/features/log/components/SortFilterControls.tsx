@@ -3,8 +3,8 @@ import { createPortal } from "react-dom";
 
 import { Svg } from "../../../shared/components/Svg";
 import { IconButton } from "../../../shared/components/IconButton";
-import { groupedOptions } from "../../../shared/types/serviceOptions";
 import { sortedOptions } from "../../../shared/types/sortOptions";
+import { ServiceFilterGroup } from "../utils/groupRecords";
 
 // Neutral on purpose: these groups are categories and sort orders, not
 // record types, so they don't borrow the type colours.
@@ -16,15 +16,18 @@ const optionClasses = {
 export interface SortFilterControlsProps {
   selectedSortType: string;
   setSelectedSortType: (value: string) => void;
-  selectedServiceTypes: string[];
-  setSelectedServiceTypes: React.Dispatch<React.SetStateAction<string[]>>;
+  selectedServices: string[];
+  setSelectedServices: React.Dispatch<React.SetStateAction<string[]>>;
+  /** Service options to filter by, derived from the current records. */
+  filterGroups: ServiceFilterGroup[];
 }
 
 export function SortFilterControls({
   selectedSortType,
   setSelectedSortType,
-  selectedServiceTypes,
-  setSelectedServiceTypes,
+  selectedServices,
+  setSelectedServices,
+  filterGroups,
 }: SortFilterControlsProps) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -47,7 +50,7 @@ export function SortFilterControls({
 
   const groups = [
     ...sortedOptions.map((group) => ({ ...group, kind: "sort" as const })),
-    ...groupedOptions.map((group) => ({ ...group, kind: "filter" as const })),
+    ...filterGroups.map((group) => ({ ...group, kind: "filter" as const })),
   ];
 
   return (
@@ -73,7 +76,7 @@ export function SortFilterControls({
                   type="button"
                   onClick={() => {
                     setSelectedSortType("");
-                    setSelectedServiceTypes([]);
+                    setSelectedServices([]);
                   }}
                   className="rounded-full px-5 py-3 bg-raised border border-line text-xl font-medium leading-none"
                 >
@@ -100,7 +103,7 @@ export function SortFilterControls({
                       const checked =
                         group.kind === "sort"
                           ? selectedSortType === opt.value
-                          : selectedServiceTypes.includes(opt.value);
+                          : selectedServices.includes(opt.value);
 
                       return (
                         <label
@@ -122,7 +125,7 @@ export function SortFilterControls({
                               if (group.kind === "sort") {
                                 setSelectedSortType(value);
                               } else {
-                                setSelectedServiceTypes((prev) =>
+                                setSelectedServices((prev) =>
                                   e.target.checked
                                     ? [...prev, value]
                                     : prev.filter((v) => v !== value)

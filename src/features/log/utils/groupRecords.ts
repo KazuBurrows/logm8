@@ -1,4 +1,4 @@
-import { parseServicedDate } from "../../serviceRecord/utils/recordDisplay";
+import { parseServicedDate, recordTitle } from "../../serviceRecord/utils/recordDisplay";
 
 export interface RecordGroup {
   key: string;
@@ -39,4 +39,43 @@ export function matchesSearch(title: string | null | undefined, query: string): 
   if (!words.length) return true;
   const haystack = (title ?? "").toLowerCase();
   return words.every((word) => haystack.includes(word));
+}
+
+export interface ServiceFilterOption {
+  /** The record title the filter matches. */
+  value: string;
+  label: string;
+  /** How many records have this title. */
+  count: number;
+}
+
+export interface ServiceFilterGroup {
+  /** Service category, e.g. "Engine". */
+  label: string;
+  options: ServiceFilterOption[];
+}
+
+/**
+ * The sort/filter sheet's service options: each distinct record title, grouped
+ * by category, alphabetically, with a count. Derived fresh from the records so
+ * the list always matches them (no shared state to accumulate duplicates).
+ */
+export function serviceFilterGroups(records: ServiceRecord[]): ServiceFilterGroup[] {
+  const byCategory = new Map<string, Map<string, number>>();
+  for (const record of records) {
+    const category = record.ServiceCategory?.trim() || "Other";
+    const title = recordTitle(record);
+    const titles = byCategory.get(category) ?? new Map<string, number>();
+    titles.set(title, (titles.get(title) ?? 0) + 1);
+    byCategory.set(category, titles);
+  }
+  const byName = (a: string, b: string) => a.localeCompare(b, undefined, { sensitivity: "base" });
+  return Array.from(byCategory)
+    .sort(([a], [b]) => byName(a, b))
+    .map(([label, titles]) => ({
+      label,
+      options: Array.from(titles)
+        .sort(([a], [b]) => byName(a, b))
+        .map(([value, count]) => ({ value, label: value, count })),
+    }));
 }

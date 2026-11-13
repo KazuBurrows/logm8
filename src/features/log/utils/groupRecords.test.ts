@@ -1,4 +1,4 @@
-import { groupByMonth, matchesSearch } from "./groupRecords";
+import { groupByMonth, matchesSearch, serviceFilterGroups } from "./groupRecords";
 
 const rec = (id: string, ServicedDate: string) => ({ id, ServicedDate } as ServiceRecord);
 
@@ -30,4 +30,29 @@ test("search matches every word, in any order, ignoring case", () => {
   expect(matchesSearch("Front Brake Pads", "rear pads")).toBe(false);
   expect(matchesSearch("Front Brake Pads", "   ")).toBe(true);
   expect(matchesSearch("", "oil")).toBe(false);
+});
+
+test("filter options are each record title once, grouped by category with counts", () => {
+  const r = (ServiceCategory: string, ServiceOption: string) =>
+    ({ ServiceCategory, ServiceOption, ServiceType: "Maintenance" } as ServiceRecord);
+  const groups = serviceFilterGroups([
+    r("Engine", "Oil Change"),
+    r("Brakes", "Front Pads"),
+    r("Engine", "Air Filter"),
+    r("Engine", "Oil Change"),
+    r("", "Wash"),
+    r("Engine", ""),
+  ]);
+  expect(groups).toEqual([
+    { label: "Brakes", options: [{ value: "Front Pads", label: "Front Pads", count: 1 }] },
+    {
+      label: "Engine",
+      options: [
+        { value: "Air Filter", label: "Air Filter", count: 1 },
+        { value: "Engine", label: "Engine", count: 1 },
+        { value: "Oil Change", label: "Oil Change", count: 2 },
+      ],
+    },
+    { label: "Other", options: [{ value: "Wash", label: "Wash", count: 1 }] },
+  ]);
 });

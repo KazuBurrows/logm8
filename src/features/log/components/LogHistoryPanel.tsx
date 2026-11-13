@@ -1,45 +1,11 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 
 import { Section } from "../../../shared/components/Section";
 import { RecordModal } from "../../serviceRecord/components/RecordModal";
 import { RecordDetail } from "../../serviceRecord/components/RecordDetail";
 import { categoryPathNames } from "../../serviceRecord/utils/serviceSelection";
-import { recordTitle } from "../../serviceRecord/utils/recordDisplay";
-import { groupedOptions } from "../../../shared/types/serviceOptions";
 import { useLogData } from "../context/LogDataContext";
-import { TaskOption } from "../../../shared/types/global";
 import { RecordHistoryList } from "./RecordHistoryList";
-
-function populateRecordFilter(records: ServiceRecord[]) {
-  function groupBy<T, K extends keyof any>(
-    array: T[],
-    getKey: (item: T) => K
-  ): Record<K, T[]> {
-    return array.reduce((acc, item) => {
-      const key = getKey(item);
-      (acc[key] ??= []).push(item);
-      return acc;
-    }, {} as Record<K, T[]>);
-  }
-
-  const groupedByCategory = groupBy(records, (r) => r.ServiceCategory);
-
-  Object.entries(groupedByCategory).forEach(([category, serviceRecords]) => {
-    const records = Array.from(
-      new Map(
-        serviceRecords.map((r): [string, TaskOption] => [
-          recordTitle(r),
-          { value: recordTitle(r), label: recordTitle(r) },
-        ])
-      ).values()
-    );
-
-    groupedOptions.push({
-      label: category,
-      options: records,
-    });
-  });
-}
 
 export default function LogHistoryPanel() {
   const {
@@ -67,10 +33,6 @@ export default function LogHistoryPanel() {
   }, [isEditOpen]);
   const openEdit = useCallback(() => setIsEditOpen(true), []);
   const closeEdit = useCallback(() => setIsEditOpen(false), []);
-
-  useEffect(() => {
-    populateRecordFilter(serviceRecords);
-  }, [serviceRecords]);
 
   return (
     <Section

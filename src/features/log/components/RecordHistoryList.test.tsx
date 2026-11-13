@@ -85,3 +85,31 @@ test("untitled records show their category and can be found by it", () => {
   expect(rowTitles()[0]).toMatch(/^Engine/);
   expect(rowTitles()[0]).toMatch(/1,000 km/);
 });
+
+test("the sort/filter sheet lists each category once, even after records change", () => {
+  const { rerender } = render(<RecordHistoryList serviceRecords={records} openRecord={() => {}} />);
+  // Each new records array used to append the categories again.
+  rerender(<RecordHistoryList serviceRecords={[...records, rec("5", "Spark Plugs", "2026-07-01")]} openRecord={() => {}} />);
+  rerender(<RecordHistoryList serviceRecords={[...records]} openRecord={() => {}} />);
+
+  fireEvent.click(screen.getByRole("button", { name: /^Sort and filter/ }));
+  const sheet = screen.getByRole("dialog", { name: /sort/i });
+  expect(within(sheet).getAllByRole("group", { name: "Engine" })).toHaveLength(1);
+  expect(within(sheet).queryByText("Spark Plugs")).not.toBeInTheDocument();
+});
+
+test("a service filter for a title that no longer exists is dropped", () => {
+  const { rerender } = render(<RecordHistoryList serviceRecords={records} openRecord={() => {}} />);
+  fireEvent.click(screen.getByRole("button", { name: /^Sort and filter/ }));
+  fireEvent.click(within(screen.getByRole("dialog", { name: /sort/i })).getByLabelText(/Chain Lube/));
+  expect(rowTitles()).toHaveLength(1);
+
+  // Chain Lube is renamed, so nothing has that title any more.
+  rerender(
+    <RecordHistoryList
+      serviceRecords={records.map((r) => (r.id === "3" ? { ...r, ServiceOption: "Chain Clean" } : r))}
+      openRecord={() => {}}
+    />
+  );
+  expect(rowTitles()).toHaveLength(4);
+});

@@ -64,20 +64,17 @@ export function useSortedFilteredRecords(serviceRecords: ServiceRecord[]) {
     return records;
   }, [serviceRecords, selectedSortType]);
 
-  const [selectedServiceTypes, setSelectedServiceTypes] = useState<string[]>(
-    []
-  );
-  const filteredRecords = selectedServiceTypes.length
-    ? sortedRecords.filter((record) =>
-        selectedServiceTypes.includes(recordTitle(record))
-      )
+  // Record titles picked in the sort/filter sheet.
+  const [selectedServices, setSelectedServices] = useState<string[]>([]);
+  const filteredRecords = selectedServices.length
+    ? sortedRecords.filter((record) => selectedServices.includes(recordTitle(record)))
     : sortedRecords;
 
   return {
     filteredRecords,
     selectedSortType,
     setSelectedSortType,
-    selectedServiceTypes,
-    setSelectedServiceTypes,
+    selectedServices,
+    setSelectedServices,
   };
 }

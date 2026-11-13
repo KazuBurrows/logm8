@@ -5,7 +5,7 @@ import { SortFilterControls } from "./SortFilterControls";
 import { useSortedFilteredRecords } from "../hooks/useSortedFilteredRecords";
 import { serviceTypeStyle } from "../../../shared/theme/serviceTypes";
 import { Svg } from "../../../shared/components/Svg";
-import { groupByMonth, matchesSearch } from "../utils/groupRecords";
+import { groupByMonth, matchesSearch, serviceFilterGroups } from "../utils/groupRecords";
 import { recordTitle } from "../../serviceRecord/utils/recordDisplay";
 
 type TabKey =
@@ -56,9 +56,21 @@ export function RecordHistoryList({
     filteredRecords,
     selectedSortType,
     setSelectedSortType,
-    selectedServiceTypes,
-    setSelectedServiceTypes,
+    selectedServices,
+    setSelectedServices,
   } = useSortedFilteredRecords(serviceRecords);
+
+  // Filter options come from the records themselves, so they always match them.
+  const filterGroups = useMemo(() => serviceFilterGroups(serviceRecords), [serviceRecords]);
+
+  // Drop picks that no record has any more (e.g. after a title is edited), or the
+  // list would be filtered by an option the sheet no longer shows.
+  useEffect(() => {
+    const available = new Set(filterGroups.flatMap((g) => g.options.map((o) => o.value)));
+    setSelectedServices((prev) =>
+      prev.every((v) => available.has(v)) ? prev : prev.filter((v) => available.has(v))
+    );
+  }, [filterGroups, setSelectedServices]);
 
   // Sort/filter sheet, then the type chips, then the title search.
   const records = useMemo(() => {
@@ -144,8 +156,9 @@ export function RecordHistoryList({
           <SortFilterControls
             selectedSortType={selectedSortType}
             setSelectedSortType={setSelectedSortType}
-            selectedServiceTypes={selectedServiceTypes}
-            setSelectedServiceTypes={setSelectedServiceTypes}
+            selectedServices={selectedServices}
+            setSelectedServices={setSelectedServices}
+            filterGroups={filterGroups}
           />
         </div>
 
