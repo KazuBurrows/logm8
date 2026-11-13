@@ -8,6 +8,7 @@ import { ApiError } from "../../../api/client";
 import { dispatchToast } from "../../../shared/components/Toast/toastService";
 import { Panel } from "../../../shared/components/Panel";
 import { Tile } from "../../../shared/components/Tile";
+import { findServiceSelection } from "../utils/serviceSelection";
 
 const MAX_FILES = 10;
 const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024;
@@ -58,20 +59,8 @@ export const RecordModal = ({
 
   const initialDropdownSelection = useMemo(() => {
     if (mode === "create" || !recordToEdit) return null;
-    const { ServiceCategory: catName, ServiceOption: optName, ServiceType: svcType } = recordToEdit;
-    for (const dir of [logServiceOptions, logOwnershipOptions]) {
-      for (const cat of dir) {
-        if (cat.Name !== catName) continue;
-        for (const sub of cat.Children ?? []) {
-          if (sub.Name === optName) return { category: cat, subcategory: sub, option: null, type: svcType };
-          for (const opt of sub.Children ?? []) {
-            if (opt.Name === optName) return { category: cat, subcategory: sub, option: opt, type: svcType };
-          }
-        }
-        return { category: cat, subcategory: null, option: null, type: svcType };
-      }
-    }
-    return null;
+    const found = findServiceSelection(recordToEdit, logServiceOptions, logOwnershipOptions);
+    return found && { ...found, type: recordToEdit.ServiceType };
   }, [mode, recordToEdit, logServiceOptions, logOwnershipOptions]);
 
   /** -------------- PREFILL ON EDIT/VIEW MODE ----------------- */
@@ -248,7 +237,7 @@ export const RecordModal = ({
   };
   const isView = mode === "view";
   const title = mode === "edit" ? "Update Record" : isView ? "Service Record" : "Create Maintenance";
-  // const buttonLabel = mode === "edit" ? "Update" : "Submit";
+  const submitLabel = mode === "edit" ? "Save changes" : "Submit";
 
   const fieldLabel = "block text-sm text-fg-muted leading-none mb-2";
   const fieldInput =
@@ -426,7 +415,7 @@ export const RecordModal = ({
             type="submit"
             className="w-full h-14 mt-2 rounded-full bg-accent text-accent-fg text-xl font-medium"
           >
-            Submit
+            {submitLabel}
           </button>
         )}
       </form>

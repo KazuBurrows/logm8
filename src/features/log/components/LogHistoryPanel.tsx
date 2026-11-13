@@ -1,7 +1,9 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { Section } from "../../../shared/components/Section";
 import { RecordModal } from "../../serviceRecord/components/RecordModal";
+import { RecordDetail } from "../../serviceRecord/components/RecordDetail";
+import { categoryPathNames } from "../../serviceRecord/utils/serviceSelection";
 import { groupedOptions } from "../../../shared/types/serviceOptions";
 import { useLogData } from "../context/LogDataContext";
 import { TaskOption } from "../../../shared/types/global";
@@ -47,14 +49,23 @@ export default function LogHistoryPanel() {
     updateRecord,
   } = useLogData();
 
+  // Tapping a record opens the read-only detail; its Edit button opens the form on top.
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
-  const [editingRecord, setEditingRecord] = useState<ServiceRecord | null>(null);
+  // Looked up by id so the detail shows the saved version after an edit.
+  const selectedRecord = serviceRecords.find((r) => r.id === selectedId);
 
   const openRecord = (record: ServiceRecord) => {
-    setEditingRecord(record);
-    setIsEditOpen(true);
+    setSelectedId(record.id);
+    setIsDetailOpen(true);
   };
-  const closeRecord = () => setIsEditOpen(false);
+  // Escape reaches every open panel; while the form is on top, only it should close.
+  const closeDetail = useCallback(() => {
+    if (!isEditOpen) setIsDetailOpen(false);
+  }, [isEditOpen]);
+  const openEdit = useCallback(() => setIsEditOpen(true), []);
+  const closeEdit = useCallback(() => setIsEditOpen(false), []);
 
   useEffect(() => {
     populateRecordFilter(serviceRecords);
@@ -80,12 +91,26 @@ export default function LogHistoryPanel() {
         openRecord={openRecord}
       />
 
+      <RecordDetail
+        isOpen={isDetailOpen}
+        onClose={closeDetail}
+        record={selectedRecord}
+        categoryPath={
+          selectedRecord
+            ? categoryPathNames(selectedRecord, logServiceOptions, logOwnershipOptions)
+            : []
+        }
+        canEdit={selectedRecord?.canEdit !== false}
+        onEdit={openEdit}
+      />
+
+      {/* After the detail so it stacks on top of it. */}
       <RecordModal
-        mode={editingRecord?.canEdit === false ? "view" : "edit"}
-        recordToEdit={serviceRecords.find(r => r.id === editingRecord?.id)}
+        mode="edit"
+        recordToEdit={selectedRecord}
         isOpen={isEditOpen}
         onUpdate={updateRecord}
-        onClose={closeRecord}
+        onClose={closeEdit}
         logServiceOptions={logServiceOptions}
         logOwnershipOptions={logOwnershipOptions}
       />
