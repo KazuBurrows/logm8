@@ -74,7 +74,7 @@ export default function LogHistoryPanel() {
   return (
     <Section
       id={""}
-      className="h-full w-full mx-0 xl:px-80 lg:px-48 md:px-24 sm:px-16 sm:py-16 py-2 pb-24 relative overflow-hidden z-2"
+      className="h-full w-full mx-0 xl:px-80 lg:px-48 md:px-24 sm:px-16 sm:py-16 py-2 pb-8 relative overflow-hidden z-2"
     >
 
       {/* <div className="flex justify-end">

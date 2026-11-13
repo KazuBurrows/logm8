@@ -1,5 +1,5 @@
 import { useLocation, useNavigate } from "react-router-dom";
-import { LogDataProvider, useLogData } from "../context/LogDataContext";
+import { LogDataProvider, useLogData, UserMode } from "../context/LogDataContext";
 
 import LogHistoryPanel from "../components/LogHistoryPanel";
 import LogInfo from "../components/LogInfo";
@@ -15,7 +15,12 @@ function LogPageContent() {
   }
 
   return (
-    <div className="relative overflow-hidden bg-canvas text-fg min-h-screen flex flex-col">
+    <div
+      className={`relative overflow-hidden bg-canvas text-fg min-h-screen flex flex-col ${
+        // Room below the footer so the floating add button never covers it or the last record.
+        viewMode === UserMode[0] ? "pb-[calc(5.5rem+env(safe-area-inset-bottom))]" : "pb-[env(safe-area-inset-bottom)]"
+      }`}
+    >
       <AmbientGlow />
       <LogInfo tag={tag} viewMode={viewMode}></LogInfo>
       <div className="flex-1">

@@ -42,7 +42,7 @@ export function Panel({
       style={slideStyle}
     >
       <AmbientGlow />
-      <div className="relative w-full max-w-md mx-auto flex-1 px-4 pt-6 pb-12">
+      <div className="relative w-full max-w-md mx-auto flex-1 px-4 pt-[calc(1.5rem+env(safe-area-inset-top))] pb-12">
         <div className="flex items-center gap-4 mb-6">
           <button
             type="button"

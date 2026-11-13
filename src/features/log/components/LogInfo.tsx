@@ -92,8 +92,20 @@ export default function LogInfo({ tag, viewMode }: LogInfoProps) {
       <TagInfoPanel isOpen={isInfoOpen} onClose={closeInfo} tag={tag} />
       <NavMenuPanel isOpen={isMenuOpen} onClose={closeMenu} />
 
+      {/* Add record: bottom-right floating button, in thumb reach. */}
+      {viewMode === UserMode[0] && (
+        <button
+          type="button"
+          aria-label="Add record"
+          onClick={openCreateRecord}
+          className="fixed z-40 right-[calc(1rem+env(safe-area-inset-right))] bottom-[calc(1rem+env(safe-area-inset-bottom))] w-14 h-14 rounded-full bg-accent text-accent-fg shadow-lg shadow-black/50 flex items-center justify-center transition-transform active:scale-95"
+        >
+          <Svg type="plus" size="md" color="current" />
+        </button>
+      )}
+
       <div
-        className={`fixed inset-x-0 top-0 z-10 flex items-center justify-between px-2 py-2 transition-colors duration-300 funnel-display-font ${
+        className={`fixed inset-x-0 top-0 z-10 flex items-center justify-between pt-[calc(0.5rem+env(safe-area-inset-top))] pb-2 pl-[calc(0.5rem+env(safe-area-inset-left))] pr-[calc(0.5rem+env(safe-area-inset-right))] transition-colors duration-300 funnel-display-font ${
           isScrolled ? "bg-canvas/90 backdrop-blur-md shadow-lg shadow-black/30" : ""
         }`}
       >
@@ -104,16 +116,6 @@ export default function LogInfo({ tag, viewMode }: LogInfoProps) {
           onClick={() => openEditTag()}
         ></img>
         <div className="flex items-center gap-2">
-          {viewMode === UserMode[0] && (
-          <Button
-            type="button"
-            size="xs"
-            className="bg-accent text-accent-fg w-9 h-9 flex items-center justify-center shadow-lg shadow-black/40"
-            onClick={() => openCreateRecord()}
-          >
-            <Svg type="add2" size="lg" color="current" />
-          </Button>
-          )}
           <Button
             type="button"
             size="xs"
