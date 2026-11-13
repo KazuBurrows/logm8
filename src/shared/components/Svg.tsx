@@ -39,7 +39,9 @@ export interface SvgProps {
   | "info-1"
   | "info-2";
   size?: "sm" | "md" | "base" | "lg" | "xl" | "2xl" | "5xl";
+  /** "current" inherits the surrounding text colour, so icons follow theme tokens. */
   color?:
+  | "current"
   | "white"
   | "slate-50"
   | "slate-100"
@@ -220,6 +222,8 @@ export const Svg = ({ type, size, color }: SvgProps) => {
 
       case "white":
         return "#fff";
+      case "current":
+        return "currentColor";
 
       // Default fallback
       default:

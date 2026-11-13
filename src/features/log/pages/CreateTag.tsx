@@ -4,6 +4,7 @@ import { useLog } from "../api/useLog";
 import { ApiError } from "../../../api/client";
 import { dispatchToast } from "../../../shared/components/Toast/toastService";
 import { TagFormFields, TagFormValues } from "../components/TagFormFields";
+import { AmbientGlow } from "../../../shared/components/AmbientGlow";
 
 function isSafeRedirectUrl(url: string): boolean {
   try {
@@ -82,11 +83,12 @@ export default function CreateTag() {
   }, [id]);
 
   return (
-    <div className="min-h-screen text-white funnel-display-font bg-gradient-to-b from-zinc-800 via-zinc-900 to-black">
+    <div className="relative min-h-screen text-fg funnel-display-font bg-canvas">
+      <AmbientGlow />
       {/* <Navbar onToggle={() => null} /> */}
-      <div className="max-w-md mx-auto px-4 pt-16 pb-16">
+      <div className="relative max-w-md mx-auto px-4 pt-16 pb-16">
         <div className="mb-8">
-          <p className="text-lg font-medium text-blue-400 mb-2">Create NFC</p>
+          <p className="text-lg font-medium text-fg-soft mb-2">Create NFC</p>
           <h1 className="text-4xl font-light tracking-tight leading-tight">
             Lets setup your new logm8 NFC.
           </h1>
@@ -97,7 +99,7 @@ export default function CreateTag() {
 
           <button
             type="submit"
-            className="w-full h-14 mt-2 rounded-full bg-[#4a5fc9] text-white text-xl font-medium"
+            className="w-full h-14 mt-2 rounded-full bg-accent text-accent-fg text-xl font-medium"
           >
             Create NFC
           </button>

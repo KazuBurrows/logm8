@@ -1,9 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { useApi } from "../../../api/useApi";
-import { Svg } from "../../../shared/components/Svg";
-import { useSlideInPanel } from "../../../shared/hooks/useSlideInPanel";
-import { useEscapeAndScrollLock } from "../../../shared/hooks/useEscapeAndScrollLock";
+import { Panel } from "../../../shared/components/Panel";
 import { UpdateAssetNfcTagRequest } from "../../../shared/types/global";
 import { TagFormFields, TagFormValues } from "./TagFormFields";
 // const logmateLogo = require("../assets/logmate-logo.png");
@@ -18,8 +16,6 @@ export default function EditTag({ tag, isOpen, onClose }: ModalProps) {
   const location = useLocation();
   const token = new URLSearchParams(location.search).get("token") ?? "";
   const { post } = useApi();
-  const { mounted, slideClass, slideStyle } = useSlideInPanel(isOpen);
-  useEscapeAndScrollLock(mounted, onClose);
 
   const [form, setForm] = useState<TagFormValues>({
     Make: tag.Make ?? "",
@@ -79,41 +75,18 @@ export default function EditTag({ tag, isOpen, onClose }: ModalProps) {
     }
   }, [tag.Fuel, setField]);
 
-  if (!mounted) return null;
-
   return (
-    <div
-      className={`fixed inset-0 z-50 overflow-y-auto overflow-x-hidden text-white funnel-display-font bg-gradient-to-b from-zinc-800 via-zinc-900 to-black ${slideClass}`}
-      style={slideStyle}
-    >
-      <div className="max-w-md mx-auto px-4 pt-6 pb-12">
-        {/* Header */}
-        <div className="flex items-center gap-4 mb-6">
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="Close"
-            className="w-11 h-11 shrink-0 rounded-full bg-white/10 flex items-center justify-center"
-          >
-            <span className="rotate-90 flex">
-              <Svg type="angle-small-down1" size="lg" color="white" />
-            </span>
-          </button>
-          <h2 className="text-3xl font-light tracking-tight">Update NFC</h2>
-        </div>
+    <Panel isOpen={isOpen} onClose={onClose} title="Update NFC">
+      <form className="flex flex-col gap-3" onSubmit={handleSubmit}>
+        <TagFormFields values={form} onChange={setField} />
 
-        {/* Body */}
-        <form className="flex flex-col gap-3" onSubmit={handleSubmit}>
-          <TagFormFields values={form} onChange={setField} />
-
-          <button
-            type="submit"
-            className="w-full h-14 mt-2 rounded-full bg-[#4a5fc9] text-white text-xl font-medium"
-          >
-            Update NFC
-          </button>
-        </form>
-      </div>
-    </div>
+        <button
+          type="submit"
+          className="w-full h-14 mt-2 rounded-full bg-accent text-accent-fg text-xl font-medium"
+        >
+          Update NFC
+        </button>
+      </form>
+    </Panel>
   );
 }

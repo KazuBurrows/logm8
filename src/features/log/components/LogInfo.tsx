@@ -94,13 +94,13 @@ export default function LogInfo({ tag, viewMode }: LogInfoProps) {
 
       <div
         className={`fixed inset-x-0 top-0 z-10 flex items-center justify-between px-2 py-2 transition-colors duration-300 funnel-display-font ${
-          isScrolled ? "bg-slate-950/90 backdrop-blur-md shadow-lg shadow-black/30" : ""
+          isScrolled ? "bg-canvas/90 backdrop-blur-md shadow-lg shadow-black/30" : ""
         }`}
       >
         <img
           src={logmateLogo}
           alt="logm8-logo"
-          className="h-12 z-20 bg-black/40 ring-1 ring-white/10 rounded-full"
+          className="h-12 z-20 bg-black/40 ring-1 ring-line rounded-full"
           onClick={() => openEditTag()}
         ></img>
         <div className="flex items-center gap-2">
@@ -108,29 +108,29 @@ export default function LogInfo({ tag, viewMode }: LogInfoProps) {
           <Button
             type="button"
             size="xs"
-            className="bg-blue-500 text-white w-9 h-9 flex items-center justify-center shadow-[0_0_12px_rgba(59,130,246,0.5)]"
+            className="bg-accent text-accent-fg w-9 h-9 flex items-center justify-center shadow-lg shadow-black/40"
             onClick={() => openCreateRecord()}
           >
-            <Svg type="add2" size="lg" color="white" />
+            <Svg type="add2" size="lg" color="current" />
           </Button>
           )}
           <Button
             type="button"
             size="xs"
-            className="bg-white/10 border border-white/10 w-9 h-9 flex items-center justify-center"
+            className="bg-raised border border-line text-fg w-9 h-9 flex items-center justify-center"
             onClick={() => openMenu()}
           >
             <div className="flex flex-col items-center justify-center gap-1">
-              <span className="block w-4 h-0.5 bg-white"></span>
-              <span className="block w-4 h-0.5 bg-white"></span>
-              <span className="block w-4 h-0.5 bg-white"></span>
+              <span className="block w-4 h-0.5 bg-current"></span>
+              <span className="block w-4 h-0.5 bg-current"></span>
+              <span className="block w-4 h-0.5 bg-current"></span>
             </div>
           </Button>
         </div>
       </div>
       <Section
         id={""}
-        className="relative h-full azeret-mono-font text-white overflow-hidden rounded-b-3xl bg-gradient-to-b from-slate-800/80 via-slate-900/60 to-transparent"
+        className="relative h-full azeret-mono-font text-fg overflow-hidden rounded-b-sheet bg-gradient-to-b from-surface via-surface/60 to-transparent"
       >
         
 
@@ -141,30 +141,30 @@ export default function LogInfo({ tag, viewMode }: LogInfoProps) {
                 isScrolled ? "max-h-0 opacity-0" : "max-h-96 opacity-100 pt-6 pb-6"
               }`}
             >
-              <h1 className="h-md:text-4xl h-sm:text-3xl text-2xl leading-none text-shadow font-semibold text-white/70 whitespace-nowrap overflow-x-auto overflow-y-hidden [scrollbar-width:thin] [scrollbar-color:rgba(255,255,255,0.35)_transparent] [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-white/35 [&::-webkit-scrollbar-thumb]:rounded-full">
+              <h1 className="h-md:text-4xl h-sm:text-3xl text-2xl leading-none text-shadow font-semibold text-fg-soft whitespace-nowrap overflow-x-auto overflow-y-hidden [scrollbar-width:thin] [scrollbar-color:rgba(255,255,255,0.35)_transparent] [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-white/35 [&::-webkit-scrollbar-thumb]:rounded-full">
                 {tag.Make}
               </h1>
               <h3 className="h-md:text-6xl h-sm:text-5xl text-4xl font-black leading-none text-shadow-white-lg whitespace-nowrap overflow-x-auto overflow-y-hidden [scrollbar-width:thin] [scrollbar-color:rgba(255,255,255,0.35)_transparent] [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-white/35 [&::-webkit-scrollbar-thumb]:rounded-full">
                 {tag.Model}
               </h3>
               <div className="flex items-center justify-between">
-                <p className="h-md:text-4xl h-sm:text-3xl text-2xl leading-none text-shadow font-semibold text-blue-400">{tag.Year}</p>
+                <p className="h-md:text-4xl h-sm:text-3xl text-2xl leading-none text-shadow font-semibold text-accent">{tag.Year}</p>
                 <div className="flex items-center gap-2">
                   <Button
                     type="button"
                     size="xs"
-                    className="bg-white/10 border border-white/10 text-white w-9 h-9 flex items-center justify-center"
+                    className="bg-raised border border-line text-fg w-9 h-9 flex items-center justify-center"
                     onClick={() => openStats()}
                   >
-                    <Svg type="bars-1" size="md" color="white" />
+                    <Svg type="bars-1" size="md" color="current" />
                   </Button>
                   <Button
                     type="button"
                     size="xs"
-                    className="bg-white/10 border border-white/10 text-white w-9 h-9 flex items-center justify-center"
+                    className="bg-raised border border-line text-fg w-9 h-9 flex items-center justify-center"
                     onClick={() => openInfo()}
                   >
-                    <Svg type="info-1" size="lg" color="white" />
+                    <Svg type="info-1" size="lg" color="current" />
                   </Button>
                 </div>
               </div>

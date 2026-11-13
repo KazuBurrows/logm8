@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { Tile } from "../../../shared/components/Tile";
 
 const SERVICE_TYPES = [
   "Maintenance",
@@ -13,12 +14,12 @@ type ServiceType = (typeof SERVICE_TYPES)[number];
 // Types that are valid records but not shown as a bar.
 const IGNORED_TYPES = new Set(["WOF", "Registration", "Certification", ""]);
 
-const barClasses: Record<ServiceType, { fill: string; track: string }> = {
-  Maintenance: { fill: "bg-[#4a5fc9] text-white", track: "bg-[#4a5fc9]/25" },
-  Replacement: { fill: "bg-[#e0522f] text-white", track: "bg-[#e0522f]/25" },
-  Inspection: { fill: "bg-[#2fa866] text-white", track: "bg-[#2fa866]/25" },
-  Adjustment: { fill: "bg-[#f2c230] text-slate-900", track: "bg-[#f2c230]/25" },
-  Tune: { fill: "bg-[#8b5cf6] text-white", track: "bg-[#8b5cf6]/25" },
+const barClasses: Record<ServiceType, string> = {
+  Maintenance: "bg-[#4a5fc9]",
+  Replacement: "bg-[#e0522f]",
+  Inspection: "bg-[#2fa866]",
+  Adjustment: "bg-[#f2c230]",
+  Tune: "bg-[#8b5cf6]",
 };
 
 export interface ServiceRecordStatsBarsProps {
@@ -55,28 +56,26 @@ export function ServiceRecordStatsBars({
   }, []);
 
   return (
-    <div className="w-full flex flex-col gap-3">
+    <Tile className="p-5 flex flex-col gap-5">
       {SERVICE_TYPES.map((type) => {
         const value = counts[type];
         const pct = grown && max > 0 ? (value / max) * 100 : 0;
 
         return (
-          <div
-            key={type}
-            className={`rounded-3xl overflow-hidden ${barClasses[type].track}`}
-          >
-            <div
-              className={`h-28 rounded-3xl p-4 flex flex-col justify-between transition-[width] duration-700 ease-out ${barClasses[type].fill}`}
-              style={{ width: `max(${pct}%, 9rem)` }}
-            >
-              <span className="text-xl font-medium leading-none">{type}</span>
-              <span className="self-end text-6xl font-light leading-none tracking-tight">
-                {value}
-              </span>
+          <div key={type}>
+            <div className="flex items-baseline justify-between mb-2">
+              <span className="text-base">{type}</span>
+              <span className="text-2xl font-light leading-none tabular-nums">{value}</span>
+            </div>
+            <div aria-hidden="true" className="h-2 rounded-full bg-raised overflow-hidden">
+              <div
+                className={`h-full rounded-full transition-[width] duration-700 ease-out ${barClasses[type]}`}
+                style={{ width: `${pct}%` }}
+              />
             </div>
           </div>
         );
       })}
-    </div>
+    </Tile>
   );
 }

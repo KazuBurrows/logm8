@@ -14,11 +14,11 @@ export const RecordItem = ({ record, openRecord }: RecordItemProps) => {
   };
 
   const serviceAccentClasses: Record<string, string> = {
-    Maintenance: "border-blue-500",
-    Replacement: "border-red-500",
-    Inspection: "border-green-500",
-    Adjustment: "border-yellow-500",
-    Tune: "border-purple-500",
+    Maintenance: "border-l-blue-500",
+    Replacement: "border-l-red-500",
+    Inspection: "border-l-green-500",
+    Adjustment: "border-l-yellow-500",
+    Tune: "border-l-purple-500",
   };
 
   const glowClasses: Record<string, string> = {
@@ -40,13 +40,9 @@ export const RecordItem = ({ record, openRecord }: RecordItemProps) => {
   return (
     <li key={record.id} className="mb-1 relative">
       <div
-        className={`w-full rounded-2xl border-l-4 shadow-lg backdrop-blur-md funnel-display-font leading-none ${
-          serviceAccentClasses[record.ServiceType] || "border-white/20"
+        className={`w-full rounded-card bg-surface border border-line border-l-4 shadow-lg funnel-display-font leading-none ${
+          serviceAccentClasses[record.ServiceType] || "border-l-fg-muted"
         } relative`}
-        style={{
-          backgroundImage:
-            "linear-gradient(to top left, rgba(148,163,184,0.09), rgba(2,6,23,0.5) 55%, rgba(2,6,23,0.5) 100%)",
-        }}
       >
         <div
           className="w-full cursor-pointer"
@@ -55,7 +51,7 @@ export const RecordItem = ({ record, openRecord }: RecordItemProps) => {
           {/* Record content */}
           <div className="flex flex-col py-3 px-4 sm:px-8">
             {/* Line 1: Service Option */}
-            <div className="font-semibold capitalize text-xl text-white tracking-wide mb-1">
+            <div className="font-semibold capitalize text-xl text-fg tracking-wide mb-1">
               {record.ServiceOption}
             </div>
 
@@ -97,7 +93,7 @@ export const RecordItem = ({ record, openRecord }: RecordItemProps) => {
               <div
                 className={`text-sm font-thin capitalize px-3 py-1 rounded-full ${
                   serviceTypeClasses[record.ServiceType] ||
-                  "text-gray-400 bg-gray-800/20"
+                  "text-fg-soft bg-raised"
                 } ${glowClasses[record.ServiceType] || ""}`}
               >
                 {record.ServiceType}

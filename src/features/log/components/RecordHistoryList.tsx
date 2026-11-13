@@ -117,7 +117,7 @@ export function RecordHistoryList({
 
       <div
         ref={barRef}
-        className={`flex items-center gap-2 backdrop-blur-md pt-2 pb-2 ${
+        className={`flex items-center gap-2 bg-canvas/80 backdrop-blur-md pt-2 pb-2 ${
           isPinned ? "fixed z-30" : ""
         }`}
         style={
@@ -146,7 +146,7 @@ export function RecordHistoryList({
             className={`shrink-0 h-10 px-4 whitespace-nowrap flex items-center justify-center rounded-full text-sm transition-colors ${
               activeTab === tab.key
                 ? "bg-orange-500 text-white shadow-[0_0_8px_rgba(249,115,22,0.4)]"
-                : "bg-white/10 text-white/70"
+                : "bg-raised text-fg-soft"
             }`}
           >
             {tab.label}
@@ -159,9 +159,9 @@ export function RecordHistoryList({
         {isCheckingForUpdates && (
           <li
             role="status"
-            className="flex items-center justify-center gap-2 py-3 text-sm text-white/60 funnel-display-font"
+            className="flex items-center justify-center gap-2 py-3 text-sm text-fg-muted funnel-display-font"
           >
-            <span className="h-4 w-4 shrink-0 rounded-full border-2 border-white/20 border-t-blue-400 animate-spin" />
+            <span className="h-4 w-4 shrink-0 rounded-full border-2 border-line border-t-accent animate-spin" />
             Checking for the latest updates…
           </li>
         )}

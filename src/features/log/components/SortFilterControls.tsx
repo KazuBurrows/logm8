@@ -56,10 +56,10 @@ export function SortFilterControls({
       <div className="flex px-2">
         <button
           type="button"
-          className="w-[40px] rounded-full px-1 py-1 bg-white/10 text-center ml-auto mb-1 mr-1"
+          className="w-[40px] rounded-full px-1 py-1 bg-raised border border-line text-fg text-center ml-auto mb-1 mr-1"
           onClick={() => setIsOpen(true)}
         >
-          <Svg type="sort-1" size="2xl" color="white" />
+          <Svg type="sort-1" size="2xl" color="current" />
         </button>
       </div>
 
@@ -71,7 +71,7 @@ export function SortFilterControls({
             role="dialog"
             aria-modal="true"
             aria-label="Sort and filter"
-            className="fixed inset-0 z-[90] bg-slate-900 text-white overflow-y-auto"
+            className="fixed inset-0 z-[90] bg-canvas text-fg overflow-y-auto"
           >
             <div className="min-h-full w-full flex flex-col gap-6 p-4">
               {/* Top bar with Reset & Done */}

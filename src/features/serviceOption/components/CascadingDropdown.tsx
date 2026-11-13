@@ -73,9 +73,9 @@ function NeonSelect({ value, onChange, placeholder, options }: SelectProps) {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="w-full min-h-12 flex items-center justify-between gap-2 rounded-2xl bg-white/10 px-4 py-3 text-left text-base font-light"
+        className="w-full min-h-12 flex items-center justify-between gap-2 rounded-card bg-raised px-4 py-3 text-left text-base font-light"
       >
-        <span className={selected ? "text-white" : "text-white/50"}>
+        <span className={selected ? "text-fg" : "text-fg-muted"}>
           {selected?.label ?? placeholder}
         </span>
         <Svg type="angle-small-down1" size="md" color="white" />
@@ -88,7 +88,7 @@ function NeonSelect({ value, onChange, placeholder, options }: SelectProps) {
           data-selected={!selected}
           className={sheetRowClass(!selected)}
         >
-          <span className={selected ? "text-white/40" : ""}>{placeholder}</span>
+          <span className={selected ? "text-fg-muted" : ""}>{placeholder}</span>
           {!selected && <Svg type="check" size="md" color="white" />}
         </button>
         {options.map((option) => {
@@ -121,7 +121,7 @@ interface ServiceTypeInputProps {
 function ServiceTypeSelector({ types, selected, onChange }: ServiceTypeInputProps) {
   return (
     <div className="flex flex-col gap-2">
-      <p className="block text-sm text-white/50 leading-none mb-1">Service Type</p>
+      <p className="block text-sm text-fg-muted leading-none mb-1">Service Type</p>
       <div className="flex flex-wrap gap-2">
         {types.map((type) => (
           <button
@@ -130,8 +130,8 @@ function ServiceTypeSelector({ types, selected, onChange }: ServiceTypeInputProp
             onClick={() => onChange(type)}
             className={`px-4 py-2 rounded-full text-base font-light transition-colors ${
               selected === type
-                ? "bg-[#4a5fc9] text-white"
-                : "bg-white/10 text-white/70"
+                ? "bg-accent text-accent-fg"
+                : "bg-raised text-fg-soft"
             }`}
           >
             {type}
@@ -149,14 +149,14 @@ interface ModeToggleProps {
 
 function ModeToggle({ mode, onChange }: ModeToggleProps) {
   return (
-    <div className="inline-flex self-start rounded-full bg-white/10 p-1">
+    <div className="inline-flex self-start rounded-full bg-raised p-1">
       {(["service", "ownership"] as OptionMode[]).map((m) => (
         <button
           key={m}
           type="button"
           onClick={() => onChange(m)}
           className={`px-4 py-1 rounded-full text-sm capitalize transition-colors ${
-            mode === m ? "bg-[#4a5fc9] text-white" : "text-white/60"
+            mode === m ? "bg-accent text-accent-fg" : "text-fg-soft"
           }`}
         >
           {m}
@@ -324,13 +324,13 @@ export default function CascadingDropdown({
                 if (searchResults[0]) handleSearchSelect(searchResults[0]);
               }
             }}
-            className="w-full rounded-2xl bg-white/10 px-3 py-3 pr-9 text-base font-light text-white placeholder-white/30 outline-none"
+            className="w-full rounded-card bg-raised px-3 py-3 pr-9 text-base font-light text-fg placeholder-fg-muted/70 outline-none"
           />
           {searchText && (
             <button
               type="button"
               onClick={() => { setSearchText(""); setSearchFocused(false); }}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-white/50"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-fg-muted"
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                 <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
@@ -341,13 +341,13 @@ export default function CascadingDropdown({
 
         {/* Search results dropdown */}
         {showSearchResults && (
-          <div className="absolute z-20 top-full mt-1 w-full max-h-64 overflow-y-auto overscroll-contain bg-zinc-800 border border-white/10 rounded-2xl shadow-lg">
+          <div className="absolute z-20 top-full mt-1 w-full max-h-64 overflow-y-auto overscroll-contain bg-raised border border-line rounded-card shadow-lg">
             {searchResults.map((result) => (
               <button
                 key={result.Id}
                 type="button"
                 onMouseDown={() => handleSearchSelect(result)}
-                className="w-full text-left px-4 py-3 text-base font-light text-white hover:bg-white/10 border-b border-white/10 last:border-0"
+                className="w-full text-left px-4 py-3 text-base font-light text-fg hover:bg-white/10 border-b border-line last:border-0"
               >
                 {result.Name}
               </button>
@@ -356,7 +356,7 @@ export default function CascadingDropdown({
         )}
 
         {searchText && searchFocused && searchResults.length === 0 && (
-          <div className="absolute z-20 top-full mt-1 w-full bg-zinc-800 border border-white/10 rounded-2xl px-4 py-3 text-base font-light text-white/50">
+          <div className="absolute z-20 top-full mt-1 w-full bg-raised border border-line rounded-card px-4 py-3 text-base font-light text-fg-muted">
             No results found
           </div>
         )}
@@ -364,9 +364,9 @@ export default function CascadingDropdown({
 
       {/* Divider */}
       <div className="flex items-center gap-2">
-        <div className="flex-1 h-px bg-white/10" />
-        <span className="text-xs text-white/40">or browse</span>
-        <div className="flex-1 h-px bg-white/10" />
+        <div className="flex-1 h-px bg-line" />
+        <span className="text-xs text-fg-muted">or browse</span>
+        <div className="flex-1 h-px bg-line" />
       </div>
 
       {/* Cascading selects */}
@@ -407,11 +407,11 @@ export default function CascadingDropdown({
 
       {/* Current selection summary */}
       {(selectedCategory || selectedType) && (
-        <div className="mt-1 px-4 py-3 rounded-2xl bg-white/10 text-sm text-white/50">
-          <span className="text-white">{selectedCategory?.Name}</span>
-          {selectedSubcategory && <><span className="mx-1 text-white/40">›</span><span className="text-white">{selectedSubcategory.Name}</span></>}
-          {selectedOption && <><span className="mx-1 text-white/40">›</span><span className="text-white">{selectedOption.Name}</span></>}
-          {selectedType && <><span className="mx-1 text-white/40">·</span><span className="text-blue-400">{selectedType}</span></>}
+        <div className="mt-1 px-4 py-3 rounded-card bg-raised text-sm text-fg-muted">
+          <span className="text-fg">{selectedCategory?.Name}</span>
+          {selectedSubcategory && <><span className="mx-1 text-fg-muted">›</span><span className="text-fg">{selectedSubcategory.Name}</span></>}
+          {selectedOption && <><span className="mx-1 text-fg-muted">›</span><span className="text-fg">{selectedOption.Name}</span></>}
+          {selectedType && <><span className="mx-1 text-fg-muted">·</span><span className="text-accent">{selectedType}</span></>}
         </div>
       )}
     </div>

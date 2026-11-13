@@ -6,8 +6,7 @@ import { LoadingScreen } from "../../../shared/components/LoadingScreen";
 import CascadingDropdown from "../../serviceOption/components/CascadingDropdown";
 import { ApiError } from "../../../api/client";
 import { dispatchToast } from "../../../shared/components/Toast/toastService";
-import { useSlideInPanel } from "../../../shared/hooks/useSlideInPanel";
-import { Svg } from "../../../shared/components/Svg";
+import { Panel } from "../../../shared/components/Panel";
 import { Tile } from "../../../shared/components/Tile";
 
 const MAX_FILES = 10;
@@ -44,7 +43,6 @@ export const RecordModal = ({
   const token = queryParams.get("token"); // Extract the 'token' value
 
   const { loading, submitRecord, updateServiceRecord } = useServiceRecord();
-  const { mounted, slideClass, slideStyle } = useSlideInPanel(isOpen);
 
   // Form values
   const [Token] = useState(token ?? "");
@@ -248,15 +246,13 @@ export const RecordModal = ({
       clearFields();
     }
   };
-  if (!mounted) return null; // Stay rendered through the slide-out, then unmount
-
   const isView = mode === "view";
   const title = mode === "edit" ? "Update Record" : isView ? "Service Record" : "Create Maintenance";
   // const buttonLabel = mode === "edit" ? "Update" : "Submit";
 
-  const fieldLabel = "block text-sm text-white/50 leading-none mb-2";
+  const fieldLabel = "block text-sm text-fg-muted leading-none mb-2";
   const fieldInput =
-    "w-full bg-transparent text-xl font-light text-white placeholder-white/30 outline-none [color-scheme:dark] disabled:text-white/60 disabled:cursor-not-allowed";
+    "w-full bg-transparent text-xl font-light text-fg placeholder-fg-muted/70 outline-none [color-scheme:dark] disabled:text-fg-soft disabled:cursor-not-allowed";
 
   const odometerUnits = [
     { id: "huey", value: "km", label: "KM" },
@@ -265,195 +261,175 @@ export const RecordModal = ({
   ];
 
   return (
-    <div
-      className={`fixed inset-0 z-50 overflow-y-auto overflow-x-hidden text-white funnel-display-font bg-gradient-to-b from-zinc-800 via-zinc-900 to-black ${slideClass}`}
-      style={slideStyle}
-    >
+    <Panel isOpen={isOpen} onClose={onClose} title={title}>
       {/* Portaled: the sliding panel is transformed and scrollable, so an overlay inside it would scroll away with the content. */}
       {loading &&
         createPortal(
-          <div className="fixed inset-0 z-[60] bg-black">
+          <div className="fixed inset-0 z-[60] bg-canvas text-fg">
             <LoadingScreen text={"Submitting ..."} variant="dark" />
           </div>,
           document.body
         )}
 
-      <div className="max-w-md mx-auto px-4 pt-6 pb-12">
-        {/* Header */}
-        <div className="flex items-center gap-4 mb-6">
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="Close"
-            className="w-11 h-11 shrink-0 rounded-full bg-white/10 flex items-center justify-center"
-          >
-            <span className="rotate-90 flex">
-              <Svg type="angle-small-down1" size="lg" color="white" />
-            </span>
-          </button>
-          <h2 className="text-3xl font-light tracking-tight">{title}</h2>
-        </div>
+      {/* Body */}
+      <form className="flex flex-col gap-3" onSubmit={handleSubmit}>
+        <Tile className="p-4">
+          <label className={fieldLabel} htmlFor="ServicedDate">
+            Serviced Date
+          </label>
+          <input
+            type="date"
+            id="ServicedDate"
+            className={fieldInput}
+            defaultValue={ServicedDate}
+            onFocus={(e) => !isView && e.target.showPicker?.()}
+            onChange={(e) => setServicedDate(e.target.value)}
+            required={!isView}
+            disabled={isView}
+          />
+        </Tile>
 
-        {/* Body */}
-        <form className="flex flex-col gap-3" onSubmit={handleSubmit}>
-          <Tile className="p-4">
-            <label className={fieldLabel} htmlFor="ServicedDate">
-              Serviced Date
-            </label>
-            <input
-              type="date"
-              id="ServicedDate"
-              className={fieldInput}
-              defaultValue={ServicedDate}
-              onFocus={(e) => !isView && e.target.showPicker?.()}
-              onChange={(e) => setServicedDate(e.target.value)}
-              required={!isView}
-              disabled={isView}
-            />
-          </Tile>
+        <Tile className="p-4">
+          <label className={fieldLabel} htmlFor="MechanicName">
+            Serviced By
+          </label>
+          <input
+            type="text"
+            id="MechanicName"
+            className={fieldInput}
+            placeholder="Bruce McLaren"
+            value={MechanicName}
+            onChange={(e) => setMechanicName(e.target.value)}
+            disabled={isView}
+          />
+        </Tile>
 
-          <Tile className="p-4">
-            <label className={fieldLabel} htmlFor="MechanicName">
-              Serviced By
-            </label>
-            <input
-              type="text"
-              id="MechanicName"
-              className={fieldInput}
-              placeholder="Bruce McLaren"
-              value={MechanicName}
-              onChange={(e) => setMechanicName(e.target.value)}
-              disabled={isView}
-            />
-          </Tile>
-
-          <Tile className="p-4">
-            <div className="flex items-center justify-between gap-2 mb-2">
-              <label
-                className="text-sm text-white/50 leading-none"
-                htmlFor="Odometer"
-              >
-                Odometer
-              </label>
-              <fieldset
-                className="inline-flex rounded-full bg-white/10 p-1 text-sm"
-                disabled={isView}
-              >
-                {odometerUnits.map((unit) => (
-                  <label
-                    key={unit.id}
-                    htmlFor={unit.id}
-                    className={`px-3 py-1 rounded-full transition-colors ${
-                      isView ? "cursor-not-allowed" : "cursor-pointer"
-                    } ${
-                      OdometerMetric === unit.value
-                        ? "bg-[#4a5fc9] text-white"
-                        : "text-white/60"
-                    }`}
-                  >
-                    <input
-                      type="radio"
-                      id={unit.id}
-                      name="drone"
-                      value={unit.value}
-                      checked={OdometerMetric === unit.value}
-                      onChange={handleOdoChange}
-                      className="sr-only"
-                    />
-                    {unit.label}
-                  </label>
-                ))}
-              </fieldset>
-            </div>
-            <input
-              type="number"
-              id="Odometer"
-              className={`${fieldInput} [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none`}
-              placeholder="150000"
-              value={Odometer}
-              onChange={(e) => setOdometer(e.target.value)}
-              disabled={isView}
-            />
-          </Tile>
-
-          <Tile
-            className={`p-4 transition-all${
-              isView ? " pointer-events-none opacity-60" : ""
-            }`}
-          >
-            <CascadingDropdown
-              key={recordToEdit?.id ?? "new"}
-              logServiceOptions={logServiceOptions}
-              logOwnershipOptions={logOwnershipOptions}
-              initialValue={initialDropdownSelection}
-              onChange={(selected) => {
-                setSelection(selected);
-              }}
-            />
-          </Tile>
-
-          <Tile className="p-4">
-            <label className={fieldLabel} htmlFor="Comment">
-              Comment
-            </label>
-            <textarea
-              id="Comment"
-              className="w-full h-24 bg-transparent resize-none text-lg font-light text-white placeholder-white/30 outline-none disabled:text-white/60 disabled:cursor-not-allowed"
-              placeholder={isView ? "" : "Mobil - 10w-40 - 2qrts"}
-              value={Comment}
-              onChange={handleTextAreaChange}
-              maxLength={250}
-              disabled={isView}
-            />
-            <p className="text-sm text-white/40 text-right">
-              {Comment.length}/250
-            </p>
-          </Tile>
-
-          {mode !== "create" && recordToEdit?.FileUrls?.length ? (
-            <Tile className="p-4">
-              <div className={fieldLabel}>Files</div>
-              <div className="flex flex-col gap-1">
-                {recordToEdit.FileUrls.map((url: string, i: number) => (
-                  <a
-                    key={i}
-                    href={url}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-blue-400 hover:underline text-sm truncate"
-                  >
-                    {url.split("/").pop() || `File ${i + 1}`}
-                  </a>
-                ))}
-              </div>
-            </Tile>
-          ) : null}
-
-          {!isView && (
-            <Tile className="p-4">
-              <label className={fieldLabel} htmlFor="Reciept">
-                Receipts
-              </label>
-              <input
-                type="file"
-                id="Reciept"
-                className="w-full text-sm text-white/70 file:mr-3 file:rounded-full file:border-0 file:bg-white/10 file:px-4 file:py-2 file:text-white file:cursor-pointer"
-                multiple
-                onChange={handleFilesChange}
-              />
-            </Tile>
-          )}
-
-          {!isView && (
-            <button
-              type="submit"
-              className="w-full h-14 mt-2 rounded-full bg-[#4a5fc9] text-white text-xl font-medium"
+        <Tile className="p-4">
+          <div className="flex items-center justify-between gap-2 mb-2">
+            <label
+              className="text-sm text-fg-muted leading-none"
+              htmlFor="Odometer"
             >
-              Submit
-            </button>
-          )}
-        </form>
-      </div>
-    </div>
+              Odometer
+            </label>
+            <fieldset
+              className="inline-flex rounded-full bg-raised p-1 text-sm"
+              disabled={isView}
+            >
+              {odometerUnits.map((unit) => (
+                <label
+                  key={unit.id}
+                  htmlFor={unit.id}
+                  className={`px-3 py-1 rounded-full transition-colors ${
+                    isView ? "cursor-not-allowed" : "cursor-pointer"
+                  } ${
+                    OdometerMetric === unit.value
+                      ? "bg-accent text-accent-fg"
+                      : "text-fg-soft"
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    id={unit.id}
+                    name="drone"
+                    value={unit.value}
+                    checked={OdometerMetric === unit.value}
+                    onChange={handleOdoChange}
+                    className="sr-only"
+                  />
+                  {unit.label}
+                </label>
+              ))}
+            </fieldset>
+          </div>
+          <input
+            type="number"
+            id="Odometer"
+            className={`${fieldInput} [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none`}
+            placeholder="150000"
+            value={Odometer}
+            onChange={(e) => setOdometer(e.target.value)}
+            disabled={isView}
+          />
+        </Tile>
+
+        <Tile
+          className={`p-4 transition-all${
+            isView ? " pointer-events-none opacity-60" : ""
+          }`}
+        >
+          <CascadingDropdown
+            key={recordToEdit?.id ?? "new"}
+            logServiceOptions={logServiceOptions}
+            logOwnershipOptions={logOwnershipOptions}
+            initialValue={initialDropdownSelection}
+            onChange={(selected) => {
+              setSelection(selected);
+            }}
+          />
+        </Tile>
+
+        <Tile className="p-4">
+          <label className={fieldLabel} htmlFor="Comment">
+            Comment
+          </label>
+          <textarea
+            id="Comment"
+            className="w-full h-24 bg-transparent resize-none text-lg font-light text-fg placeholder-fg-muted/70 outline-none disabled:text-fg-soft disabled:cursor-not-allowed"
+            placeholder={isView ? "" : "Mobil - 10w-40 - 2qrts"}
+            value={Comment}
+            onChange={handleTextAreaChange}
+            maxLength={250}
+            disabled={isView}
+          />
+          <p className="text-sm text-fg-muted text-right">
+            {Comment.length}/250
+          </p>
+        </Tile>
+
+        {mode !== "create" && recordToEdit?.FileUrls?.length ? (
+          <Tile className="p-4">
+            <div className={fieldLabel}>Files</div>
+            <div className="flex flex-col gap-1">
+              {recordToEdit.FileUrls.map((url: string, i: number) => (
+                <a
+                  key={i}
+                  href={url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-fg underline underline-offset-2 text-sm truncate"
+                >
+                  {url.split("/").pop() || `File ${i + 1}`}
+                </a>
+              ))}
+            </div>
+          </Tile>
+        ) : null}
+
+        {!isView && (
+          <Tile className="p-4">
+            <label className={fieldLabel} htmlFor="Reciept">
+              Receipts
+            </label>
+            <input
+              type="file"
+              id="Reciept"
+              className="w-full text-sm text-fg-soft file:mr-3 file:rounded-full file:border-0 file:bg-raised file:px-4 file:py-2 file:text-fg file:cursor-pointer"
+              multiple
+              onChange={handleFilesChange}
+            />
+          </Tile>
+        )}
+
+        {!isView && (
+          <button
+            type="submit"
+            className="w-full h-14 mt-2 rounded-full bg-accent text-accent-fg text-xl font-medium"
+          >
+            Submit
+          </button>
+        )}
+      </form>
+    </Panel>
   );
 };

@@ -5,6 +5,7 @@ import LogHistoryPanel from "../components/LogHistoryPanel";
 import LogInfo from "../components/LogInfo";
 import MinimalFooter from "../../home/MinimalFooter";
 import { LoadingScreen } from "../../../shared/components/LoadingScreen";
+import { AmbientGlow } from "../../../shared/components/AmbientGlow";
 
 function LogPageContent() {
   const { isRetrievingData, tag, viewMode } = useLogData();
@@ -14,11 +15,8 @@ function LogPageContent() {
   }
 
   return (
-    <div className="relative overflow-hidden bg-slate-950 min-h-screen flex flex-col">
-      {/* <div className="absolute inset-0 bg-[linear-gradient(to_bottom,_rgba(28,51,182,0.3)_0%,_rgba(28,51,182,0)_5%)] pointer-events-none z-10" /> */}
-      {/* Decorative ambient glow */}
-      <div className="absolute -top-24 -right-16 w-72 h-72 bg-blue-500/30 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute top-32 -left-20 w-56 h-56 bg-blue-600/10 rounded-full blur-3xl pointer-events-none" />
+    <div className="relative overflow-hidden bg-canvas text-fg min-h-screen flex flex-col">
+      <AmbientGlow />
       <LogInfo tag={tag} viewMode={viewMode}></LogInfo>
       <div className="flex-1">
         <LogHistoryPanel></LogHistoryPanel>

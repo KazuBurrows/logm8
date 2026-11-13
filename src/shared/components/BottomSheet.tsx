@@ -35,7 +35,7 @@ export function BottomSheet({ isOpen, onClose, title, footer, children }: Bottom
   if (!mounted) return null;
 
   return createPortal(
-    <div className="fixed inset-0 z-[60] text-white funnel-display-font">
+    <div className="fixed inset-0 z-[60] text-fg funnel-display-font">
       <div
         className={`absolute inset-0 bg-black/60 transition-opacity duration-300 ${
           shown ? "opacity-100" : "opacity-0"
@@ -43,7 +43,7 @@ export function BottomSheet({ isOpen, onClose, title, footer, children }: Bottom
         onClick={onClose}
       />
       <div
-        className={`absolute inset-x-0 bottom-0 mx-auto max-w-md max-h-[75vh] flex flex-col rounded-t-3xl bg-zinc-900 ${slideClass}`}
+        className={`absolute inset-x-0 bottom-0 mx-auto max-w-md max-h-[75vh] flex flex-col rounded-t-sheet bg-surface border-t border-line ${slideClass}`}
         style={slideStyle}
       >
         <div className="flex items-center justify-between px-5 pt-5 pb-3">
@@ -52,7 +52,7 @@ export function BottomSheet({ isOpen, onClose, title, footer, children }: Bottom
             type="button"
             onClick={onClose}
             aria-label="Close"
-            className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center"
+            className="w-10 h-10 rounded-full bg-raised flex items-center justify-center"
           >
             <Svg type="cross" size="sm" color="white" />
           </button>
@@ -74,6 +74,6 @@ export function BottomSheet({ isOpen, onClose, title, footer, children }: Bottom
 
 /** Tap-friendly row for use inside a BottomSheet. */
 export const sheetRowClass = (active: boolean) =>
-  `w-full min-h-14 flex items-center justify-between gap-3 rounded-2xl px-4 py-3 text-left text-lg font-light ${
-    active ? "bg-[#4a5fc9] text-white" : "text-white/80 active:bg-white/10"
+  `w-full min-h-14 flex items-center justify-between gap-3 rounded-card px-4 py-3 text-left text-lg font-light ${
+    active ? "bg-accent text-accent-fg" : "text-fg-soft active:bg-raised"
   }`;
