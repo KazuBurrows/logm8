@@ -1,17 +1,18 @@
+import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { LogDataProvider, useLogData, UserMode } from "../context/LogDataContext";
 
 import LogHistoryPanel from "../components/LogHistoryPanel";
 import LogInfo from "../components/LogInfo";
+import { LogSkeleton } from "../components/LogSkeleton";
 import MinimalFooter from "../../home/MinimalFooter";
-import { LoadingScreen } from "../../../shared/components/LoadingScreen";
 import { AmbientGlow } from "../../../shared/components/AmbientGlow";
 
 function LogPageContent() {
   const { isRetrievingData, tag, viewMode } = useLogData();
 
   if (isRetrievingData) {
-    return <LoadingScreen text={"Retrieving Data..."} />;
+    return <LogSkeleton />;
   }
 
   return (
@@ -36,6 +37,13 @@ export default function Log() {
   const queryParams = new URLSearchParams(location.search);
   const token = queryParams.get("token") ?? ""; // Extract the 'token' value
   const navigate = useNavigate();
+
+  // Dark page background (also set before the bundle by public/theme-boot.js),
+  // so overscroll and the gaps between loading states never show white.
+  useEffect(() => {
+    document.documentElement.classList.add("bg-canvas");
+    return () => document.documentElement.classList.remove("bg-canvas");
+  }, []);
 
   return (
     <div>
