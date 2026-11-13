@@ -237,7 +237,7 @@ export const RecordModal = ({
   };
   const isView = mode === "view";
   const title = mode === "edit" ? "Update Record" : isView ? "Service Record" : "Create Maintenance";
-  const submitLabel = mode === "edit" ? "Save changes" : "Submit";
+  const submitLabel = mode === "edit" ? "Save changes" : "Add record";
 
   const fieldLabel = "block text-sm text-fg-muted leading-none mb-2";
   const fieldInput =
