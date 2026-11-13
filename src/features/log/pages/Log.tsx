@@ -17,7 +17,7 @@ function LogPageContent() {
 
   return (
     <div
-      className={`relative overflow-hidden bg-canvas text-fg min-h-screen flex flex-col ${
+      className={`relative bg-canvas text-fg min-h-screen flex flex-col ${
         // Room below the footer so the floating add button never covers it or the last record.
         viewMode === UserMode[0] ? "pb-[calc(5.5rem+env(safe-area-inset-bottom))]" : "pb-[env(safe-area-inset-bottom)]"
       }`}

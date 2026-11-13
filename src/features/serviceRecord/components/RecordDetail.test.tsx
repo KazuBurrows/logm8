@@ -1,5 +1,6 @@
-import { render, screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+// fireEvent rather than user-event: user-event resolves a second copy of
+// @testing-library/dom whose events aren't wrapped in act().
+import { fireEvent, render, screen } from "@testing-library/react";
 import { RecordDetail } from "./RecordDetail";
 
 const record: ServiceRecord = {
@@ -35,9 +36,10 @@ function renderDetail(props: Partial<React.ComponentProps<typeof RecordDetail>> 
   return { onEdit };
 }
 
-test("shows the record's details read-only", () => {
+test("shows the record's details read-only", async () => {
   renderDetail();
-  expect(screen.getByRole("dialog", { name: "Oil Change" })).toBeInTheDocument();
+  // findBy lets the panel's slide-in frame settle inside act().
+  expect(await screen.findByRole("dialog", { name: "Oil Change" })).toBeInTheDocument();
   expect(screen.getByText("28 October 2026")).toBeInTheDocument();
   expect(screen.getByText("Bruce McLaren")).toBeInTheDocument();
   expect(
@@ -51,17 +53,19 @@ test("shows the record's details read-only", () => {
 
 test("Edit opens the form", async () => {
   const { onEdit } = renderDetail();
-  await userEvent.click(screen.getByRole("button", { name: "Edit" }));
+  fireEvent.click(await screen.findByRole("button", { name: "Edit" }));
   expect(onEdit).toHaveBeenCalledTimes(1);
 });
 
-test("no Edit button for a record the viewer can't edit", () => {
+test("no Edit button for a record the viewer can't edit", async () => {
   renderDetail({ canEdit: false });
+  await screen.findByRole("dialog");
   expect(screen.queryByRole("button", { name: "Edit" })).not.toBeInTheDocument();
 });
 
-test("empty fields say so instead of rendering blank", () => {
+test("empty fields say so instead of rendering blank", async () => {
   renderDetail({ record: { ...record, MechanicName: "", Comment: "", FileUrls: [] } });
+  await screen.findByRole("dialog");
   expect(screen.getByText("No comment")).toBeInTheDocument();
   expect(screen.getByText("No receipts")).toBeInTheDocument();
   expect(screen.getByText("Not recorded")).toBeInTheDocument();

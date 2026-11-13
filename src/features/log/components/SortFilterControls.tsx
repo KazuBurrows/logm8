@@ -51,12 +51,10 @@ export function SortFilterControls({
   ];
 
   return (
-    <div className="relative">
-      <div className="flex px-2">
-        <IconButton label="Sort and filter" onClick={() => setIsOpen(true)} className="ml-auto mb-1 mr-1">
-          <Svg type="sort-1" size="md" color="current" />
-        </IconButton>
-      </div>
+    <div className="relative shrink-0">
+      <IconButton label="Sort and filter" onClick={() => setIsOpen(true)}>
+        <Svg type="sort-1" size="md" color="current" />
+      </IconButton>
 
       {/* Sort & Filter Modal — portalled to <body> because the parent bar's
           backdrop-blur makes it the containing block for fixed children. */}

@@ -50,7 +50,13 @@ export function useSortedFilteredRecords(serviceRecords: ServiceRecord[]) {
         );
         break;
       default:
-        // no sort applied
+        // Newest first: the server's order, but records added on this device are
+        // prepended whatever their date, which would put them in the wrong month.
+        records.sort(
+          (a, b) =>
+            new Date(b.ServicedDate).getTime() -
+            new Date(a.ServicedDate).getTime()
+        );
         break;
     }
 
