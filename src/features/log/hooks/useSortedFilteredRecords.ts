@@ -17,33 +17,39 @@ function toKm(value: string): number {
   }
 }
 
+export const SORT = {
+  nameAsc: "Service Name A-Z",
+  nameDesc: "Service Name Z-A",
+  odometerDesc: "Odometer High-Low",
+  odometerAsc: "Odometer Low-High",
+  dateDesc: "Serviced Date New-Old",
+  dateAsc: "Serviced Date Old-New",
+} as const;
+
+export type SortKey = (typeof SORT)[keyof typeof SORT];
+
+/** Newest first, the order the server returns. */
+export const DEFAULT_SORT: SortKey = SORT.dateDesc;
+
 export function useSortedFilteredRecords(serviceRecords: ServiceRecord[]) {
-  const [selectedSortType, setSelectedSortType] = useState<string>("");
+  const [selectedSortType, setSelectedSortType] = useState<SortKey>(DEFAULT_SORT);
   const sortedRecords = useMemo(() => {
     let records = [...serviceRecords]; // copy so we don't mutate state
 
     switch (selectedSortType) {
-      case "Service Name A-Z":
+      case SORT.nameAsc:
         records.sort((a, b) => recordTitle(a).localeCompare(recordTitle(b)));
         break;
-      case "Service Name Z-A":
+      case SORT.nameDesc:
         records.sort((a, b) => recordTitle(b).localeCompare(recordTitle(a)));
         break;
-      case "Odometer High-Low":
+      case SORT.odometerDesc:
         records.sort((a, b) => toKm(b.Odometer) - toKm(a.Odometer));
         break;
-
-      case "Odometer Low-High":
+      case SORT.odometerAsc:
         records.sort((a, b) => toKm(a.Odometer) - toKm(b.Odometer));
         break;
-      case "Serviced Date New-Old":
-        records.sort(
-          (a, b) =>
-            new Date(b.ServicedDate).getTime() -
-            new Date(a.ServicedDate).getTime()
-        );
-        break;
-      case "Serviced Date Old-New":
+      case SORT.dateAsc:
         records.sort(
           (a, b) =>
             new Date(a.ServicedDate).getTime() -
@@ -51,8 +57,8 @@ export function useSortedFilteredRecords(serviceRecords: ServiceRecord[]) {
         );
         break;
       default:
-        // Newest first: the server's order, but records added on this device are
-        // prepended whatever their date, which would put them in the wrong month.
+        // SORT.dateDesc. The server already returns this order, but records added
+        // on this device are prepended whatever their date, so sort anyway.
         records.sort(
           (a, b) =>
             new Date(b.ServicedDate).getTime() -

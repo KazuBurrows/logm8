@@ -113,3 +113,35 @@ test("a service filter for a title that no longer exists is dropped", () => {
   );
   expect(rowTitles()).toHaveLength(4);
 });
+
+test("the sheet shows the current sort, applies new ones and counts what's active", () => {
+  renderList();
+  const trigger = screen.getByRole("button", { name: "Sort and filter" });
+  fireEvent.click(trigger);
+  const sheet = screen.getByRole("dialog", { name: "Sort & filter" });
+
+  // The default order is shown as selected.
+  expect(within(sheet).getByLabelText("Date")).toBeChecked();
+  expect(within(sheet).getByLabelText("Newest first")).toBeChecked();
+  expect(within(sheet).getByRole("button", { name: "Reset" })).toBeDisabled();
+
+  // Picking a field starts in its first direction; months only group date order.
+  fireEvent.click(within(sheet).getByLabelText("Name"));
+  expect(within(sheet).getByLabelText("A to Z")).toBeChecked();
+  expect(rowTitles().map((t) => t?.replace(/\d.*$/, "").trim())).toEqual([
+    "Chain Lube",
+    "Front Brake Pads",
+    "Oil Change",
+    "Rear Brake Pads",
+  ]);
+  expect(screen.queryByRole("heading", { name: /October 2026/ })).not.toBeInTheDocument();
+
+  fireEvent.click(within(sheet).getByLabelText(/Oil Change/));
+  expect(within(sheet).getByRole("button", { name: "Show 1 record" })).toBeInTheDocument();
+  expect(screen.getByRole("button", { name: "Sort and filter, 2 active" })).toBeInTheDocument();
+
+  fireEvent.click(within(sheet).getByRole("button", { name: "Reset" }));
+  expect(within(sheet).getByLabelText("Newest first")).toBeChecked();
+  expect(within(sheet).getByRole("button", { name: "Show 4 records" })).toBeInTheDocument();
+  expect(screen.getByRole("button", { name: "Sort and filter" })).toBeInTheDocument();
+});

@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 
 import { RecordItem } from "../../serviceRecord/components/RecordItem";
 import { SortFilterControls } from "./SortFilterControls";
-import { useSortedFilteredRecords } from "../hooks/useSortedFilteredRecords";
+import { SORT, useSortedFilteredRecords } from "../hooks/useSortedFilteredRecords";
 import { serviceTypeStyle } from "../../../shared/theme/serviceTypes";
 import { Svg } from "../../../shared/components/Svg";
 import { groupByMonth, matchesSearch, serviceFilterGroups } from "../utils/groupRecords";
@@ -33,7 +33,7 @@ const SERVICE_TYPE_BY_TAB: Partial<Record<TabKey, string>> = {
 };
 
 // Sorts that keep records in date order, so month headers make sense.
-const DATE_SORTS = new Set(["", "Serviced Date New-Old", "Serviced Date Old-New"]);
+const DATE_SORTS = new Set<string>([SORT.dateDesc, SORT.dateAsc]);
 
 // Height of LogInfo's fixed header (py-2 around the 48px logo) plus any notch inset.
 const HEADER_OFFSET = "calc(4rem + env(safe-area-inset-top))";
@@ -159,6 +159,7 @@ export function RecordHistoryList({
             selectedServices={selectedServices}
             setSelectedServices={setSelectedServices}
             filterGroups={filterGroups}
+            resultCount={records.length}
           />
         </div>
 
