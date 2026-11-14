@@ -8,6 +8,9 @@ import { useLogData, UserMode } from "../context/LogDataContext";
 import { StatsPanel } from "./StatsPanel";
 import { TagInfoPanel } from "./TagInfoPanel";
 import { NavMenuPanel } from "../../../shared/components/NavMenuPanel";
+import { ShareLinksSheet } from "./ShareLinksSheet";
+import { formatLinkExpiry } from "../utils/shareLinks";
+import { useLocation } from "react-router-dom";
 // const bg1 = require("../assets/bg-detail.svg");
 const logmateLogo = require("../../../assets/logmate-logo.png");
 
@@ -17,7 +20,8 @@ export interface LogInfoProps {
 }
 
 export default function LogInfo({ tag, viewMode }: LogInfoProps) {
-  const { serviceOptions, ownershipOptions, addRecord, serviceRecords } = useLogData();
+  const { serviceOptions, ownershipOptions, addRecord, serviceRecords, linkExpiresAt } = useLogData();
+  const token = new URLSearchParams(useLocation().search).get("token") ?? "";
 
   const isServiceMode = viewMode === UserMode[0];
 
@@ -59,6 +63,13 @@ export default function LogInfo({ tag, viewMode }: LogInfoProps) {
   };
   const closeMenu = useCallback(() => setIsMenuOpen(false), []);
 
+  const [isShareOpen, setIsShareOpen] = useState(false);
+  const closeShare = useCallback(() => setIsShareOpen(false), []);
+  const openShare = useCallback(() => {
+    setIsMenuOpen(false);
+    setIsShareOpen(true);
+  }, []);
+
   const [isScrolled, setIsScrolled] = useState(false);
   useEffect(() => {
     const handleScroll = () => {
@@ -86,7 +97,12 @@ export default function LogInfo({ tag, viewMode }: LogInfoProps) {
         serviceRecords={serviceRecords}
       />
       <TagInfoPanel isOpen={isInfoOpen} onClose={closeInfo} tag={tag} />
-      <NavMenuPanel isOpen={isMenuOpen} onClose={closeMenu} />
+      <NavMenuPanel
+        isOpen={isMenuOpen}
+        onClose={closeMenu}
+        actions={isServiceMode ? [{ label: "Share read-only link", onClick: openShare }] : []}
+      />
+      {isServiceMode && <ShareLinksSheet isOpen={isShareOpen} onClose={closeShare} token={token} />}
 
       {/* Add record: bottom-right floating button, in thumb reach. */}
       {isServiceMode && (
@@ -145,6 +161,11 @@ export default function LogInfo({ tag, viewMode }: LogInfoProps) {
                 isScrolled ? "max-h-0 opacity-0" : "max-h-96 opacity-100 pt-6 pb-6"
               }`}
             >
+              {!isServiceMode && (
+                <p className="inline-flex mb-3 rounded-full bg-raised border border-line px-3 py-1 text-sm text-fg-soft">
+                  Read-only link{linkExpiresAt ? ` · expires ${formatLinkExpiry(linkExpiresAt)}` : ""}
+                </p>
+              )}
               <h1 className="h-md:text-4xl h-sm:text-3xl text-2xl leading-none text-shadow font-semibold text-fg-soft whitespace-nowrap overflow-x-auto overflow-y-hidden [scrollbar-width:thin] [scrollbar-color:rgba(255,255,255,0.35)_transparent] [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-white/35 [&::-webkit-scrollbar-thumb]:rounded-full">
                 {tag.Make}
               </h1>

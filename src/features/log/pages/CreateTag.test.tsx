@@ -47,5 +47,6 @@ test("redirects only to this site or logm8.com", () => {
   expect(isSafeRedirectUrl("/log?token=t")).toBe(true);
   expect(isSafeRedirectUrl("https://evil.example/log?token=t")).toBe(false);
   expect(isSafeRedirectUrl("https://logm8.com.evil.example/")).toBe(false);
+  // eslint-disable-next-line no-script-url -- the case under test
   expect(isSafeRedirectUrl("javascript:alert(1)")).toBe(false);
 });

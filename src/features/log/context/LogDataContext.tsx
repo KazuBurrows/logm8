@@ -110,6 +110,8 @@ interface LogDataContextValue {
   serviceOptions: ServiceOption[];
   ownershipOptions: ServiceOption[];
   viewMode: string;
+  /** When the link this page was opened with stops working (ISO), if the API says. */
+  linkExpiresAt: string | null;
   addRecord: (record: ServiceRecord) => void;
   updateRecord: (record: ServiceRecord) => void;
   removeRecord: (id: string) => void;
@@ -135,6 +137,7 @@ export function LogDataProvider({ token, onNotFound, children }: LogDataProvider
   const [serviceOptions, setServiceOptions] = useState<ServiceOption[]>([]);
   const [ownershipOptions, setOwnershipOptions] = useState<ServiceOption[]>([]);
   const [viewMode, setViewMode] = useState<string>(UserMode[1]);
+  const [linkExpiresAt, setLinkExpiresAt] = useState<string | null>(null);
   // Only a server sync moves lastUpdated; local adds/edits are upserted without it, so a
   // change someone else made after our last sync is still returned by the next delta fetch.
   const syncedLastUpdatedRef = useRef("");
@@ -149,6 +152,7 @@ export function LogDataProvider({ token, onNotFound, children }: LogDataProvider
       setTag(toServiceTag(data.tag));
       setServiceRecords(shownFor(data, records));
       setViewMode(UserMode[data.mode ?? 1]);
+      setLinkExpiresAt(data.expiresAt ?? null);
     };
 
     const fetchData = async () => {
@@ -252,6 +256,7 @@ export function LogDataProvider({ token, onNotFound, children }: LogDataProvider
       // records) is older than it, so the next sync brings it back.
       setServiceRecords((shown) => shownFor(data, mergeRecords(shown, incoming)));
       setViewMode(UserMode[data.mode ?? 1]);
+      setLinkExpiresAt(data.expiresAt ?? null);
     } catch (err) {
       // Unlike the first load, a failed refresh keeps the log on screen.
       console.error(err);
@@ -272,6 +277,7 @@ export function LogDataProvider({ token, onNotFound, children }: LogDataProvider
         serviceOptions,
         ownershipOptions,
         viewMode,
+        linkExpiresAt,
         addRecord,
         updateRecord,
         removeRecord,

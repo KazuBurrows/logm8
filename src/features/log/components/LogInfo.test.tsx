@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import LogInfo from "./LogInfo";
 
@@ -11,6 +11,7 @@ jest.mock("../context/LogDataContext", () => {
       ownershipOptions: [],
       addRecord: () => {},
       serviceRecords: [],
+      linkExpiresAt: "2030-11-21T09:00:00.0000000Z",
     }),
   };
 });
@@ -50,4 +51,15 @@ test("a read-only (guest) link offers neither; the API would refuse them", () =>
   expect(screen.queryByRole("button", { name: "Edit vehicle details" })).not.toBeInTheDocument();
   expect(screen.queryByRole("button", { name: "Add record" })).not.toBeInTheDocument();
   expect(screen.getByRole("img", { name: "logm8" })).toBeInTheDocument();
+});
+
+test("a guest link says it's read-only and when it expires", () => {
+  renderAs("Guest");
+  expect(screen.getByText(/Read-only link · expires 21 Nov 2030/)).toBeInTheDocument();
+});
+
+test("only a service link offers sharing a read-only link", () => {
+  renderAs("Service");
+  fireEvent.click(screen.getByRole("button", { name: "Menu" }));
+  expect(screen.getByRole("button", { name: /Share read-only link/ })).toBeInTheDocument();
 });
