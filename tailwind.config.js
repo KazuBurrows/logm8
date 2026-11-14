@@ -44,6 +44,17 @@ module.exports = {
       // Tailwind 3.3 has no spacing scale for min-height (3.4 adds one), so
       // classes like min-h-11 (the 44px tap-target minimum) need it here.
       minHeight: ({ theme }) => ({ ...theme("spacing") }),
+      // Loading placeholders brighten and dim. Fading opacity instead barely
+      // shows, because the placeholders are already close to the dark canvas.
+      keyframes: ({ theme }) => ({
+        skeleton: {
+          "0%, 100%": { backgroundColor: theme("colors.raised") },
+          "50%": { backgroundColor: theme("colors.slate.700") },
+        },
+      }),
+      animation: {
+        skeleton: "skeleton 1.5s ease-in-out infinite",
+      },
     },
   },
   plugins: [],

@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useCallback, useState } from "react";
+import { BottomSheet } from "../../../shared/components/BottomSheet";
 import { Panel } from "../../../shared/components/Panel";
 import { Svg } from "../../../shared/components/Svg";
 import { Tile } from "../../../shared/components/Tile";
@@ -17,9 +18,11 @@ export interface RecordDetailProps {
   record?: ServiceRecord;
   /** Category > subcategory > option names. */
   categoryPath: string[];
-  /** Shows the Edit button. */
+  /** Shows the Edit and Delete buttons. */
   canEdit: boolean;
   onEdit: () => void;
+  /** Runs once the viewer confirms; rejecting keeps the confirmation open to try again. */
+  onDelete: () => Promise<void>;
 }
 
 const label = "text-sm text-fg-muted leading-none mb-1.5";
@@ -32,7 +35,7 @@ const Field = ({ name, children }: { name: string; children: React.ReactNode }) 
   </div>
 );
 
-/** Read-only view of one service record, with an Edit action for editable records. */
+/** Read-only view of one service record, with Edit and Delete actions for editable records. */
 export function RecordDetail({
   isOpen,
   onClose,
@@ -40,26 +43,58 @@ export function RecordDetail({
   categoryPath,
   canEdit,
   onEdit,
+  onDelete,
 }: RecordDetailProps) {
   const files = record?.FileUrls ?? [];
   const typeStyle = serviceTypeStyle(record?.ServiceType);
 
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  // Escape reaches the panel too; while the confirmation is up, only it should close.
+  const closePanel = useCallback(() => {
+    if (!isConfirmOpen) onClose();
+  }, [isConfirmOpen, onClose]);
+  const closeConfirm = useCallback(() => {
+    if (!isDeleting) setIsConfirmOpen(false);
+  }, [isDeleting]);
+
+  const confirmDelete = async () => {
+    setIsDeleting(true);
+    try {
+      await onDelete();
+      setIsConfirmOpen(false);
+    } catch {
+      // The error has already been shown; the sheet stays open to try again.
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   return (
     <Panel
       isOpen={isOpen}
-      onClose={onClose}
+      onClose={closePanel}
       title={record ? recordTitle(record) : "Service record"}
       closeLabel="Close record"
       footer={
         canEdit ? (
-          <button
-            type="button"
-            onClick={onEdit}
-            className="w-full h-14 rounded-full bg-accent text-accent-fg text-xl font-medium flex items-center justify-center gap-2"
-          >
-            <Svg type="pencil-1" size="md" color="current" />
-            Edit
-          </button>
+          <div className="flex flex-col gap-2">
+            <button
+              type="button"
+              onClick={() => setIsConfirmOpen(true)}
+              className="w-full h-12 rounded-full bg-raised border border-line text-fg text-lg"
+            >
+              Delete
+            </button>
+            <button
+              type="button"
+              onClick={onEdit}
+              className="w-full h-14 rounded-full bg-accent text-accent-fg text-xl font-medium flex items-center justify-center gap-2"
+            >
+              <Svg type="pencil-1" size="md" color="current" />
+              Edit
+            </button>
+          </div>
         ) : undefined
       }
     >
@@ -140,6 +175,38 @@ export function RecordDetail({
           </Tile>
         </div>
       )}
+
+      {/* Portalled to the body, so it covers the panel. */}
+      <BottomSheet
+        isOpen={isConfirmOpen}
+        onClose={closeConfirm}
+        title="Delete this record?"
+        footer={
+          <div className="flex flex-col gap-2">
+            <button
+              type="button"
+              onClick={confirmDelete}
+              disabled={isDeleting}
+              className="w-full h-14 rounded-full bg-accent text-accent-fg text-xl font-medium disabled:opacity-60"
+            >
+              {isDeleting ? "Deleting…" : "Delete record"}
+            </button>
+            <button
+              type="button"
+              onClick={closeConfirm}
+              disabled={isDeleting}
+              className="w-full min-h-11 rounded-full text-lg text-fg-soft disabled:opacity-60"
+            >
+              Cancel
+            </button>
+          </div>
+        }
+      >
+        <p className="px-2 pb-2 text-lg font-light text-fg-soft">
+          It's removed from this log for everyone
+          {files.length ? ", along with its receipts" : ""}. This can't be undone.
+        </p>
+      </BottomSheet>
     </Panel>
   );
 }

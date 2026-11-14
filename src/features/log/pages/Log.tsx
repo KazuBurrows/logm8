@@ -7,9 +7,10 @@ import LogInfo from "../components/LogInfo";
 import { LogSkeleton } from "../components/LogSkeleton";
 import MinimalFooter from "../../home/MinimalFooter";
 import { AmbientGlow } from "../../../shared/components/AmbientGlow";
+import { PullToRefresh } from "../../../shared/components/PullToRefresh";
 
 function LogPageContent() {
-  const { isRetrievingData, tag, viewMode } = useLogData();
+  const { isRetrievingData, tag, viewMode, refresh } = useLogData();
 
   if (isRetrievingData) {
     return <LogSkeleton />;
@@ -23,6 +24,7 @@ function LogPageContent() {
       }`}
     >
       <AmbientGlow />
+      <PullToRefresh onRefresh={refresh} />
       <LogInfo tag={tag} viewMode={viewMode}></LogInfo>
       <div className="flex-1">
         <LogHistoryPanel></LogHistoryPanel>

@@ -78,8 +78,8 @@ export function TagInfoPanel({ isOpen, onClose, tag }: TagInfoPanelProps) {
         </Tile>
         <InfoTile label="Transmission" value={orDash(tag.Transmission)} />
         <InfoTile label="Colour" value={orDash(tag.Color)} />
-        <InfoTile label="Style" value={orDash(tag.Style)} />
-        <InfoTile label="Licence plate" value={orDash(tag.LicencePlate)} />
+        {/* <InfoTile label="Style" value={orDash(tag.Style)} /> */}
+        <InfoTile label="Licence plate" value={orDash(tag.LicencePlate)} className="col-span-2" />
         <InfoTile label="VIN" value={orDash(tag.VinNumber)} className="col-span-2" />
       </div>
     </Panel>

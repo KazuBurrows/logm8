@@ -16,6 +16,8 @@ import {
   readLogCache,
   writeLogCache,
 } from "../api/logCache";
+import { ApiError } from "../../../api/client";
+import { dispatchToast } from "../../../shared/components/Toast/toastService";
 
 export enum UserMode {
   Service = 0,
@@ -58,6 +60,37 @@ function normalizeRecord(record: any): ServiceRecord {
   };
 }
 
+function toServiceTag(tag: any): ServiceTag {
+  return {
+    Token: "",
+    Id: tag.id ?? tag.Id,
+    Make: tag.Make ?? tag.make,
+    Model: tag.Model ?? tag.model,
+    Year: tag.Year ?? tag.year,
+    Vehicle: tag.Vehicle ?? tag.vehicle,
+    Style: tag.Style ?? tag.style,
+    Engine: tag.Engine ?? tag.engine,
+    Fuel: tag.Fuel ?? tag.fuel,
+    Transmission: tag.Transmission ?? tag.transmission,
+    Color: tag.Color ?? tag.color,
+    VinNumber: tag.VinNumber ?? tag.vinNumber ?? tag.vinumber,
+    LicencePlate: tag.LicencePlate ?? tag.licencePlate ?? tag.licenceplate,
+  };
+}
+
+// The records to show from a GetLogData response. A delta can't say a record was deleted, so
+// any record missing from recordIds (every record the tag has now) is dropped; an older server
+// sends no recordIds, and then nothing is. canEdit is set for the viewer the response names.
+function shownFor(data: any, records: ServiceRecord[]): ServiceRecord[] {
+  if (Array.isArray(data.recordIds)) {
+    const live = new Set<string>(data.recordIds);
+    records = records.filter((r) => live.has(r.id));
+  }
+  return data.userId === undefined
+    ? records
+    : applyCanEdit(records, data.mode === UserMode.Service, data.userId);
+}
+
 interface LogDataContextValue {
   isRetrievingData: boolean;
   isCheckingForUpdates: boolean;
@@ -68,6 +101,9 @@ interface LogDataContextValue {
   viewMode: string;
   addRecord: (record: ServiceRecord) => void;
   updateRecord: (record: ServiceRecord) => void;
+  removeRecord: (id: string) => void;
+  /** Fetches changes since the last sync and merges them in; resolves even if it fails. */
+  refresh: () => Promise<void>;
 }
 
 const LogDataContext = createContext<LogDataContextValue | undefined>(undefined);
@@ -95,27 +131,9 @@ export function LogDataProvider({ token, onNotFound, children }: LogDataProvider
   useEffect(() => {
     // `data` is a GetLogData response, so the server has already named the tag being shown.
     const showLog = (data: any, records: ServiceRecord[], lastUpdated = latestLastModified(records)) => {
-      if (data.userId !== undefined) {
-        records = applyCanEdit(records, data.mode === UserMode.Service, data.userId);
-      }
       syncedLastUpdatedRef.current = lastUpdated;
-
-      setTag({
-        Token: "",
-        Id: data.tag.id ?? data.tag.Id,
-        Make: data.tag.Make ?? data.tag.make,
-        Model: data.tag.Model ?? data.tag.model,
-        Year: data.tag.Year ?? data.tag.year,
-        Vehicle: data.tag.Vehicle ?? data.tag.vehicle,
-        Style: data.tag.Style ?? data.tag.style,
-        Engine: data.tag.Engine ?? data.tag.engine,
-        Fuel: data.tag.Fuel ?? data.tag.fuel,
-        Transmission: data.tag.Transmission ?? data.tag.transmission,
-        Color: data.tag.Color ?? data.tag.color,
-        VinNumber: data.tag.VinNumber ?? data.tag.vinNumber ?? data.tag.vinumber,
-        LicencePlate: data.tag.LicencePlate ?? data.tag.licencePlate ?? data.tag.licenceplate,
-      });
-      setServiceRecords(records);
+      setTag(toServiceTag(data.tag));
+      setServiceRecords(shownFor(data, records));
       setViewMode(UserMode[data.mode ?? 1]);
     };
 
@@ -193,6 +211,36 @@ export function LogDataProvider({ token, onNotFound, children }: LogDataProvider
     );
   }, []);
 
+  // Other devices drop it on their next sync, as it's missing from recordIds.
+  const removeRecord = useCallback((id: string) => {
+    setServiceRecords((prev) => prev.filter((r) => r.id !== id));
+  }, []);
+
+  const refresh = useCallback(async () => {
+    // The first load's own update check is already fetching the same changes.
+    if (isRetrievingData || isCheckingForUpdates) return;
+    try {
+      const since = syncedLastUpdatedRef.current;
+      const data = await getLogData(token, since || undefined);
+      const incoming: ServiceRecord[] = (data.records ?? []).map(normalizeRecord);
+      // From the server's records only, so a local add/edit can't move it past others' changes.
+      syncedLastUpdatedRef.current = latestLastModified(incoming) || since;
+      setTag(toServiceTag(data.tag));
+      // Merged into what's showing. A record added here while this was in flight is dropped if
+      // the server read its records before the add, but then lastUpdated (taken from those
+      // records) is older than it, so the next sync brings it back.
+      setServiceRecords((shown) => shownFor(data, mergeRecords(shown, incoming)));
+      setViewMode(UserMode[data.mode ?? 1]);
+    } catch (err) {
+      // Unlike the first load, a failed refresh keeps the log on screen.
+      console.error(err);
+      // The API client has already shown a toast for every other failure.
+      if (!(err instanceof ApiError) || err.status === 404) {
+        dispatchToast("Couldn't refresh the log. Please try again.", "error");
+      }
+    }
+  }, [token, getLogData, isRetrievingData, isCheckingForUpdates]);
+
   return (
     <LogDataContext.Provider
       value={{
@@ -205,6 +253,8 @@ export function LogDataProvider({ token, onNotFound, children }: LogDataProvider
         viewMode,
         addRecord,
         updateRecord,
+        removeRecord,
+        refresh,
       }}
     >
       {children}

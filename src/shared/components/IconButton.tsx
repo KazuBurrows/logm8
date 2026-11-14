@@ -15,7 +15,7 @@ export const IconButton = ({ label, onClick, className = "", children }: IconBut
     aria-label={label}
     title={label}
     onClick={onClick}
-    className={`w-11 h-11 shrink-0 rounded-full bg-raised border border-line text-fg flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${className}`}
+    className={`w-11 h-11 p-[0.2rem] shrink-0 rounded-full bg-raised border border-line text-fg flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${className}`}
   >
     {children}
   </button>

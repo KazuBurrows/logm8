@@ -1,6 +1,8 @@
 import { AmbientGlow } from "../../../shared/components/AmbientGlow";
 
-const bar = "rounded-full bg-raised";
+// Placeholder shape. It pulses unless the device asks for reduced motion, and
+// then stays still on bg-raised.
+const bar = "rounded-full bg-raised motion-safe:animate-skeleton";
 
 /**
  * Placeholder for the log page while its code or data loads. Mirrors the real
@@ -13,11 +15,11 @@ export function LogSkeleton() {
       <span className="sr-only">Loading service records…</span>
       <AmbientGlow />
 
-      <div aria-hidden="true" className="relative motion-safe:animate-pulse">
+      <div aria-hidden="true" className="relative">
         {/* Header: logo + menu */}
         <div className="flex items-center justify-between pt-[calc(0.5rem+env(safe-area-inset-top))] pb-2 pl-[calc(0.5rem+env(safe-area-inset-left))] pr-[calc(0.5rem+env(safe-area-inset-right))]">
-          <div className="w-12 h-12 rounded-full bg-raised" />
-          <div className="w-11 h-11 rounded-full bg-raised" />
+          <div className={`${bar} w-12 h-12`} />
+          <div className={`${bar} w-11 h-11`} />
         </div>
 
         {/* Vehicle title */}
@@ -27,8 +29,8 @@ export function LogSkeleton() {
           <div className="mt-3 flex items-center justify-between">
             <div className={`${bar} h-7 w-20`} />
             <div className="flex gap-2">
-              <div className="w-11 h-11 rounded-full bg-raised" />
-              <div className="w-11 h-11 rounded-full bg-raised" />
+              <div className={`${bar} w-11 h-11`} />
+              <div className={`${bar} w-11 h-11`} />
             </div>
           </div>
         </div>
@@ -37,7 +39,7 @@ export function LogSkeleton() {
         <div className="px-2 py-2 flex flex-col gap-2 overflow-hidden">
           <div className="flex items-center gap-2">
             <div className={`${bar} h-11 flex-1`} />
-            <div className="w-11 h-11 shrink-0 rounded-full bg-raised" />
+            <div className={`${bar} w-11 h-11 shrink-0`} />
           </div>
           <div className="flex gap-1.5">
             <div className={`${bar} h-11 w-14 shrink-0`} />

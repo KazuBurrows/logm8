@@ -99,6 +99,24 @@ export function parseOdometer(raw: string | null | undefined): OdometerReading {
   };
 }
 
+/**
+ * The odometer form field's value as typed: digits and one decimal point, no
+ * commas or leading zeros ("041,250" → "41250"). Partial entries like "1500."
+ * are kept so the field doesn't fight the user mid-typing.
+ */
+export function cleanOdometerInput(text: string): string {
+  const [whole = "", ...fraction] = text.replace(/[^\d.]/g, "").split(".");
+  const trimmed = whole.replace(/^0+(?=\d)/, "");
+  return fraction.length ? `${trimmed}.${fraction.join("")}` : trimmed;
+}
+
+/** Adds thousands commas to a cleaned odometer entry for display: "41250.5" → "41,250.5". */
+export function groupOdometerInput(value: string): string {
+  const [whole, fraction] = value.split(".");
+  const grouped = whole.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  return fraction === undefined ? grouped : `${grouped}.${fraction}`;
+}
+
 /** e.g. "41,250 km", "24,929 mi", "993 hrs"; "" when there's no reading. */
 export function formatOdometer(raw: string | null | undefined): string {
   const { value, unit, raw: text } = parseOdometer(raw);

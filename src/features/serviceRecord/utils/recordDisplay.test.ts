@@ -1,6 +1,8 @@
 import {
+  cleanOdometerInput,
   fileNameFromUrl,
   formatOdometer,
+  groupOdometerInput,
   formatServicedDate,
   parseOdometer,
   parseServicedDate,
@@ -53,6 +55,25 @@ test("odometer readings format consistently without converting units", () => {
   expect(formatOdometer("unknown")).toBe("unknown");
   expect(formatOdometer("")).toBe("");
   expect(formatOdometer(undefined)).toBe("");
+});
+
+test("the odometer field keeps only a plain number", () => {
+  expect(cleanOdometerInput("41,250")).toBe("41250");
+  expect(cleanOdometerInput("041250")).toBe("41250");
+  expect(cleanOdometerInput("0")).toBe("0");
+  expect(cleanOdometerInput("1500.")).toBe("1500.");
+  expect(cleanOdometerInput("1,500.5.2")).toBe("1500.52");
+  expect(cleanOdometerInput("12a3 km")).toBe("123");
+  expect(cleanOdometerInput("")).toBe("");
+});
+
+test("the odometer field shows thousands commas", () => {
+  expect(groupOdometerInput("1500")).toBe("1,500");
+  expect(groupOdometerInput("1234567")).toBe("1,234,567");
+  expect(groupOdometerInput("999")).toBe("999");
+  expect(groupOdometerInput("41250.5")).toBe("41,250.5");
+  expect(groupOdometerInput("1500.")).toBe("1,500.");
+  expect(groupOdometerInput("")).toBe("");
 });
 
 test("parseOdometer keeps the value and a display unit", () => {

@@ -57,6 +57,13 @@ function toServiceRecord(dto: ServiceRecordDto): ServiceRecord {
   };
 }
 
+// SubmitRecord and UpdateServiceRecord build their reply without knowing the caller, so it
+// always says canEdit: false. Whoever just saved the record can edit it, so keep Edit and
+// Delete showing.
+function savedByViewer(dto: ServiceRecordDto): ServiceRecord {
+  return { ...toServiceRecord(dto), canEdit: true };
+}
+
 export function useServiceRecord() {
   const { loading, error, post } = useApi();
 
@@ -71,7 +78,7 @@ export function useServiceRecord() {
       if (!(dto?.id ?? dto?.Id)) {
         throw new Error("Server returned an unexpected response while creating the record.");
       }
-      return toServiceRecord(dto);
+      return savedByViewer(dto);
     },
     [post]
   );
@@ -87,10 +94,23 @@ export function useServiceRecord() {
       if (!(dto?.id ?? dto?.Id)) {
         throw new Error("Server returned an unexpected response while updating the record.");
       }
-      return toServiceRecord(dto);
+      return savedByViewer(dto);
     },
     [post]
   );
 
-  return { loading, error, submitRecord, updateServiceRecord };
+  // Only the record's owner, in service mode, can delete it; the server checks.
+  const deleteServiceRecord = useCallback(
+    async (record: ServiceRecord, token: string): Promise<void> => {
+      const formData = new FormData();
+      formData.append("Id", record.id);
+      formData.append("Token", token);
+      const headers: Record<string, string> = { Authorization: token };
+      if (record.TagId) headers["X-Tag-Id"] = record.TagId;
+      await post("DeleteServiceRecord", formData, headers);
+    },
+    [post]
+  );
+
+  return { loading, error, submitRecord, updateServiceRecord, deleteServiceRecord };
 }

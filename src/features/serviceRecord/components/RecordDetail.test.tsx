@@ -1,6 +1,6 @@
 // fireEvent rather than user-event: user-event resolves a second copy of
 // @testing-library/dom whose events aren't wrapped in act().
-import { fireEvent, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
 import { RecordDetail } from "./RecordDetail";
 
 const record: ServiceRecord = {
@@ -22,6 +22,7 @@ const record: ServiceRecord = {
 
 function renderDetail(props: Partial<React.ComponentProps<typeof RecordDetail>> = {}) {
   const onEdit = jest.fn();
+  const onDelete = jest.fn(() => Promise.resolve());
   render(
     <RecordDetail
       isOpen
@@ -30,10 +31,11 @@ function renderDetail(props: Partial<React.ComponentProps<typeof RecordDetail>> 
       categoryPath={["Engine", "Oil", "Oil Change"]}
       canEdit
       onEdit={onEdit}
+      onDelete={onDelete}
       {...props}
     />
   );
-  return { onEdit };
+  return { onEdit, onDelete };
 }
 
 test("shows the record's details read-only", async () => {
@@ -58,10 +60,44 @@ test("Edit opens the form", async () => {
   expect(onEdit).toHaveBeenCalledTimes(1);
 });
 
-test("no Edit button for a record the viewer can't edit", async () => {
+test("no Edit or Delete button for a record the viewer can't edit", async () => {
   renderDetail({ canEdit: false });
   await screen.findByRole("dialog");
   expect(screen.queryByRole("button", { name: "Edit" })).not.toBeInTheDocument();
+  expect(screen.queryByRole("button", { name: "Delete" })).not.toBeInTheDocument();
+});
+
+test("Delete asks first, and only deletes once confirmed", async () => {
+  const { onDelete } = renderDetail();
+  fireEvent.click(await screen.findByRole("button", { name: "Delete" }));
+
+  expect(await screen.findByRole("dialog", { name: "Delete this record?" })).toBeInTheDocument();
+  expect(screen.getByText(/along with its receipts/)).toBeInTheDocument();
+  expect(onDelete).not.toHaveBeenCalled();
+
+  await act(async () => {
+    fireEvent.click(screen.getByRole("button", { name: "Delete record" }));
+  });
+  expect(onDelete).toHaveBeenCalledTimes(1);
+});
+
+test("Cancel leaves the record alone", async () => {
+  const { onDelete } = renderDetail();
+  fireEvent.click(await screen.findByRole("button", { name: "Delete" }));
+  fireEvent.click(await screen.findByRole("button", { name: "Cancel" }));
+  expect(onDelete).not.toHaveBeenCalled();
+});
+
+test("a failed delete keeps the confirmation open to try again", async () => {
+  renderDetail({ onDelete: () => Promise.reject(new Error("network")) });
+  fireEvent.click(await screen.findByRole("button", { name: "Delete" }));
+
+  await act(async () => {
+    fireEvent.click(await screen.findByRole("button", { name: "Delete record" }));
+  });
+
+  expect(screen.getByRole("dialog", { name: "Delete this record?" })).toBeInTheDocument();
+  expect(screen.getByRole("button", { name: "Delete record" })).toBeEnabled();
 });
 
 test("empty fields say so instead of rendering blank", async () => {

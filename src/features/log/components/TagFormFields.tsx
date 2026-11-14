@@ -26,7 +26,7 @@ const VehicleTypes = ["Motorbike"];
 
 const fieldLabel = "block text-sm text-fg-muted leading-none mb-2";
 const fieldInput =
-  "w-full bg-transparent text-xl font-light text-fg placeholder-fg-muted/70 outline-none";
+  "w-full min-h-11 rounded-card bg-raised px-3 py-2 text-xl font-light text-fg placeholder-fg-muted/70 outline-none focus-visible:ring-2 focus-visible:ring-accent";
 const noSpinners =
   "[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none";
 
