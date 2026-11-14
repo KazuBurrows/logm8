@@ -1,64 +1,53 @@
 import React from "react";
-import { Svg } from "./Svg";
-import { useSlideInPanel } from "../hooks/useSlideInPanel";
-import { useEscapeAndScrollLock } from "../hooks/useEscapeAndScrollLock";
+import { BottomSheet, sheetRowClass } from "./BottomSheet";
 
+// Support and About Us are left out: the page footer already links to Support
+// and Company (about logm8), so the menu only carries what the footer doesn't.
 const NAV_LINKS = [
-  { label: "Home", href: "https://logm8.com/", tile: "bg-[#4a5fc9] text-white" },
-  { label: "Shop", href: "https://logm8.com/collections/all", tile: "bg-[#e0522f] text-white" },
-  { label: "Support", href: "https://logm8.com/pages/support", tile: "bg-white text-slate-900" },
-  { label: "About Us", href: "https://logm8.com/pages/about-us", tile: "bg-[#8b5cf6] text-white" },
-  { label: "Contact", href: "https://logm8.com/pages/contact", tile: "bg-[#f2c230] text-slate-900" },
+  { label: "Home", href: "https://logm8.com/" },
+  { label: "Shop", href: "https://logm8.com/collections/all" },
+  { label: "Contact", href: "https://logm8.com/pages/contact" },
 ];
+
+export interface NavMenuAction {
+  label: string;
+  onClick: () => void;
+}
 
 export interface NavMenuPanelProps {
   isOpen: boolean;
+  /** Should be stable (e.g. useCallback), it is an effect dependency. */
   onClose: () => void;
+  /** In-app actions shown above the website links, e.g. "Share read-only link". */
+  actions?: NavMenuAction[];
 }
 
-export function NavMenuPanel({ isOpen, onClose }: NavMenuPanelProps) {
-  const { mounted, slideClass, slideStyle } = useSlideInPanel(isOpen);
-  useEscapeAndScrollLock(mounted, onClose);
-
-  if (!mounted) return null;
-
+/** Compact menu sheet: any in-app actions, then links to the logm8 website. */
+export function NavMenuPanel({ isOpen, onClose, actions = [] }: NavMenuPanelProps) {
   return (
-    <div
-      className={`fixed inset-0 z-50 overflow-y-auto text-white funnel-display-font bg-gradient-to-b from-zinc-800 via-zinc-900 to-black ${slideClass}`}
-      style={slideStyle}
-    >
-      <div className="max-w-md mx-auto px-4 pt-6 pb-12">
-        <div className="flex items-center gap-4 mb-6">
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="Close menu"
-            className="w-11 h-11 rounded-full bg-white/10 flex items-center justify-center"
-          >
-            <span className="rotate-90 flex">
-              <Svg type="angle-small-down1" size="lg" color="white" />
-            </span>
-          </button>
-          <h2 className="text-4xl font-light tracking-tight">Menu</h2>
-        </div>
-
-        <nav className="flex flex-col gap-3">
-          {NAV_LINKS.map(({ label, href, tile }) => (
-            <a
-              key={label}
-              href={href}
-              className={`h-24 rounded-3xl p-5 flex items-end justify-between ${tile}`}
-            >
-              <span className="text-4xl font-light leading-none tracking-tight">
-                {label}
+    <BottomSheet isOpen={isOpen} onClose={onClose} title="Menu">
+      {actions.length > 0 && (
+        <div className="flex flex-col gap-1 pb-2 mb-1 border-b border-line">
+          {actions.map(({ label, onClick }) => (
+            <button key={label} type="button" onClick={onClick} className={sheetRowClass(false)}>
+              <span className="text-fg">{label}</span>
+              <span aria-hidden="true" className="text-fg-muted">
+                ›
               </span>
-              <span aria-hidden="true" className="text-2xl leading-none">
-                ↗
-              </span>
-            </a>
+            </button>
           ))}
-        </nav>
-      </div>
-    </div>
+        </div>
+      )}
+      <nav aria-label="logm8 website" className="flex flex-col gap-1">
+        {NAV_LINKS.map(({ label, href }) => (
+          <a key={label} href={href} className={sheetRowClass(false)}>
+            <span className="text-fg">{label}</span>
+            <span aria-hidden="true" className="text-fg-muted">
+              ↗
+            </span>
+          </a>
+        ))}
+      </nav>
+    </BottomSheet>
   );
 }

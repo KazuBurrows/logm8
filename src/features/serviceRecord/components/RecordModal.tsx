@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useLocation } from "react-router-dom";
 import { useServiceRecord } from "../api/useServiceRecord";
@@ -6,9 +6,13 @@ import { LoadingScreen } from "../../../shared/components/LoadingScreen";
 import CascadingDropdown from "../../serviceOption/components/CascadingDropdown";
 import { ApiError } from "../../../api/client";
 import { dispatchToast } from "../../../shared/components/Toast/toastService";
-import { useSlideInPanel } from "../../../shared/hooks/useSlideInPanel";
+import { IconButton } from "../../../shared/components/IconButton";
+import { Panel } from "../../../shared/components/Panel";
 import { Svg } from "../../../shared/components/Svg";
 import { Tile } from "../../../shared/components/Tile";
+import { findServiceSelection } from "../utils/serviceSelection";
+import { cleanOdometerInput, fileNameFromUrl, groupOdometerInput } from "../utils/recordDisplay";
+import { shrinkImageToFit } from "../utils/shrinkImage";
 
 const MAX_FILES = 10;
 const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024;
@@ -44,7 +48,6 @@ export const RecordModal = ({
   const token = queryParams.get("token"); // Extract the 'token' value
 
   const { loading, submitRecord, updateServiceRecord } = useServiceRecord();
-  const { mounted, slideClass, slideStyle } = useSlideInPanel(isOpen);
 
   // Form values
   const [Token] = useState(token ?? "");
@@ -52,28 +55,30 @@ export const RecordModal = ({
   const [TagId, setTagId] = useState("");
   const [ServicedDate, setServicedDate] = useState("");
   const [MechanicName, setMechanicName] = useState("");
-  const [Odometer, setOdometer] = useState("");
+  const [Odometer, setOdometer] = useState(""); // plain number, no commas
   const [OdometerMetric, setOdometerMetric] = useState("km");
+  const odometerInput = useRef<HTMLInputElement>(null);
+  const odometerCaret = useRef<number | null>(null);
   const [selection, setSelection] = useState<any>(null);
   const [Comment, setComment] = useState("");
   const [Files, setFiles] = useState<File[]>([]);
+  // Large photos are shrunk before they're attached; saving waits until that's done.
+  const [preparingFiles, setPreparingFiles] = useState(false);
+  const latestFilePick = useRef(0);
+  // Saved receipts marked for removal; nothing is deleted until the form is saved.
+  const [removedFileUrls, setRemovedFileUrls] = useState<string[]>([]);
+  useEffect(() => {
+    if (isOpen) setRemovedFileUrls([]);
+  }, [isOpen, recordToEdit]);
+  const toggleRemovedFile = (url: string) =>
+    setRemovedFileUrls((prev) =>
+      prev.includes(url) ? prev.filter((u) => u !== url) : [...prev, url]
+    );
 
   const initialDropdownSelection = useMemo(() => {
     if (mode === "create" || !recordToEdit) return null;
-    const { ServiceCategory: catName, ServiceOption: optName, ServiceType: svcType } = recordToEdit;
-    for (const dir of [logServiceOptions, logOwnershipOptions]) {
-      for (const cat of dir) {
-        if (cat.Name !== catName) continue;
-        for (const sub of cat.Children ?? []) {
-          if (sub.Name === optName) return { category: cat, subcategory: sub, option: null, type: svcType };
-          for (const opt of sub.Children ?? []) {
-            if (opt.Name === optName) return { category: cat, subcategory: sub, option: opt, type: svcType };
-          }
-        }
-        return { category: cat, subcategory: null, option: null, type: svcType };
-      }
-    }
-    return null;
+    const found = findServiceSelection(recordToEdit, logServiceOptions, logOwnershipOptions);
+    return found && { ...found, type: recordToEdit.ServiceType };
   }, [mode, recordToEdit, logServiceOptions, logOwnershipOptions]);
 
   /** -------------- PREFILL ON EDIT/VIEW MODE ----------------- */
@@ -85,7 +90,7 @@ export const RecordModal = ({
 
       // Split odometer number + metric
       const [odoNum, odoMetric] = recordToEdit.Odometer?.split(" ") ?? [];
-      setOdometer(odoNum ?? "");
+      setOdometer(cleanOdometerInput(odoNum ?? ""));
       setOdometerMetric(odoMetric ?? "km");
 
       // Preselect dropdown (service options)
@@ -110,17 +115,29 @@ export const RecordModal = ({
   const handleTextAreaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setComment(e.target.value);
   };
-  const handleFilesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files) return;
-    const selected = Array.from(e.target.files);
+  const handleFilesChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const input = e.target;
+    const selected = Array.from(input.files ?? []);
+    // Shrinking takes a moment; if another pick comes in meanwhile, this one is dropped.
+    const pick = ++latestFilePick.current;
 
     if (selected.length > MAX_FILES) {
+      setPreparingFiles(false);
       alert(`You can attach up to ${MAX_FILES} files.`);
-      e.target.value = "";
+      input.value = "";
       return;
     }
 
-    const invalid = selected.filter(
+    setPreparingFiles(true);
+    // One at a time: decoding several large photos at once can run a phone out of memory.
+    const prepared: File[] = [];
+    for (const file of selected) {
+      prepared.push(await shrinkImageToFit(file, MAX_FILE_SIZE_BYTES));
+    }
+    if (pick !== latestFilePick.current) return;
+    setPreparingFiles(false);
+
+    const invalid = prepared.filter(
       (f) => !ALLOWED_FILE_TYPES.includes(f.type) || f.size > MAX_FILE_SIZE_BYTES
     );
     if (invalid.length > 0) {
@@ -128,15 +145,34 @@ export const RecordModal = ({
         "The following files are invalid (must be JPEG/PNG/WEBP/HEIC/PDF under 10MB):\n" +
           invalid.map((f) => f.name).join("\n")
       );
-      e.target.value = "";
+      input.value = "";
       return;
     }
 
-    setFiles(selected);
+    setFiles(prepared);
   };
   const handleOdoChange = (event: any) => {
     setOdometerMetric(event.target.value);
   };
+  const handleOdometerInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { value, selectionStart } = e.target;
+    // Count the digits before the caret so it can be put back after the commas move.
+    odometerCaret.current = value.slice(0, selectionStart ?? value.length).replace(/[^\d.]/g, "").length;
+    setOdometer(cleanOdometerInput(value));
+  };
+
+  // Re-inserting commas replaces the field's text, which would throw the caret to the end.
+  useLayoutEffect(() => {
+    const input = odometerInput.current;
+    const digitsBefore = odometerCaret.current;
+    odometerCaret.current = null;
+    if (!input || digitsBefore === null || document.activeElement !== input) return;
+    let pos = 0;
+    for (let seen = 0; pos < input.value.length && seen < digitsBefore; pos++) {
+      if (input.value[pos] !== ",") seen++;
+    }
+    input.setSelectionRange(pos, pos);
+  });
 
   /** -------------- EVENTS ----------------- */
 
@@ -157,6 +193,8 @@ export const RecordModal = ({
 
       if (!Odometer || Odometer.trim() === "") {
         errors.push("Odometer is required");
+      } else if (!Number.isFinite(Number(Odometer))) {
+        errors.push("Odometer must be a number");
       }
 
       if (!OdometerMetric || OdometerMetric.trim() === "") {
@@ -191,7 +229,8 @@ export const RecordModal = ({
     formData.append("MechanicName", MechanicName);
     formData.append(
       "Odometer",
-      (Odometer?.toString() ?? "0") + " " + OdometerMetric
+      // Number() tidies partial entries like "1500." before saving
+      String(Number(Odometer)) + " " + OdometerMetric
     );
 
     formData.append("Comment", Comment);
@@ -204,6 +243,8 @@ export const RecordModal = ({
       if (mode === "edit" && recordToEdit) {
         // include the id so server knows which record to update
         formData.append("Id", recordToEdit.id);
+        // Taken off the record, and their files deleted, once the save succeeds.
+        removedFileUrls.forEach((url) => formData.append("RemoveFileUrls", url));
 
         const serviceOp =
           selection?.option ??
@@ -248,15 +289,14 @@ export const RecordModal = ({
       clearFields();
     }
   };
-  if (!mounted) return null; // Stay rendered through the slide-out, then unmount
-
   const isView = mode === "view";
   const title = mode === "edit" ? "Update Record" : isView ? "Service Record" : "Create Maintenance";
-  // const buttonLabel = mode === "edit" ? "Update" : "Submit";
+  const submitLabel = mode === "edit" ? "Save changes" : "Add record";
 
-  const fieldLabel = "block text-sm text-white/50 leading-none mb-2";
+  const fieldLabel = "block text-sm text-fg-muted leading-none mb-2";
+  // Raised box marks where to type; in view mode it drops back to plain text.
   const fieldInput =
-    "w-full bg-transparent text-xl font-light text-white placeholder-white/30 outline-none [color-scheme:dark] disabled:text-white/60 disabled:cursor-not-allowed";
+    "w-full min-h-11 rounded-card bg-raised px-3 py-2 text-xl font-light text-fg placeholder-fg-muted/70 outline-none focus-visible:ring-2 focus-visible:ring-accent [color-scheme:dark] disabled:bg-transparent disabled:px-0 disabled:text-fg-soft disabled:cursor-not-allowed";
 
   const odometerUnits = [
     { id: "huey", value: "km", label: "KM" },
@@ -265,195 +305,212 @@ export const RecordModal = ({
   ];
 
   return (
-    <div
-      className={`fixed inset-0 z-50 overflow-y-auto overflow-x-hidden text-white funnel-display-font bg-gradient-to-b from-zinc-800 via-zinc-900 to-black ${slideClass}`}
-      style={slideStyle}
-    >
+    <Panel isOpen={isOpen} onClose={onClose} title={title}>
       {/* Portaled: the sliding panel is transformed and scrollable, so an overlay inside it would scroll away with the content. */}
       {loading &&
         createPortal(
-          <div className="fixed inset-0 z-[60] bg-black">
+          <div className="fixed inset-0 z-[60] bg-canvas text-fg">
             <LoadingScreen text={"Submitting ..."} variant="dark" />
           </div>,
           document.body
         )}
 
-      <div className="max-w-md mx-auto px-4 pt-6 pb-12">
-        {/* Header */}
-        <div className="flex items-center gap-4 mb-6">
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="Close"
-            className="w-11 h-11 shrink-0 rounded-full bg-white/10 flex items-center justify-center"
-          >
-            <span className="rotate-90 flex">
-              <Svg type="angle-small-down1" size="lg" color="white" />
-            </span>
-          </button>
-          <h2 className="text-3xl font-light tracking-tight">{title}</h2>
-        </div>
+      {/* Body */}
+      <form className="flex flex-col gap-3" onSubmit={handleSubmit}>
+        <Tile className="p-4">
+          <label className={fieldLabel} htmlFor="ServicedDate">
+            Serviced Date
+          </label>
+          <input
+            type="date"
+            id="ServicedDate"
+            className={fieldInput}
+            defaultValue={ServicedDate}
+            onFocus={(e) => !isView && e.target.showPicker?.()}
+            onChange={(e) => setServicedDate(e.target.value)}
+            required={!isView}
+            disabled={isView}
+          />
+        </Tile>
 
-        {/* Body */}
-        <form className="flex flex-col gap-3" onSubmit={handleSubmit}>
-          <Tile className="p-4">
-            <label className={fieldLabel} htmlFor="ServicedDate">
-              Serviced Date
-            </label>
-            <input
-              type="date"
-              id="ServicedDate"
-              className={fieldInput}
-              defaultValue={ServicedDate}
-              onFocus={(e) => !isView && e.target.showPicker?.()}
-              onChange={(e) => setServicedDate(e.target.value)}
-              required={!isView}
-              disabled={isView}
-            />
-          </Tile>
+        <Tile className="p-4">
+          <label className={fieldLabel} htmlFor="MechanicName">
+            Serviced By
+          </label>
+          <input
+            type="text"
+            id="MechanicName"
+            className={fieldInput}
+            placeholder="Bruce McLaren"
+            value={MechanicName}
+            onChange={(e) => setMechanicName(e.target.value)}
+            disabled={isView}
+          />
+        </Tile>
 
-          <Tile className="p-4">
-            <label className={fieldLabel} htmlFor="MechanicName">
-              Serviced By
-            </label>
-            <input
-              type="text"
-              id="MechanicName"
-              className={fieldInput}
-              placeholder="Bruce McLaren"
-              value={MechanicName}
-              onChange={(e) => setMechanicName(e.target.value)}
-              disabled={isView}
-            />
-          </Tile>
-
-          <Tile className="p-4">
-            <div className="flex items-center justify-between gap-2 mb-2">
-              <label
-                className="text-sm text-white/50 leading-none"
-                htmlFor="Odometer"
-              >
-                Odometer
-              </label>
-              <fieldset
-                className="inline-flex rounded-full bg-white/10 p-1 text-sm"
-                disabled={isView}
-              >
-                {odometerUnits.map((unit) => (
-                  <label
-                    key={unit.id}
-                    htmlFor={unit.id}
-                    className={`px-3 py-1 rounded-full transition-colors ${
-                      isView ? "cursor-not-allowed" : "cursor-pointer"
-                    } ${
-                      OdometerMetric === unit.value
-                        ? "bg-[#4a5fc9] text-white"
-                        : "text-white/60"
-                    }`}
-                  >
-                    <input
-                      type="radio"
-                      id={unit.id}
-                      name="drone"
-                      value={unit.value}
-                      checked={OdometerMetric === unit.value}
-                      onChange={handleOdoChange}
-                      className="sr-only"
-                    />
-                    {unit.label}
-                  </label>
-                ))}
-              </fieldset>
-            </div>
-            <input
-              type="number"
-              id="Odometer"
-              className={`${fieldInput} [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none`}
-              placeholder="150000"
-              value={Odometer}
-              onChange={(e) => setOdometer(e.target.value)}
-              disabled={isView}
-            />
-          </Tile>
-
-          <Tile
-            className={`p-4 transition-all${
-              isView ? " pointer-events-none opacity-60" : ""
-            }`}
-          >
-            <CascadingDropdown
-              key={recordToEdit?.id ?? "new"}
-              logServiceOptions={logServiceOptions}
-              logOwnershipOptions={logOwnershipOptions}
-              initialValue={initialDropdownSelection}
-              onChange={(selected) => {
-                setSelection(selected);
-              }}
-            />
-          </Tile>
-
-          <Tile className="p-4">
-            <label className={fieldLabel} htmlFor="Comment">
-              Comment
-            </label>
-            <textarea
-              id="Comment"
-              className="w-full h-24 bg-transparent resize-none text-lg font-light text-white placeholder-white/30 outline-none disabled:text-white/60 disabled:cursor-not-allowed"
-              placeholder={isView ? "" : "Mobil - 10w-40 - 2qrts"}
-              value={Comment}
-              onChange={handleTextAreaChange}
-              maxLength={250}
-              disabled={isView}
-            />
-            <p className="text-sm text-white/40 text-right">
-              {Comment.length}/250
-            </p>
-          </Tile>
-
-          {mode !== "create" && recordToEdit?.FileUrls?.length ? (
-            <Tile className="p-4">
-              <div className={fieldLabel}>Files</div>
-              <div className="flex flex-col gap-1">
-                {recordToEdit.FileUrls.map((url: string, i: number) => (
-                  <a
-                    key={i}
-                    href={url}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-blue-400 hover:underline text-sm truncate"
-                  >
-                    {url.split("/").pop() || `File ${i + 1}`}
-                  </a>
-                ))}
-              </div>
-            </Tile>
-          ) : null}
-
-          {!isView && (
-            <Tile className="p-4">
-              <label className={fieldLabel} htmlFor="Reciept">
-                Receipts
-              </label>
-              <input
-                type="file"
-                id="Reciept"
-                className="w-full text-sm text-white/70 file:mr-3 file:rounded-full file:border-0 file:bg-white/10 file:px-4 file:py-2 file:text-white file:cursor-pointer"
-                multiple
-                onChange={handleFilesChange}
-              />
-            </Tile>
-          )}
-
-          {!isView && (
-            <button
-              type="submit"
-              className="w-full h-14 mt-2 rounded-full bg-[#4a5fc9] text-white text-xl font-medium"
+        <Tile className="p-4">
+          <div className="flex items-center justify-between gap-2 mb-2">
+            <label
+              className="text-sm text-fg-muted leading-none"
+              htmlFor="Odometer"
             >
-              Submit
-            </button>
-          )}
-        </form>
-      </div>
-    </div>
+              Odometer
+            </label>
+            <fieldset
+              className="inline-flex rounded-full bg-raised p-1 text-sm"
+              disabled={isView}
+            >
+              {odometerUnits.map((unit) => (
+                <label
+                  key={unit.id}
+                  htmlFor={unit.id}
+                  className={`min-h-11 px-3 inline-flex items-center rounded-full transition-colors ${
+                    isView ? "cursor-not-allowed" : "cursor-pointer"
+                  } ${
+                    OdometerMetric === unit.value
+                      ? "bg-accent text-accent-fg"
+                      : "text-fg-soft"
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    id={unit.id}
+                    name="drone"
+                    value={unit.value}
+                    checked={OdometerMetric === unit.value}
+                    onChange={handleOdoChange}
+                    className="sr-only"
+                  />
+                  {unit.label}
+                </label>
+              ))}
+            </fieldset>
+          </div>
+          {/* Text, not number: a number input can't show thousands commas. */}
+          <input
+            ref={odometerInput}
+            type="text"
+            inputMode="decimal"
+            autoComplete="off"
+            id="Odometer"
+            className={fieldInput}
+            placeholder="1,500"
+            value={groupOdometerInput(Odometer)}
+            onChange={handleOdometerInput}
+            disabled={isView}
+          />
+        </Tile>
+
+        <Tile
+          className={`p-4 transition-all${
+            isView ? " pointer-events-none opacity-60" : ""
+          }`}
+        >
+          <CascadingDropdown
+            key={recordToEdit?.id ?? "new"}
+            logServiceOptions={logServiceOptions}
+            logOwnershipOptions={logOwnershipOptions}
+            initialValue={initialDropdownSelection}
+            onChange={(selected) => {
+              setSelection(selected);
+            }}
+          />
+        </Tile>
+
+        <Tile className="p-4">
+          <label className={fieldLabel} htmlFor="Comment">
+            Comment
+          </label>
+          <textarea
+            id="Comment"
+            className="w-full h-24 rounded-card bg-raised px-3 py-2 resize-none text-lg font-light text-fg placeholder-fg-muted/70 outline-none focus-visible:ring-2 focus-visible:ring-accent disabled:bg-transparent disabled:px-0 disabled:text-fg-soft disabled:cursor-not-allowed"
+            placeholder={isView ? "" : "Mobil - 10w-40 - 2qrts"}
+            value={Comment}
+            onChange={handleTextAreaChange}
+            maxLength={250}
+            disabled={isView}
+          />
+          <p className="mt-2 text-sm text-fg-muted text-right">
+            {Comment.length}/250
+          </p>
+        </Tile>
+
+        {mode !== "create" && recordToEdit?.FileUrls?.length ? (
+          <Tile className="p-4">
+            <div className={fieldLabel}>Receipts</div>
+            <ul className="flex flex-col gap-1">
+              {recordToEdit.FileUrls.map((url: string, i: number) => {
+                const name = fileNameFromUrl(url, `Receipt ${i + 1}`);
+                const removed = removedFileUrls.includes(url);
+                return (
+                  <li key={url} className="flex items-center gap-2">
+                    {removed ? (
+                      <span className="min-w-0 flex-1 truncate text-sm text-fg-muted line-through">
+                        {name}
+                      </span>
+                    ) : (
+                      <a
+                        href={url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="min-h-11 min-w-0 flex-1 flex items-center text-fg underline underline-offset-2 text-sm"
+                      >
+                        <span className="truncate">{name}</span>
+                        <span className="sr-only"> (opens in a new tab)</span>
+                      </a>
+                    )}
+                    {!isView &&
+                      (removed ? (
+                        <button
+                          type="button"
+                          aria-label={`Keep ${name}`}
+                          onClick={() => toggleRemovedFile(url)}
+                          className="min-h-11 px-3 shrink-0 text-sm text-fg-soft underline underline-offset-2"
+                        >
+                          Undo
+                        </button>
+                      ) : (
+                        <IconButton label={`Remove ${name}`} onClick={() => toggleRemovedFile(url)}>
+                          <Svg type="cross" size="sm" color="current" />
+                        </IconButton>
+                      ))}
+                  </li>
+                );
+              })}
+            </ul>
+            {removedFileUrls.length > 0 && (
+              <p className="mt-2 text-sm text-fg-muted">
+                Removed receipts are deleted when you save.
+              </p>
+            )}
+          </Tile>
+        ) : null}
+
+        {!isView && (
+          <Tile className="p-4">
+            <label className={fieldLabel} htmlFor="Reciept">
+              {mode === "edit" ? "Add receipts" : "Receipts"}
+            </label>
+            <input
+              type="file"
+              id="Reciept"
+              className="w-full text-sm text-fg-soft file:mr-3 file:rounded-full file:border-0 file:bg-raised file:px-4 file:py-3 file:text-fg file:cursor-pointer"
+              multiple
+              onChange={handleFilesChange}
+            />
+          </Tile>
+        )}
+
+        {!isView && (
+          <button
+            type="submit"
+            disabled={preparingFiles}
+            className="w-full h-14 mt-2 rounded-full bg-accent text-accent-fg text-xl font-medium disabled:opacity-60"
+          >
+            {preparingFiles ? "Preparing photos…" : submitLabel}
+          </button>
+        )}
+      </form>
+    </Panel>
   );
 };

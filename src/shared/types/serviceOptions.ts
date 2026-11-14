@@ -1,28 +1,5 @@
 import { GroupedOption, TaskOption } from "./global";
 
-
-
-export const groupedOptions: GroupedOption[] = [
-  // {
-  //   label: "maintenance",
-  //   options: maintenanceOptions,
-  // },
-  // {
-  //   label: "inspection",
-  //   options: inspectionOptions,
-  // },
-  // {
-  //   label: "modification",
-  //   options: modificationOptions,
-  // },
-  // {
-  //   label: "diagnostic",
-  //   options: diagnosticOptions,
-  // },
-];
-
-
-
 export const petrolOptions: readonly TaskOption[] = [
   { value: "91 Octane", label: "91 Octane" },
   { value: "95 Octane", label: "95 Octane" },

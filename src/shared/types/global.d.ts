@@ -3,9 +3,9 @@ declare global {
     Records: ServiceRecord[]
   }
   
-  // Type for a single record in the "records" array
+  // Type for a single record in the "records" array. No Token: the API no longer sends the
+  // token a record was created with (it was a working service token for whoever saw it).
   interface ServiceRecord {
-    Token: string;
     id: string;
     TagId: string;
     EnteredDate: string | null;
@@ -21,6 +21,9 @@ declare global {
     // CompletedTasks: TaskCompleted[];
     // PendingCompletedTasks: PendingTaskCompleted[] | null;
     Certified?: boolean;
+    // Who owns the record, for comparing with the viewer: the current API sends an opaque
+    // OwnerKey (compare with GetLogData's viewerKey); older ones sent the raw UserId.
+    OwnerKey?: string | null;
     UserId?: string | null;
     canEdit?: boolean;
   }
@@ -131,7 +134,8 @@ export interface ServiceHierarchyResult {
 }
 
 export interface UpdateAssetNfcTagRequest {
-  TagId: string;
+  // Ignored by the current API (the tag comes from the X-OneLife-Token header).
+  TagId?: string;
   Make: string;
   Model: string;
   Year: number;

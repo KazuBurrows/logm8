@@ -15,16 +15,20 @@ jest.mock("../api/useLog", () => ({
 const onNotFound = jest.fn();
 
 function Probe() {
-  const { isRetrievingData, isCheckingForUpdates, tag, serviceRecords } = useLogData();
+  const { isRetrievingData, isCheckingForUpdates, tag, serviceRecords, refresh } = useLogData();
   return (
-    <div data-testid="log">
-      {JSON.stringify({
-        isRetrievingData,
-        isCheckingForUpdates,
-        tagId: tag.Id,
-        ids: serviceRecords.map((r) => r.id),
-      })}
-    </div>
+    <>
+      <div data-testid="log">
+        {JSON.stringify({
+          isRetrievingData,
+          isCheckingForUpdates,
+          tagId: tag.Id,
+          ids: serviceRecords.map((r) => r.id),
+          editable: serviceRecords.filter((r) => r.canEdit).map((r) => r.id),
+        })}
+      </div>
+      <button onClick={() => refresh()}>refresh</button>
+    </>
   );
 }
 
@@ -40,7 +44,6 @@ const state = () => JSON.parse(screen.getByTestId("log").textContent ?? "{}");
 
 function cachedRecord(id: string, lastModified: string, servicedDate: string): ServiceRecord {
   return {
-    Token: "",
     id,
     TagId: "",
     EnteredDate: null,
@@ -62,8 +65,9 @@ function serverRecord(id: string, lastModified: string, servicedDate: string) {
   return { id, LastModified: lastModified, ServicedDate: servicedDate, UserId: "u1", CanEdit: true };
 }
 
-function response(tagId: string, records: object[]) {
-  return { tag: { id: tagId }, records, mode: 0, userId: "u1" };
+// Without recordIds it's an older server's response, which never drops a record.
+function response(tagId: string, records: object[], recordIds?: string[]) {
+  return { tag: { id: tagId }, records, mode: 0, userId: "u1", ...(recordIds && { recordIds }) };
 }
 
 function deferred<T>() {
@@ -100,6 +104,76 @@ test("a delta for the last viewed tag is merged from a single request", async ()
   expect(mockGetLogData).toHaveBeenCalledWith("tok", "2026-10-01T00:00:00.000Z");
   expect(state()).toMatchObject({ isCheckingForUpdates: false, tagId: "A", ids: ["a2", "a1"] });
   expect(readLogCache("A")?.lastUpdated).toBe("2026-10-02T00:00:00.000Z");
+});
+
+test("a visit drops cached records the server no longer has", async () => {
+  writeLogCache({
+    id: "A",
+    lastUpdated: "2026-10-01T00:00:00.000Z",
+    logHistory: [
+      cachedRecord("a1", "2026-10-01T00:00:00.0000000Z", "2026-02-01"),
+      cachedRecord("a0", "2026-09-01T00:00:00.0000000Z", "2026-01-01"),
+    ],
+  });
+  mockGetLogData.mockResolvedValueOnce(
+    response("A", [serverRecord("a1", "2026-10-01T00:00:00.0000000Z", "2026-02-01")], ["a1"])
+  );
+
+  renderLog();
+
+  await waitFor(() => expect(state().isRetrievingData).toBe(false));
+  expect(state().ids).toEqual(["a1"]);
+  expect(readLogCache("A")?.logHistory.map((r) => r.id)).toEqual(["a1"]);
+});
+
+test("refresh drops a record deleted since the last sync", async () => {
+  mockGetLogData.mockResolvedValueOnce(
+    response("A", [
+      serverRecord("a2", "2026-10-02T00:00:00.0000000Z", "2026-02-01"),
+      serverRecord("a1", "2026-10-01T00:00:00.0000000Z", "2026-01-01"),
+    ])
+  );
+
+  renderLog();
+  await waitFor(() => expect(state().isRetrievingData).toBe(false));
+
+  mockGetLogData.mockResolvedValueOnce(
+    response("A", [serverRecord("a2", "2026-10-02T00:00:00.0000000Z", "2026-02-01")], ["a2"])
+  );
+  await act(async () => screen.getByRole("button", { name: "refresh" }).click());
+
+  expect(state().ids).toEqual(["a2"]);
+  expect(readLogCache("A")?.logHistory.map((r) => r.id)).toEqual(["a2"]);
+});
+
+test("refresh merges changes since the last sync, and a failed one keeps the log showing", async () => {
+  const consoleError = jest.spyOn(console, "error").mockImplementation(() => {});
+  mockGetLogData.mockResolvedValueOnce(
+    response("A", [serverRecord("a1", "2026-10-01T00:00:00.0000000Z", "2026-01-01")])
+  );
+
+  renderLog();
+  await waitFor(() => expect(state().isRetrievingData).toBe(false));
+
+  mockGetLogData.mockResolvedValueOnce(
+    response("A", [
+      serverRecord("a1", "2026-10-01T00:00:00.0000000Z", "2026-01-01"),
+      serverRecord("a2", "2026-10-03T00:00:00.0000000Z", "2026-02-01"),
+    ])
+  );
+  await act(async () => screen.getByRole("button", { name: "refresh" }).click());
+
+  expect(mockGetLogData).toHaveBeenLastCalledWith("tok", "2026-10-01T00:00:00.000Z");
+  expect(state().ids).toEqual(["a2", "a1"]);
+  expect(readLogCache("A")?.lastUpdated).toBe("2026-10-03T00:00:00.000Z");
+
+  mockGetLogData.mockRejectedValueOnce(new Error("network"));
+  await act(async () => screen.getByRole("button", { name: "refresh" }).click());
+
+  expect(mockGetLogData).toHaveBeenLastCalledWith("tok", "2026-10-03T00:00:00.000Z");
+  expect(state().ids).toEqual(["a2", "a1"]);
+  expect(onNotFound).not.toHaveBeenCalled();
+  consoleError.mockRestore();
 });
 
 test("switching to a cached tag shows its records while its own changes load", async () => {
@@ -193,4 +267,66 @@ test("if the update check fails, the cached records stay and the next visit retr
   expect(state()).toMatchObject({ isRetrievingData: false, isCheckingForUpdates: false, tagId: "B" });
   expect(onNotFound).not.toHaveBeenCalled();
   consoleError.mockRestore();
+});
+
+// The current API identifies owners by opaque keys instead of raw user IDs.
+function ownerKeyRecord(id: string, ownerKey: string | null, lastModified: string, servicedDate: string) {
+  return { id, LastModified: lastModified, ServicedDate: servicedDate, OwnerKey: ownerKey, CanEdit: false };
+}
+
+function ownerKeyResponse(tagId: string, records: object[], viewerKey: string | null = "k1") {
+  return { tag: { id: tagId }, records, mode: 0, viewerKey };
+}
+
+test("with opaque owner keys, a record is editable when its OwnerKey matches the viewerKey", async () => {
+  mockGetLogData.mockResolvedValueOnce(
+    ownerKeyResponse("A", [
+      ownerKeyRecord("mine", "k1", "2026-10-02T00:00:00.0000000Z", "2026-02-01"),
+      ownerKeyRecord("theirs", "k2", "2026-10-01T00:00:00.0000000Z", "2026-01-01"),
+      ownerKeyRecord("legacy", null, "2026-09-01T00:00:00.0000000Z", "2025-01-01"),
+    ])
+  );
+
+  renderLog();
+
+  await waitFor(() => expect(state().isRetrievingData).toBe(false));
+  expect(state()).toMatchObject({ ids: ["mine", "theirs", "legacy"], editable: ["mine"] });
+  expect(readLogCache("A")?.keyKind).toBe("owner");
+});
+
+test("a guest's viewerKey is null, so nothing is editable", async () => {
+  mockGetLogData.mockResolvedValueOnce(
+    { ...ownerKeyResponse("A", [ownerKeyRecord("r1", "k1", "2026-10-02T00:00:00.0000000Z", "2026-02-01")], null), mode: 1 }
+  );
+
+  renderLog();
+
+  await waitFor(() => expect(state().isRetrievingData).toBe(false));
+  expect(state()).toMatchObject({ ids: ["r1"], editable: [] });
+});
+
+test("a cache from before owner keys is refetched in full, not merged, once the API sends them", async () => {
+  // Written under raw user IDs (no keyKind), so its records have no OwnerKey to compare.
+  writeLogCache({
+    id: "A",
+    lastUpdated: "2026-10-01T00:00:00.000Z",
+    logHistory: [cachedRecord("a1", "2026-10-01T00:00:00.0000000Z", "2026-01-01")],
+  });
+  mockGetLogData
+    .mockResolvedValueOnce(ownerKeyResponse("A", [ownerKeyRecord("a2", "k1", "2026-10-02T00:00:00.0000000Z", "2026-02-01")]))
+    .mockResolvedValueOnce(
+      ownerKeyResponse("A", [
+        ownerKeyRecord("a2", "k1", "2026-10-02T00:00:00.0000000Z", "2026-02-01"),
+        ownerKeyRecord("a1", "k1", "2026-10-01T00:00:00.0000000Z", "2026-01-01"),
+      ])
+    );
+
+  renderLog();
+
+  await waitFor(() => expect(state().isRetrievingData).toBe(false));
+  expect(mockGetLogData).toHaveBeenCalledTimes(2);
+  expect(mockGetLogData).toHaveBeenLastCalledWith("tok");
+  // a1 is editable again: it came back with an OwnerKey instead of a cached raw UserId.
+  expect(state()).toMatchObject({ ids: ["a2", "a1"], editable: ["a2", "a1"] });
+  expect(readLogCache("A")).toMatchObject({ keyKind: "owner", lastUpdated: "2026-10-02T00:00:00.000Z" });
 });

@@ -1,13 +1,16 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import EditTag from "./EditTag";
 import { Section } from "../../../shared/components/Section";
-import { Button } from "../../../shared/components/Button";
 import { Svg } from "../../../shared/components/Svg";
+import { IconButton } from "../../../shared/components/IconButton";
 import { RecordModal } from "../../serviceRecord/components/RecordModal";
 import { useLogData, UserMode } from "../context/LogDataContext";
 import { StatsPanel } from "./StatsPanel";
 import { TagInfoPanel } from "./TagInfoPanel";
 import { NavMenuPanel } from "../../../shared/components/NavMenuPanel";
+import { ShareLinksSheet } from "./ShareLinksSheet";
+import { formatLinkExpiry } from "../utils/shareLinks";
+import { useLocation } from "react-router-dom";
 // const bg1 = require("../assets/bg-detail.svg");
 const logmateLogo = require("../../../assets/logmate-logo.png");
 
@@ -17,7 +20,10 @@ export interface LogInfoProps {
 }
 
 export default function LogInfo({ tag, viewMode }: LogInfoProps) {
-  const { serviceOptions, ownershipOptions, addRecord, serviceRecords } = useLogData();
+  const { serviceOptions, ownershipOptions, addRecord, serviceRecords, linkExpiresAt } = useLogData();
+  const token = new URLSearchParams(useLocation().search).get("token") ?? "";
+
+  const isServiceMode = viewMode === UserMode[0];
 
   const [editTagIsOpen, setEditTagIsOpen] = useState(false);
   const openEditTag = () => {
@@ -55,9 +61,14 @@ export default function LogInfo({ tag, viewMode }: LogInfoProps) {
   const openMenu = () => {
     setIsMenuOpen(true);
   };
-  const closeMenu = () => {
+  const closeMenu = useCallback(() => setIsMenuOpen(false), []);
+
+  const [isShareOpen, setIsShareOpen] = useState(false);
+  const closeShare = useCallback(() => setIsShareOpen(false), []);
+  const openShare = useCallback(() => {
     setIsMenuOpen(false);
-  };
+    setIsShareOpen(true);
+  }, []);
 
   const [isScrolled, setIsScrolled] = useState(false);
   useEffect(() => {
@@ -71,11 +82,7 @@ export default function LogInfo({ tag, viewMode }: LogInfoProps) {
 
   return (
     <>
-      <EditTag
-        isOpen={editTagIsOpen}
-        onClose={closeEditTag}
-        tag={tag}
-      ></EditTag>
+      {isServiceMode && <EditTag isOpen={editTagIsOpen} onClose={closeEditTag} tag={tag} />}
       <RecordModal
         mode="create"
         isOpen={isCreateOpen}
@@ -90,47 +97,60 @@ export default function LogInfo({ tag, viewMode }: LogInfoProps) {
         serviceRecords={serviceRecords}
       />
       <TagInfoPanel isOpen={isInfoOpen} onClose={closeInfo} tag={tag} />
-      <NavMenuPanel isOpen={isMenuOpen} onClose={closeMenu} />
+      <NavMenuPanel
+        isOpen={isMenuOpen}
+        onClose={closeMenu}
+        actions={isServiceMode ? [{ label: "Share read-only link", onClick: openShare }] : []}
+      />
+      {isServiceMode && <ShareLinksSheet isOpen={isShareOpen} onClose={closeShare} token={token} />}
+
+      {/* Add record: bottom-right floating button, in thumb reach. */}
+      {isServiceMode && (
+        <button
+          type="button"
+          aria-label="Add record"
+          onClick={openCreateRecord}
+          className="fixed z-40 right-[calc(1rem+env(safe-area-inset-right))] bottom-[calc(1rem+env(safe-area-inset-bottom))] w-14 h-14 rounded-full bg-accent text-accent-fg shadow-lg shadow-black/50 flex items-center justify-center transition-transform active:scale-95"
+        >
+          <Svg type="plus" size="md" color="current" />
+        </button>
+      )}
 
       <div
-        className={`fixed inset-x-0 top-0 z-10 flex items-center justify-between px-2 py-2 transition-colors duration-300 funnel-display-font ${
-          isScrolled ? "bg-slate-950/90 backdrop-blur-md shadow-lg shadow-black/30" : ""
+        className={`fixed inset-x-0 top-0 z-40 flex items-center justify-between pt-[calc(0.5rem+env(safe-area-inset-top))] pb-2 pl-[calc(0.5rem+env(safe-area-inset-left))] pr-[calc(0.5rem+env(safe-area-inset-right))] transition-colors duration-300 funnel-display-font ${
+          isScrolled ? "bg-canvas/90 backdrop-blur-md shadow-lg shadow-black/30" : ""
         }`}
       >
-        <img
-          src={logmateLogo}
-          alt="logm8-logo"
-          className="h-12 z-20 bg-black/40 ring-1 ring-white/10 rounded-full"
-          onClick={() => openEditTag()}
-        ></img>
+        {/* Editing vehicle details needs a service link; guests just see the logo. */}
+        {isServiceMode ? (
+          <button
+            type="button"
+            aria-label="Edit vehicle details"
+            onClick={openEditTag}
+            className="z-20 rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+          >
+            <img
+              src={logmateLogo}
+              alt=""
+              className="h-12 bg-black/40 ring-1 ring-line rounded-full"
+            />
+          </button>
+        ) : (
+          <img src={logmateLogo} alt="logm8" className="z-20 h-12 bg-black/40 ring-1 ring-line rounded-full" />
+        )}
         <div className="flex items-center gap-2">
-          {viewMode === UserMode[0] && (
-          <Button
-            type="button"
-            size="xs"
-            className="bg-blue-500 text-white w-9 h-9 flex items-center justify-center shadow-[0_0_12px_rgba(59,130,246,0.5)]"
-            onClick={() => openCreateRecord()}
-          >
-            <Svg type="add2" size="lg" color="white" />
-          </Button>
-          )}
-          <Button
-            type="button"
-            size="xs"
-            className="bg-white/10 border border-white/10 w-9 h-9 flex items-center justify-center"
-            onClick={() => openMenu()}
-          >
-            <div className="flex flex-col items-center justify-center gap-1">
-              <span className="block w-4 h-0.5 bg-white"></span>
-              <span className="block w-4 h-0.5 bg-white"></span>
-              <span className="block w-4 h-0.5 bg-white"></span>
-            </div>
-          </Button>
+          <IconButton label="Menu" onClick={openMenu}>
+            <span aria-hidden="true" className="flex flex-col items-center justify-center gap-1">
+              <span className="block w-4 h-0.5 bg-current"></span>
+              <span className="block w-4 h-0.5 bg-current"></span>
+              <span className="block w-4 h-0.5 bg-current"></span>
+            </span>
+          </IconButton>
         </div>
       </div>
       <Section
         id={""}
-        className="relative h-full azeret-mono-font text-white overflow-hidden rounded-b-3xl bg-gradient-to-b from-slate-800/80 via-slate-900/60 to-transparent"
+        className="relative h-full azeret-mono-font text-fg overflow-hidden rounded-b-sheet bg-gradient-to-b from-surface via-surface/60 to-transparent"
       >
         
 
@@ -141,31 +161,26 @@ export default function LogInfo({ tag, viewMode }: LogInfoProps) {
                 isScrolled ? "max-h-0 opacity-0" : "max-h-96 opacity-100 pt-6 pb-6"
               }`}
             >
-              <h1 className="h-md:text-4xl h-sm:text-3xl text-2xl leading-none text-shadow font-semibold text-white/70 whitespace-nowrap overflow-x-auto overflow-y-hidden [scrollbar-width:thin] [scrollbar-color:rgba(255,255,255,0.35)_transparent] [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-white/35 [&::-webkit-scrollbar-thumb]:rounded-full">
+              {!isServiceMode && (
+                <p className="inline-flex mb-3 rounded-full bg-raised border border-line px-3 py-1 text-sm text-fg-soft">
+                  Read-only link{linkExpiresAt ? ` · expires ${formatLinkExpiry(linkExpiresAt)}` : ""}
+                </p>
+              )}
+              <h1 className="h-md:text-4xl h-sm:text-3xl text-2xl leading-none text-shadow font-semibold text-fg-soft whitespace-nowrap overflow-x-auto overflow-y-hidden [scrollbar-width:thin] [scrollbar-color:rgba(255,255,255,0.35)_transparent] [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-white/35 [&::-webkit-scrollbar-thumb]:rounded-full">
                 {tag.Make}
               </h1>
               <h3 className="h-md:text-6xl h-sm:text-5xl text-4xl font-black leading-none text-shadow-white-lg whitespace-nowrap overflow-x-auto overflow-y-hidden [scrollbar-width:thin] [scrollbar-color:rgba(255,255,255,0.35)_transparent] [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-white/35 [&::-webkit-scrollbar-thumb]:rounded-full">
                 {tag.Model}
               </h3>
               <div className="flex items-center justify-between">
-                <p className="h-md:text-4xl h-sm:text-3xl text-2xl leading-none text-shadow font-semibold text-blue-400">{tag.Year}</p>
+                <p className="h-md:text-4xl h-sm:text-3xl text-2xl leading-none text-shadow font-semibold text-fg-muted">{tag.Year}</p>
                 <div className="flex items-center gap-2">
-                  <Button
-                    type="button"
-                    size="xs"
-                    className="bg-white/10 border border-white/10 text-white w-9 h-9 flex items-center justify-center"
-                    onClick={() => openStats()}
-                  >
-                    <Svg type="bars-1" size="md" color="white" />
-                  </Button>
-                  <Button
-                    type="button"
-                    size="xs"
-                    className="bg-white/10 border border-white/10 text-white w-9 h-9 flex items-center justify-center"
-                    onClick={() => openInfo()}
-                  >
-                    <Svg type="info-1" size="lg" color="white" />
-                  </Button>
+                  <IconButton label="Statistics" onClick={openStats}>
+                    <Svg type="bars-1" size="md" color="current" />
+                  </IconButton>
+                  <IconButton label="Vehicle info" onClick={openInfo}>
+                    <Svg type="info-1" size="lg" color="current" />
+                  </IconButton>
                 </div>
               </div>
 

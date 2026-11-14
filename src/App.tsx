@@ -2,6 +2,7 @@ import React, { Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { ErrorBoundary } from './shared/components/ErrorBoundary';
 import { LoadingScreen } from './shared/components/LoadingScreen';
+import { LogSkeleton } from './features/log/components/LogSkeleton';
 
 const Home = lazy(() => import('./features/home'));
 const Merchant = lazy(() => import('./features/log/pages/Merchant'));
@@ -22,7 +23,15 @@ function App() {
               <Route path="/" element={<Home />} />
               {/* <Route path="/login" element={<Login />} /> */}
               <Route path="/merchant" element={<Merchant />} />
-              <Route path="/log" element={<Log />} />
+              {/* Own fallback: the log page is dark, the default loader is white. */}
+              <Route
+                path="/log"
+                element={
+                  <Suspense fallback={<LogSkeleton />}>
+                    <Log />
+                  </Suspense>
+                }
+              />
               {/* <Route path="/log/details" element={<LogDetail/>} /> */}
               <Route path="/tag/create" element={<CreateTag/>} />
               <Route path="/404" element={<NotFound/>} />

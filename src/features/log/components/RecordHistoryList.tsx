@@ -1,8 +1,12 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 
 import { RecordItem } from "../../serviceRecord/components/RecordItem";
 import { SortFilterControls } from "./SortFilterControls";
-import { useSortedFilteredRecords } from "../hooks/useSortedFilteredRecords";
+import { SORT, useSortedFilteredRecords } from "../hooks/useSortedFilteredRecords";
+import { serviceTypeStyle } from "../../../shared/theme/serviceTypes";
+import { Svg } from "../../../shared/components/Svg";
+import { groupByMonth, matchesSearch, serviceFilterGroups } from "../utils/groupRecords";
+import { recordTitle } from "../../serviceRecord/utils/recordDisplay";
 
 type TabKey =
   | "all"
@@ -28,8 +32,11 @@ const SERVICE_TYPE_BY_TAB: Partial<Record<TabKey, string>> = {
   tune: "Tune",
 };
 
-// Height of LogInfo's fixed logo/button bar (h-16) that this bar must dock under.
-const LOG_INFO_HEADER_HEIGHT = 64;
+// Sorts that keep records in date order, so month headers make sense.
+const DATE_SORTS = new Set<string>([SORT.dateDesc, SORT.dateAsc]);
+
+// Height of LogInfo's fixed header (py-2 around the 48px logo) plus any notch inset.
+const HEADER_OFFSET = "calc(4rem + env(safe-area-inset-top))";
 
 export interface RecordHistoryListProps {
   serviceRecords: ServiceRecord[];
@@ -43,143 +50,205 @@ export function RecordHistoryList({
   openRecord,
 }: RecordHistoryListProps) {
   const [activeTab, setActiveTab] = useState<TabKey>("all");
+  const [query, setQuery] = useState("");
 
   const {
     filteredRecords,
     selectedSortType,
     setSelectedSortType,
-    selectedServiceTypes,
-    setSelectedServiceTypes,
+    selectedServices,
+    setSelectedServices,
   } = useSortedFilteredRecords(serviceRecords);
 
-  const records = useMemo(() => {
-    if (activeTab === "all") return filteredRecords;
-    if (activeTab === "ownership") {
-      return filteredRecords.filter((r) => r.ServiceCategory === "Ownership");
-    }
-    const serviceType = SERVICE_TYPE_BY_TAB[activeTab];
-    return filteredRecords.filter((r) => r.ServiceType === serviceType);
-  }, [filteredRecords, activeTab]);
+  // Filter options come from the records themselves, so they always match them.
+  const filterGroups = useMemo(() => serviceFilterGroups(serviceRecords), [serviceRecords]);
 
-  const containerRef = useRef<HTMLDivElement>(null);
-  const sentinelRef = useRef<HTMLDivElement>(null);
-  const barRef = useRef<HTMLDivElement>(null);
-  const tabButtonRefs = useRef<Partial<Record<TabKey, HTMLButtonElement | null>>>({});
-
-  const [isPinned, setIsPinned] = useState(false);
-  const [barBox, setBarBox] = useState<{ left: number; width: number; height: number } | null>(null);
-
-  // CSS `sticky` doesn't work here: LogHistoryPanel's Section and the page
-  // wrapper above it both set overflow-hidden, which breaks native sticky.
-  // Simulate it with a fixed bar toggled by a sentinel's visibility instead.
+  // Drop picks that no record has any more (e.g. after a title is edited), or the
+  // list would be filtered by an option the sheet no longer shows.
   useEffect(() => {
-    const sentinel = sentinelRef.current;
-    if (!sentinel) return;
-
-    const observer = new IntersectionObserver(
-      ([entry]) => setIsPinned(!entry.isIntersecting),
-      { rootMargin: `-${LOG_INFO_HEADER_HEIGHT + 1}px 0px 0px 0px`, threshold: 0 }
+    const available = new Set(filterGroups.flatMap((g) => g.options.map((o) => o.value)));
+    setSelectedServices((prev) =>
+      prev.every((v) => available.has(v)) ? prev : prev.filter((v) => available.has(v))
     );
-    observer.observe(sentinel);
+  }, [filterGroups, setSelectedServices]);
+
+  // Sort/filter sheet, then the type chips, then the title search.
+  const records = useMemo(() => {
+    const serviceType = SERVICE_TYPE_BY_TAB[activeTab];
+    return filteredRecords.filter((r) => {
+      if (activeTab === "ownership" && r.ServiceCategory !== "Ownership") return false;
+      if (serviceType && r.ServiceType !== serviceType) return false;
+      return matchesSearch(recordTitle(r), query);
+    });
+  }, [filteredRecords, activeTab, query]);
+
+  const groups = useMemo(
+    () =>
+      DATE_SORTS.has(selectedSortType)
+        ? groupByMonth(records)
+        : [{ key: "all", label: "", records }],
+    [records, selectedSortType]
+  );
+
+  // Month headers stick just below the sticky toolbar, whose height changes with
+  // font loading and wrapping, so track it in a CSS variable.
+  const toolbarRef = useRef<HTMLDivElement>(null);
+  const [toolbarHeight, setToolbarHeight] = useState(0);
+  useEffect(() => {
+    const el = toolbarRef.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+    const update = () => setToolbarHeight(el.offsetHeight);
+    update();
+    const observer = new ResizeObserver(update);
+    observer.observe(el);
     return () => observer.disconnect();
   }, []);
 
-  // Measured once-on-mount would go stale (e.g. after webfont load reflow or
-  // the tab scrollbar appearing) and leave the pinned bar's height reservation
-  // too short, letting the fixed bar overlap the first record item. A
-  // ResizeObserver keeps it accurate whenever the bar's actual size changes.
-  useEffect(() => {
-    const barEl = barRef.current;
-    const containerEl = containerRef.current;
-    if (!barEl || !containerEl) return;
-
-    const updateBarBox = () => {
-      const rect = containerEl.getBoundingClientRect();
-      setBarBox({ left: rect.left, width: rect.width, height: barEl.offsetHeight });
-    };
-
-    updateBarBox();
-    const resizeObserver = new ResizeObserver(updateBarBox);
-    resizeObserver.observe(barEl);
-    resizeObserver.observe(containerEl);
-    window.addEventListener("resize", updateBarBox);
-    return () => {
-      resizeObserver.disconnect();
-      window.removeEventListener("resize", updateBarBox);
-    };
-  }, []);
-
+  const searchRef = useRef<HTMLInputElement>(null);
+  const clearSearch = () => {
+    setQuery("");
+    searchRef.current?.focus();
+  };
 
   return (
-    <div className="w-full mx-auto px-2" ref={containerRef}>
-      <div ref={sentinelRef} />
-      {isPinned && barBox && <div style={{ height: barBox.height }} />}
-
+    <div
+      className="w-full mx-auto px-2"
+      style={{ "--toolbar-h": `${toolbarHeight}px` } as React.CSSProperties}
+    >
+      {/* Sticky toolbar: search + sort/filter, then type chips. Ancestors must not
+          set overflow (hidden/auto) or position: sticky stops working. */}
       <div
-        ref={barRef}
-        className={`flex items-center gap-2 backdrop-blur-md pt-2 pb-2 ${
-          isPinned ? "fixed z-30" : ""
-        }`}
-        style={
-          isPinned && barBox
-            ? { top: LOG_INFO_HEADER_HEIGHT, left: barBox.left, width: barBox.width }
-            : undefined
-        }
+        ref={toolbarRef}
+        className="sticky z-30 -mx-2 px-2 pt-2 pb-2 bg-canvas/90 backdrop-blur-md flex flex-col gap-2"
+        style={{ top: HEADER_OFFSET }}
       >
-        <SortFilterControls
-          selectedSortType={selectedSortType}
-          setSelectedSortType={setSelectedSortType}
-          selectedServiceTypes={selectedServiceTypes}
-          setSelectedServiceTypes={setSelectedServiceTypes}
-        />
-        <div
-          className="flex gap-1 flex-1 min-w-0 overflow-x-scroll ml-12 pr-8 pb-1 [scrollbar-width:thin] [scrollbar-color:rgba(255,255,255,0.35)_transparent] [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-white/35 [&::-webkit-scrollbar-thumb]:rounded-full"
-        >
+        <div className="flex items-center gap-2">
+          <div role="search" className="relative flex-1 min-w-0">
+            <span className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 flex text-fg-muted">
+              <Svg type="search1" size="sm" color="current" />
+            </span>
+            <input
+              ref={searchRef}
+              type="search"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              onKeyDown={(e) => {
+                // Enter dismisses the on-screen keyboard; results are already live.
+                if (e.key === "Enter") e.currentTarget.blur();
+              }}
+              placeholder="Search records"
+              aria-label="Search records by title"
+              autoComplete="off"
+              enterKeyHint="search"
+              className="w-full h-11 rounded-full bg-raised border border-line pl-10 pr-11 text-base text-fg placeholder-fg-muted outline-none focus-visible:ring-2 focus-visible:ring-accent [&::-webkit-search-cancel-button]:appearance-none"
+            />
+            {query && (
+              <button
+                type="button"
+                aria-label="Clear search"
+                onClick={clearSearch}
+                className="absolute right-0 top-1/2 -translate-y-1/2 w-11 h-11 flex items-center justify-center text-fg-muted"
+              >
+                <Svg type="cross" size="sm" color="current" />
+              </button>
+            )}
+          </div>
+          <SortFilterControls
+            selectedSortType={selectedSortType}
+            setSelectedSortType={setSelectedSortType}
+            selectedServices={selectedServices}
+            setSelectedServices={setSelectedServices}
+            filterGroups={filterGroups}
+            resultCount={records.length}
+          />
+        </div>
+
+        <div className="-mx-2 px-2 flex gap-1.5 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {TABS.map((tab) => (
-          <button
-            key={tab.key}
-            ref={(el) => {
-              tabButtonRefs.current[tab.key] = el;
-            }}
-            type="button"
-            onClick={() => setActiveTab(tab.key)}
-            className={`shrink-0 h-10 px-4 whitespace-nowrap flex items-center justify-center rounded-full text-sm transition-colors ${
-              activeTab === tab.key
-                ? "bg-orange-500 text-white shadow-[0_0_8px_rgba(249,115,22,0.4)]"
-                : "bg-white/10 text-white/70"
-            }`}
-          >
-            {tab.label}
-          </button>
-        ))}
+            <button
+              key={tab.key}
+              type="button"
+              aria-pressed={activeTab === tab.key}
+              onClick={() => setActiveTab(tab.key)}
+              className={`shrink-0 h-11 px-4 gap-2 whitespace-nowrap flex items-center justify-center rounded-full text-sm transition-colors ${
+                activeTab === tab.key ? "bg-accent text-accent-fg" : "bg-raised text-fg-soft"
+              }`}
+            >
+              {SERVICE_TYPE_BY_TAB[tab.key] && (
+                <span
+                  aria-hidden="true"
+                  className={`w-2 h-2 rounded-full ${serviceTypeStyle(SERVICE_TYPE_BY_TAB[tab.key]).dot}`}
+                />
+              )}
+              {tab.label}
+            </button>
+          ))}
         </div>
       </div>
 
-      <ul className={`w-full mx-auto ${isPinned ? "mt-14" : ""}`}>
-        {isCheckingForUpdates && (
-          <li
-            role="status"
-            className="flex items-center justify-center gap-2 py-3 text-sm text-white/60 funnel-display-font"
-          >
-            <span className="h-4 w-4 shrink-0 rounded-full border-2 border-white/20 border-t-blue-400 animate-spin" />
-            Checking for the latest updates…
-          </li>
-        )}
-        {!records.length && !isCheckingForUpdates && (
-          <h2 className="mx-4 text-2xl funnel-display-font font-semibold text-center">
-            {serviceRecords.length
-              ? "No service records match this filter."
-              : "Oh no! There are no service records for this vehicle yet!"}
+      {isCheckingForUpdates && (
+        <div
+          role="status"
+          className="flex items-center justify-center gap-2 py-3 text-sm text-fg-muted funnel-display-font"
+        >
+          <span className="h-4 w-4 shrink-0 rounded-full border-2 border-line border-t-accent animate-spin" />
+          Checking for the latest updates…
+        </div>
+      )}
+
+      {/* Announces the result count as search or filters change. */}
+      <p className="sr-only" aria-live="polite">
+        {records.length === 1 ? "1 record" : `${records.length} records`}
+      </p>
+
+      {!records.length && !isCheckingForUpdates && (
+        <div className="mx-4 my-10 text-center funnel-display-font">
+          <h2 className="text-2xl font-semibold">
+            {!serviceRecords.length
+              ? "Oh no! There are no service records for this vehicle yet!"
+              : query.trim()
+              ? `No records match “${query.trim()}”.`
+              : "No service records match this filter."}
           </h2>
-        )}
-        {records.map((record, recordIndex) => (
-          <RecordItem
-            key={recordIndex}
-            record={record}
-            openRecord={() => openRecord(record)}
-          />
-        ))}
-      </ul>
+          {query.trim() && serviceRecords.length > 0 && (
+            <button
+              type="button"
+              onClick={clearSearch}
+              className="mt-4 h-11 px-5 rounded-full bg-raised border border-line text-fg"
+            >
+              Clear search
+            </button>
+          )}
+        </div>
+      )}
+
+      {groups.map((group) =>
+        group.label ? (
+          <section key={group.key} aria-labelledby={`month-${group.key}`}>
+            <h3
+              id={`month-${group.key}`}
+              className="sticky z-20 -mx-2 px-3 py-2 bg-canvas/95 backdrop-blur-md flex items-baseline justify-between text-sm font-semibold text-fg-soft funnel-display-font"
+              style={{ top: `calc(${HEADER_OFFSET} + var(--toolbar-h, 0px))` }}
+            >
+              {group.label}
+              <span className="text-fg-muted font-normal">
+                {group.records.length === 1 ? "1 record" : `${group.records.length} records`}
+              </span>
+            </h3>
+            <ul className="w-full">
+              {group.records.map((record) => (
+                <RecordItem key={record.id} record={record} openRecord={() => openRecord(record)} />
+              ))}
+            </ul>
+          </section>
+        ) : (
+          <ul key={group.key} className="w-full mt-1">
+            {group.records.map((record) => (
+              <RecordItem key={record.id} record={record} openRecord={() => openRecord(record)} />
+            ))}
+          </ul>
+        )
+      )}
     </div>
   );
 }

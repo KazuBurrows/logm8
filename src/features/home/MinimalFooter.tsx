@@ -3,14 +3,14 @@ import { footerLinks } from "./Footer";
 /** Compact single-row footer for dark app pages. */
 export default function MinimalFooter() {
   return (
-    <footer className="border-t border-white/10 px-4 py-6 text-sm text-white/50">
+    <footer className="border-t border-line px-4 py-6 text-sm text-fg-muted">
       <div className="mx-auto flex max-w-5xl flex-col items-center gap-3 sm:flex-row sm:justify-between">
-        <nav className="flex gap-6">
+        <nav className="flex gap-4">
           {footerLinks.map((link) => (
             <a
               key={link.href}
               href={link.href}
-              className="transition-colors hover:text-white"
+              className="min-h-11 inline-flex items-center px-1 transition-colors hover:text-fg"
             >
               {link.title}
             </a>

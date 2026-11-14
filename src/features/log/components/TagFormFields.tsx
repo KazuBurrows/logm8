@@ -3,6 +3,7 @@ import { Svg } from "../../../shared/components/Svg";
 import { Tile } from "../../../shared/components/Tile";
 import { BottomSheet, sheetRowClass } from "../../../shared/components/BottomSheet";
 import { groupedFuelOptions } from "../../../shared/types/serviceOptions";
+import { UpdateAssetNfcTagRequest } from "../../../shared/types/global";
 
 export interface TagFormValues {
   Make: string;
@@ -17,6 +18,23 @@ export interface TagFormValues {
   LicencePlate: string | null;
 }
 
+/** The form's values as the API's vehicle-details body (setup and Edit vehicle details). */
+export function vehicleDetailsFrom(form: TagFormValues): UpdateAssetNfcTagRequest {
+  return {
+    Make: form.Make,
+    Model: form.Model,
+    Year: Number(form.Year) || 0,
+    Vehicle: form.Vehicle,
+    Style: "Null",
+    Engine: Number(form.Engine) || 0,
+    Fuel: form.Fuel,
+    Transmission: form.Transmission,
+    Color: form.Color,
+    VinNumber: form.VinNumber,
+    LicencePlate: form.LicencePlate,
+  };
+}
+
 export interface TagFormFieldsProps {
   values: TagFormValues;
   onChange: <K extends keyof TagFormValues>(key: K, value: TagFormValues[K]) => void;
@@ -24,13 +42,13 @@ export interface TagFormFieldsProps {
 
 const VehicleTypes = ["Motorbike"];
 
-const fieldLabel = "block text-sm text-white/50 leading-none mb-2";
+const fieldLabel = "block text-sm text-fg-muted leading-none mb-2";
 const fieldInput =
-  "w-full bg-transparent text-xl font-light text-white placeholder-white/30 outline-none";
+  "w-full min-h-11 rounded-card bg-raised px-3 py-2 text-xl font-light text-fg placeholder-fg-muted/70 outline-none focus-visible:ring-2 focus-visible:ring-accent";
 const noSpinners =
   "[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none";
 
-const Optional = () => <span className="text-white/30"> · optional</span>;
+const Optional = () => <span className="text-fg-muted"> · optional</span>;
 
 /** The tag detail tiles (plus the fuel sheet) shared by the create and edit forms. */
 export function TagFormFields({ values, onChange }: TagFormFieldsProps) {
@@ -93,14 +111,14 @@ export function TagFormFields({ values, onChange }: TagFormFieldsProps) {
 
       <Tile className="p-4">
         <div className={fieldLabel}>Vehicle</div>
-        <div className="inline-flex rounded-full bg-white/10 p-1">
+        <div className="inline-flex rounded-full bg-raised p-1">
           {VehicleTypes.map((type) => (
             <button
               key={type}
               type="button"
               onClick={() => onChange("Vehicle", type)}
-              className={`px-5 py-2 rounded-full text-base transition-colors ${
-                values.Vehicle === type ? "bg-[#4a5fc9] text-white" : "text-white/60"
+              className={`min-h-11 px-5 py-2 rounded-full text-base transition-colors ${
+                values.Vehicle === type ? "bg-accent text-accent-fg" : "text-fg-soft"
               }`}
             >
               {type}
@@ -117,14 +135,14 @@ export function TagFormFields({ values, onChange }: TagFormFieldsProps) {
               {Fuel.map((fuel) => (
                 <span
                   key={fuel}
-                  className="rounded-full bg-white/10 px-3 py-1 text-lg font-light leading-tight capitalize"
+                  className="rounded-full bg-raised px-3 py-1 text-lg font-light leading-tight capitalize"
                 >
                   {fuel}
                 </span>
               ))}
             </div>
           ) : (
-            <span className="text-xl font-light text-white/30">Select fuels...</span>
+            <span className="text-xl font-light text-fg-muted">Select fuels...</span>
           )}
           <Svg type="angle-small-down1" size="md" color="white" />
         </div>
@@ -190,7 +208,7 @@ export function TagFormFields({ values, onChange }: TagFormFieldsProps) {
           <button
             type="button"
             onClick={closeFuelOptions}
-            className="w-full h-14 rounded-full bg-[#4a5fc9] text-white text-xl font-medium"
+            className="w-full h-14 rounded-full bg-accent text-accent-fg text-xl font-medium"
           >
             Done
           </button>
@@ -198,7 +216,7 @@ export function TagFormFields({ values, onChange }: TagFormFieldsProps) {
       >
         {groupedFuelOptions.map((group) => (
           <div key={group.label} className="flex flex-col gap-1">
-            <div className="px-2 pt-3 pb-1 text-sm text-white/50 capitalize">
+            <div className="px-2 pt-3 pb-1 text-sm text-fg-muted capitalize">
               {group.label}
             </div>
             {group.options.map((opt) => {
@@ -217,7 +235,7 @@ export function TagFormFields({ values, onChange }: TagFormFieldsProps) {
                   className={sheetRowClass(active)}
                 >
                   <span className="capitalize">{opt.label}</span>
-                  {active && <Svg type="check" size="md" color="white" />}
+                  {active && <Svg type="check" size="md" color="current" />}
                 </button>
               );
             })}

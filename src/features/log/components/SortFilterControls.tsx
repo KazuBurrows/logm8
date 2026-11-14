@@ -1,157 +1,226 @@
-import React, { useEffect, useState } from "react";
-import { createPortal } from "react-dom";
+import React, { useCallback, useState } from "react";
 
 import { Svg } from "../../../shared/components/Svg";
-import { groupedOptions } from "../../../shared/types/serviceOptions";
-import { sortedOptions } from "../../../shared/types/sortOptions";
+import { IconButton } from "../../../shared/components/IconButton";
+import { BottomSheet } from "../../../shared/components/BottomSheet";
+import { DEFAULT_SORT, SORT, SortKey } from "../hooks/useSortedFilteredRecords";
+import { ServiceFilterGroup } from "../utils/groupRecords";
 
-// Same palette as ServiceRecordStatsBars; groups cycle through it.
-const groupClasses = [
-  { fill: "bg-[#4a5fc9] text-white", track: "bg-[#4a5fc9]/25" },
-  { fill: "bg-[#e0522f] text-white", track: "bg-[#e0522f]/25" },
-  { fill: "bg-[#2fa866] text-white", track: "bg-[#2fa866]/25" },
-  { fill: "bg-[#f2c230] text-slate-900", track: "bg-[#f2c230]/25" },
-  { fill: "bg-[#8b5cf6] text-white", track: "bg-[#8b5cf6]/25" },
+// What to sort by, then which way. Each pair maps onto one SortKey.
+const SORT_FIELDS: { label: string; directions: { key: SortKey; label: string }[] }[] = [
+  {
+    label: "Date",
+    directions: [
+      { key: SORT.dateDesc, label: "Newest first" },
+      { key: SORT.dateAsc, label: "Oldest first" },
+    ],
+  },
+  {
+    label: "Name",
+    directions: [
+      { key: SORT.nameAsc, label: "A to Z" },
+      { key: SORT.nameDesc, label: "Z to A" },
+    ],
+  },
+  {
+    label: "Odometer",
+    directions: [
+      { key: SORT.odometerDesc, label: "Highest first" },
+      { key: SORT.odometerAsc, label: "Lowest first" },
+    ],
+  },
 ];
 
+const sectionHeading = "text-sm font-semibold text-fg-soft";
+
+// Neutral on purpose: these are sort orders and services, not record types, so
+// they don't borrow the type colours.
+const segment = (active: boolean) =>
+  `flex min-h-11 items-center justify-center rounded-full px-3 text-base transition-colors peer-focus-visible:ring-2 peer-focus-visible:ring-accent ${
+    active ? "bg-accent text-accent-fg" : "text-fg-soft"
+  }`;
+
+const chip = (active: boolean) =>
+  `inline-flex min-h-11 items-center gap-2 rounded-full border px-4 text-base transition-colors peer-focus-visible:ring-2 peer-focus-visible:ring-accent ${
+    active ? "bg-accent border-accent text-accent-fg" : "bg-raised border-line text-fg"
+  }`;
+
 export interface SortFilterControlsProps {
-  selectedSortType: string;
-  setSelectedSortType: (value: string) => void;
-  selectedServiceTypes: string[];
-  setSelectedServiceTypes: React.Dispatch<React.SetStateAction<string[]>>;
+  selectedSortType: SortKey;
+  setSelectedSortType: (value: SortKey) => void;
+  selectedServices: string[];
+  setSelectedServices: React.Dispatch<React.SetStateAction<string[]>>;
+  /** Service options to filter by, derived from the current records. */
+  filterGroups: ServiceFilterGroup[];
+  /** Records the list shows with the current search, chips, sort and filters. */
+  resultCount: number;
 }
 
+/** The toolbar's sort & filter button and the bottom sheet it opens. */
 export function SortFilterControls({
   selectedSortType,
   setSelectedSortType,
-  selectedServiceTypes,
-  setSelectedServiceTypes,
+  selectedServices,
+  setSelectedServices,
+  filterGroups,
+  resultCount,
 }: SortFilterControlsProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const close = useCallback(() => setIsOpen(false), []);
 
-  // Close on Escape and stop the page behind from scrolling while open.
-  useEffect(() => {
-    if (!isOpen) return;
+  const sortField =
+    SORT_FIELDS.find((f) => f.directions.some((d) => d.key === selectedSortType)) ?? SORT_FIELDS[0];
+  const isSortChanged = selectedSortType !== DEFAULT_SORT;
+  const activeCount = selectedServices.length + (isSortChanged ? 1 : 0);
 
-    function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") setIsOpen(false);
-    }
+  const toggleService = (value: string, checked: boolean) =>
+    setSelectedServices((prev) =>
+      checked ? [...prev, value] : prev.filter((v) => v !== value)
+    );
 
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    document.addEventListener("keydown", handleKeyDown);
-    return () => {
-      document.body.style.overflow = previousOverflow;
-      document.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [isOpen]);
-
-  const groups = [
-    ...sortedOptions.map((group) => ({ ...group, kind: "sort" as const })),
-    ...groupedOptions.map((group) => ({ ...group, kind: "filter" as const })),
-  ];
+  const reset = () => {
+    setSelectedSortType(DEFAULT_SORT);
+    setSelectedServices([]);
+  };
 
   return (
-    <div className="relative">
-      <div className="flex px-2">
-        <button
-          type="button"
-          className="w-[40px] rounded-full px-1 py-1 bg-white/10 text-center ml-auto mb-1 mr-1"
-          onClick={() => setIsOpen(true)}
-        >
-          <Svg type="sort-1" size="2xl" color="white" />
-        </button>
-      </div>
-
-      {/* Sort & Filter Modal — portalled to <body> because the parent bar's
-          backdrop-blur makes it the containing block for fixed children. */}
-      {isOpen &&
-        createPortal(
-          <div
-            role="dialog"
-            aria-modal="true"
-            aria-label="Sort and filter"
-            className="fixed inset-0 z-[90] bg-slate-900 text-white overflow-y-auto"
+    <div className="relative shrink-0">
+      <IconButton
+        label={activeCount ? `Sort and filter, ${activeCount} active` : "Sort and filter"}
+        onClick={() => setIsOpen(true)}
+        className="relative"
+      >
+        <Svg type="sort-1" size="md" color="current" />
+        {activeCount > 0 && (
+          <span
+            aria-hidden="true"
+            className="absolute -top-1 -right-1 min-w-[1.25rem] h-5 px-1 rounded-full bg-accent text-accent-fg text-xs font-semibold flex items-center justify-center"
           >
-            <div className="min-h-full w-full flex flex-col gap-6 p-4">
-              {/* Top bar with Reset & Done */}
-              <div className="flex justify-between items-center">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSelectedSortType("");
-                    setSelectedServiceTypes([]);
-                  }}
-                  className="rounded-3xl px-5 py-3 bg-[#e0522f]/25 text-xl font-medium leading-none"
-                >
-                  Reset
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setIsOpen(false)}
-                  className="flex items-center gap-2 rounded-3xl px-5 py-3 bg-[#2fa866] text-white text-xl font-medium leading-none"
-                >
-                  <Svg type="check" color="white" size="md" />
-                  Done
-                </button>
-              </div>
-
-              {groups.map((group, groupIndex) => {
-                const colors = groupClasses[groupIndex % groupClasses.length];
-
-                return (
-                  <fieldset key={group.label} className="flex flex-col gap-3">
-                    <legend className="mb-3 text-6xl font-light leading-none tracking-tight capitalize">
-                      {group.label}
-                    </legend>
-
-                    {group.options.map((opt) => {
-                      const checked =
-                        group.kind === "sort"
-                          ? selectedSortType === opt.value
-                          : selectedServiceTypes.includes(opt.value);
-
-                      return (
-                        <label
-                          key={opt.value}
-                          className={`rounded-3xl p-4 flex items-center justify-between cursor-pointer transition-colors duration-300 ${
-                            checked ? colors.fill : colors.track
-                          }`}
-                        >
-                          <span className="text-xl font-medium leading-none capitalize">
-                            {opt.label}
-                          </span>
-                          <input
-                            type={group.kind === "sort" ? "radio" : "checkbox"}
-                            name={group.label}
-                            value={opt.value}
-                            checked={checked}
-                            onChange={(e) => {
-                              const value = e.target.value;
-                              if (group.kind === "sort") {
-                                setSelectedSortType(value);
-                              } else {
-                                setSelectedServiceTypes((prev) =>
-                                  e.target.checked
-                                    ? [...prev, value]
-                                    : prev.filter((v) => v !== value)
-                                );
-                              }
-                            }}
-                            className={`appearance-none w-6 h-6 border-2 border-current opacity-60 checked:opacity-100 checked:bg-current transition-opacity ${
-                              group.kind === "sort" ? "rounded-full" : "rounded-md"
-                            }`}
-                          />
-                        </label>
-                      );
-                    })}
-                  </fieldset>
-                );
-              })}
-            </div>
-          </div>,
-          document.body
+            {activeCount}
+          </span>
         )}
+      </IconButton>
+
+      <BottomSheet
+        isOpen={isOpen}
+        onClose={close}
+        title="Sort & filter"
+        footer={
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={reset}
+              disabled={!activeCount}
+              className="h-12 px-5 rounded-full bg-raised border border-line text-fg text-base disabled:opacity-50"
+            >
+              Reset
+            </button>
+            <button
+              type="button"
+              onClick={close}
+              className="flex-1 h-12 rounded-full bg-accent text-accent-fg text-base font-medium"
+            >
+              {resultCount === 0
+                ? "No matching records"
+                : `Show ${resultCount} ${resultCount === 1 ? "record" : "records"}`}
+            </button>
+          </div>
+        }
+      >
+        <div className="flex flex-col gap-6 px-2 pt-1 pb-2">
+          <fieldset className="flex flex-col gap-2">
+            <legend className={`${sectionHeading} mb-2`}>Sort by</legend>
+            <div className="grid grid-cols-3 gap-1 p-1 rounded-full bg-raised">
+              {SORT_FIELDS.map((field) => (
+                <label key={field.label} className="cursor-pointer">
+                  <input
+                    type="radio"
+                    name="sort-field"
+                    className="peer sr-only"
+                    checked={field === sortField}
+                    // A new field starts in its first direction.
+                    onChange={() => setSelectedSortType(field.directions[0].key)}
+                  />
+                  <span className={segment(field === sortField)}>{field.label}</span>
+                </label>
+              ))}
+            </div>
+            <div
+              role="radiogroup"
+              aria-label={`${sortField.label} order`}
+              className="grid grid-cols-2 gap-1 p-1 rounded-full bg-raised"
+            >
+              {sortField.directions.map((direction) => (
+                <label key={direction.key} className="cursor-pointer">
+                  <input
+                    type="radio"
+                    name="sort-direction"
+                    className="peer sr-only"
+                    checked={selectedSortType === direction.key}
+                    onChange={() => setSelectedSortType(direction.key)}
+                  />
+                  <span className={segment(selectedSortType === direction.key)}>
+                    {direction.label}
+                  </span>
+                </label>
+              ))}
+            </div>
+          </fieldset>
+
+          <section aria-labelledby="filter-heading" className="flex flex-col gap-4">
+            <div className="flex items-center justify-between">
+              <h4 id="filter-heading" className={sectionHeading}>
+                Filter by service
+              </h4>
+              {selectedServices.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => setSelectedServices([])}
+                  className="min-h-11 px-2 text-sm text-fg-soft underline underline-offset-2"
+                >
+                  Clear {selectedServices.length}
+                </button>
+              )}
+            </div>
+
+            {filterGroups.length === 0 && (
+              <p className="text-sm text-fg-muted">No services recorded yet.</p>
+            )}
+
+            {filterGroups.map((group) => (
+              <fieldset key={group.label}>
+                <legend className="text-sm text-fg-muted mb-2">{group.label}</legend>
+                <div className="flex flex-wrap gap-2">
+                  {group.options.map((option) => {
+                    const checked = selectedServices.includes(option.value);
+                    return (
+                      <label key={option.value} className="cursor-pointer">
+                        <input
+                          type="checkbox"
+                          className="peer sr-only"
+                          checked={checked}
+                          onChange={(e) => toggleService(option.value, e.target.checked)}
+                        />
+                        <span className={chip(checked)}>
+                          {checked && <Svg type="check" size="sm" color="current" />}
+                          {option.label}
+                          <span
+                            className={`text-sm tabular-nums ${
+                              checked ? "text-accent-fg/70" : "text-fg-muted"
+                            }`}
+                          >
+                            {option.count}
+                          </span>
+                        </span>
+                      </label>
+                    );
+                  })}
+                </div>
+              </fieldset>
+            ))}
+          </section>
+        </div>
+      </BottomSheet>
     </div>
   );
 }

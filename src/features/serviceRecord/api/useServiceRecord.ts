@@ -1,9 +1,8 @@
 import { useCallback } from "react";
 import { useApi } from "../../../api/useApi";
+import { oneLifeTokenHeaders } from "../../../api/oneLifeToken";
 
 interface ServiceRecordDto {
-  Token?: string;
-  token?: string;
   id?: string;
   Id?: string;
   TagId?: string;
@@ -30,6 +29,8 @@ interface ServiceRecordDto {
   comment?: string;
   FileUrls?: string[];
   fileUrls?: string[];
+  OwnerKey?: string | null;
+  ownerKey?: string | null;
   UserId?: string | null;
   userId?: string | null;
   canEdit?: boolean;
@@ -38,7 +39,6 @@ interface ServiceRecordDto {
 
 function toServiceRecord(dto: ServiceRecordDto): ServiceRecord {
   return {
-    Token: (dto.Token ?? dto.token) as string,
     id: (dto.id ?? dto.Id) as string,
     TagId: (dto.TagId ?? dto.tagId) as string,
     EnteredDate: dto.EnteredDate ?? dto.enteredDate ?? null,
@@ -52,9 +52,17 @@ function toServiceRecord(dto: ServiceRecordDto): ServiceRecord {
     Comment: (dto.Comment ?? dto.comment) as string,
     FileUrls: dto.FileUrls ?? dto.fileUrls ?? [],
     Certified: dto.Certified ?? dto.certified ?? undefined,
+    OwnerKey: dto.OwnerKey ?? dto.ownerKey ?? null,
     UserId: dto.UserId ?? dto.userId ?? null,
     canEdit: dto.canEdit ?? dto.CanEdit ?? true,
   };
+}
+
+// SubmitRecord and UpdateServiceRecord build their reply without knowing the caller, so it
+// always says canEdit: false. Whoever just saved the record can edit it, so keep Edit and
+// Delete showing.
+function savedByViewer(dto: ServiceRecordDto): ServiceRecord {
+  return { ...toServiceRecord(dto), canEdit: true };
 }
 
 export function useServiceRecord() {
@@ -62,16 +70,13 @@ export function useServiceRecord() {
 
   const submitRecord = useCallback(
     async (formData: FormData): Promise<ServiceRecord> => {
+      // The form's Token field stays for API versions that read it from the body.
       const token = formData.get("Token") as string | null;
-      const tagId = formData.get("TagId") as string | null;
-      const headers: Record<string, string> = {};
-      if (token) headers["Authorization"] = token;
-      if (tagId) headers["X-Tag-Id"] = tagId;
-      const dto = await post<ServiceRecordDto>("SubmitRecord", formData, headers);
+      const dto = await post<ServiceRecordDto>("SubmitRecord", formData, oneLifeTokenHeaders(token));
       if (!(dto?.id ?? dto?.Id)) {
         throw new Error("Server returned an unexpected response while creating the record.");
       }
-      return toServiceRecord(dto);
+      return savedByViewer(dto);
     },
     [post]
   );
@@ -79,18 +84,25 @@ export function useServiceRecord() {
   const updateServiceRecord = useCallback(
     async (formData: FormData): Promise<ServiceRecord> => {
       const token = formData.get("Token") as string | null;
-      const tagId = formData.get("TagId") as string | null;
-      const headers: Record<string, string> = {};
-      if (token) headers["Authorization"] = token;
-      if (tagId) headers["X-Tag-Id"] = tagId;
-      const dto = await post<ServiceRecordDto>("UpdateServiceRecord", formData, headers);
+      const dto = await post<ServiceRecordDto>("UpdateServiceRecord", formData, oneLifeTokenHeaders(token));
       if (!(dto?.id ?? dto?.Id)) {
         throw new Error("Server returned an unexpected response while updating the record.");
       }
-      return toServiceRecord(dto);
+      return savedByViewer(dto);
     },
     [post]
   );
 
-  return { loading, error, submitRecord, updateServiceRecord };
+  // Only the record's owner, in service mode, can delete it; the server checks.
+  const deleteServiceRecord = useCallback(
+    async (record: ServiceRecord, token: string): Promise<void> => {
+      const formData = new FormData();
+      formData.append("Id", record.id);
+      formData.append("Token", token);
+      await post("DeleteServiceRecord", formData, oneLifeTokenHeaders(token));
+    },
+    [post]
+  );
+
+  return { loading, error, submitRecord, updateServiceRecord, deleteServiceRecord };
 }
