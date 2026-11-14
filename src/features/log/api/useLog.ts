@@ -1,5 +1,6 @@
 import { useCallback } from "react";
 import { useApi } from "../../../api/useApi";
+import { oneLifeTokenHeaders } from "../../../api/oneLifeToken";
 import { getCached, setCached, CACHE_TTL_MS } from "../../../shared/utils/sessionCache";
 
 export function useLog() {
@@ -10,7 +11,8 @@ export function useLog() {
   const getLogData = useCallback(
     async (token: string, lastUpdated?: string): Promise<any> => {
       const since = lastUpdated ? `&lastUpdated=${encodeURIComponent(lastUpdated)}` : "";
-      return get<any>(`GetLogData?token=${token}${since}`, { Authorization: token, "X-Tag-Id": token });
+      // The token stays in the query too, for API versions that read it from there.
+      return get<any>(`GetLogData?token=${encodeURIComponent(token)}${since}`, oneLifeTokenHeaders(token));
     },
     [get]
   );

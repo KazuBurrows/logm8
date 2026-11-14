@@ -1,5 +1,6 @@
 import { useCallback } from "react";
 import { useApi } from "../../../api/useApi";
+import { oneLifeTokenHeaders } from "../../../api/oneLifeToken";
 
 interface ServiceRecordDto {
   Token?: string;
@@ -69,12 +70,9 @@ export function useServiceRecord() {
 
   const submitRecord = useCallback(
     async (formData: FormData): Promise<ServiceRecord> => {
+      // The form's Token field stays for API versions that read it from the body.
       const token = formData.get("Token") as string | null;
-      const tagId = formData.get("TagId") as string | null;
-      const headers: Record<string, string> = {};
-      if (token) headers["Authorization"] = token;
-      if (tagId) headers["X-Tag-Id"] = tagId;
-      const dto = await post<ServiceRecordDto>("SubmitRecord", formData, headers);
+      const dto = await post<ServiceRecordDto>("SubmitRecord", formData, oneLifeTokenHeaders(token));
       if (!(dto?.id ?? dto?.Id)) {
         throw new Error("Server returned an unexpected response while creating the record.");
       }
@@ -86,11 +84,7 @@ export function useServiceRecord() {
   const updateServiceRecord = useCallback(
     async (formData: FormData): Promise<ServiceRecord> => {
       const token = formData.get("Token") as string | null;
-      const tagId = formData.get("TagId") as string | null;
-      const headers: Record<string, string> = {};
-      if (token) headers["Authorization"] = token;
-      if (tagId) headers["X-Tag-Id"] = tagId;
-      const dto = await post<ServiceRecordDto>("UpdateServiceRecord", formData, headers);
+      const dto = await post<ServiceRecordDto>("UpdateServiceRecord", formData, oneLifeTokenHeaders(token));
       if (!(dto?.id ?? dto?.Id)) {
         throw new Error("Server returned an unexpected response while updating the record.");
       }
@@ -105,9 +99,7 @@ export function useServiceRecord() {
       const formData = new FormData();
       formData.append("Id", record.id);
       formData.append("Token", token);
-      const headers: Record<string, string> = { Authorization: token };
-      if (record.TagId) headers["X-Tag-Id"] = record.TagId;
-      await post("DeleteServiceRecord", formData, headers);
+      await post("DeleteServiceRecord", formData, oneLifeTokenHeaders(token));
     },
     [post]
   );

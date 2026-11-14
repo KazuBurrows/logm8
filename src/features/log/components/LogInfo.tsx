@@ -19,6 +19,8 @@ export interface LogInfoProps {
 export default function LogInfo({ tag, viewMode }: LogInfoProps) {
   const { serviceOptions, ownershipOptions, addRecord, serviceRecords } = useLogData();
 
+  const isServiceMode = viewMode === UserMode[0];
+
   const [editTagIsOpen, setEditTagIsOpen] = useState(false);
   const openEditTag = () => {
     setEditTagIsOpen(true);
@@ -69,11 +71,7 @@ export default function LogInfo({ tag, viewMode }: LogInfoProps) {
 
   return (
     <>
-      <EditTag
-        isOpen={editTagIsOpen}
-        onClose={closeEditTag}
-        tag={tag}
-      ></EditTag>
+      {isServiceMode && <EditTag isOpen={editTagIsOpen} onClose={closeEditTag} tag={tag} />}
       <RecordModal
         mode="create"
         isOpen={isCreateOpen}
@@ -91,7 +89,7 @@ export default function LogInfo({ tag, viewMode }: LogInfoProps) {
       <NavMenuPanel isOpen={isMenuOpen} onClose={closeMenu} />
 
       {/* Add record: bottom-right floating button, in thumb reach. */}
-      {viewMode === UserMode[0] && (
+      {isServiceMode && (
         <button
           type="button"
           aria-label="Add record"
@@ -107,18 +105,23 @@ export default function LogInfo({ tag, viewMode }: LogInfoProps) {
           isScrolled ? "bg-canvas/90 backdrop-blur-md shadow-lg shadow-black/30" : ""
         }`}
       >
-        <button
-          type="button"
-          aria-label="Edit vehicle details"
-          onClick={openEditTag}
-          className="z-20 rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-        >
-          <img
-            src={logmateLogo}
-            alt=""
-            className="h-12 bg-black/40 ring-1 ring-line rounded-full"
-          />
-        </button>
+        {/* Editing vehicle details needs a service link; guests just see the logo. */}
+        {isServiceMode ? (
+          <button
+            type="button"
+            aria-label="Edit vehicle details"
+            onClick={openEditTag}
+            className="z-20 rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+          >
+            <img
+              src={logmateLogo}
+              alt=""
+              className="h-12 bg-black/40 ring-1 ring-line rounded-full"
+            />
+          </button>
+        ) : (
+          <img src={logmateLogo} alt="logm8" className="z-20 h-12 bg-black/40 ring-1 ring-line rounded-full" />
+        )}
         <div className="flex items-center gap-2">
           <IconButton label="Menu" onClick={openMenu}>
             <span aria-hidden="true" className="flex flex-col items-center justify-center gap-1">

@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { useApi } from "../../../api/useApi";
+import { oneLifeTokenHeaders } from "../../../api/oneLifeToken";
 import { Panel } from "../../../shared/components/Panel";
 import { UpdateAssetNfcTagRequest } from "../../../shared/types/global";
 import { TagFormFields, TagFormValues } from "./TagFormFields";
@@ -39,6 +40,7 @@ export default function EditTag({ tag, isOpen, onClose }: ModalProps) {
     e.preventDefault();
 
     const payload: UpdateAssetNfcTagRequest = {
+      // Ignored by the current API (the tag comes from the header's token); kept for older ones.
       TagId: token,
       Make: form.Make,
       Model: form.Model,
@@ -54,10 +56,10 @@ export default function EditTag({ tag, isOpen, onClose }: ModalProps) {
     };
 
     try {
-      await post("UpdateAssetNfcTagAsync", payload);
+      await post("UpdateAssetNfcTagAsync", payload, oneLifeTokenHeaders(token));
       onClose();
-    } catch (err) {
-      alert(err instanceof Error ? err.message : "Network or server error");
+    } catch {
+      // The API client has already shown the error as a toast; keep the form open to retry.
     }
   };
 
