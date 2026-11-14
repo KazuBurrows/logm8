@@ -43,7 +43,6 @@ const state = () => JSON.parse(screen.getByTestId("log").textContent ?? "{}");
 
 function cachedRecord(id: string, lastModified: string, servicedDate: string): ServiceRecord {
   return {
-    Token: "",
     id,
     TagId: "",
     EnteredDate: null,

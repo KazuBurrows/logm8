@@ -10,7 +10,6 @@ import {
 
 function record(overrides: Partial<ServiceRecord>): ServiceRecord {
   return {
-    Token: "",
     id: "r1",
     TagId: "",
     EnteredDate: null,
@@ -120,12 +119,12 @@ describe("log cache storage", () => {
 
   test("treats corrupt or malformed entries as missing", () => {
     writeLogCache(entry("tag-a"));
-    localStorage.setItem("logm8:log:v1:tag-a", "{not json");
+    localStorage.setItem("logm8:log:v2:tag-a", "{not json");
     expect(readLogCache("tag-a")).toBeNull();
     expect(readLastViewedLog()).toBeNull();
 
     localStorage.setItem(
-      "logm8:log:v1:tag-b",
+      "logm8:log:v2:tag-b",
       JSON.stringify({ id: "tag-b", lastUpdated: "garbage", logHistory: [] })
     );
     expect(readLogCache("tag-b")).toBeNull();
@@ -135,4 +134,23 @@ describe("log cache storage", () => {
     expect(readLastViewedLog()).toBeNull();
     expect(readLogCache("tag-a")).toBeNull();
   });
+});
+
+test("caches from the old version, which held record tokens, are deleted on first use", () => {
+  localStorage.setItem("logm8:log:v1", JSON.stringify(["A"]));
+  localStorage.setItem(
+    "logm8:log:v1:A",
+    JSON.stringify({ id: "A", lastUpdated: "", logHistory: [{ id: "r1", Token: "service-token" }] })
+  );
+  localStorage.setItem("unrelated", "keep");
+
+  // A fresh copy of the module: the purge runs once per page load.
+  jest.isolateModules(() => {
+    const fresh = require("./logCache");
+    expect(fresh.readLastViewedLog()).toBeNull();
+  });
+
+  expect(localStorage.getItem("logm8:log:v1")).toBeNull();
+  expect(localStorage.getItem("logm8:log:v1:A")).toBeNull();
+  expect(localStorage.getItem("unrelated")).toBe("keep");
 });

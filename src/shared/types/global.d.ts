@@ -3,9 +3,9 @@ declare global {
     Records: ServiceRecord[]
   }
   
-  // Type for a single record in the "records" array
+  // Type for a single record in the "records" array. No Token: the API no longer sends the
+  // token a record was created with (it was a working service token for whoever saw it).
   interface ServiceRecord {
-    Token: string;
     id: string;
     TagId: string;
     EnteredDate: string | null;

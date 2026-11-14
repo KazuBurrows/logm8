@@ -3,8 +3,6 @@ import { useApi } from "../../../api/useApi";
 import { oneLifeTokenHeaders } from "../../../api/oneLifeToken";
 
 interface ServiceRecordDto {
-  Token?: string;
-  token?: string;
   id?: string;
   Id?: string;
   TagId?: string;
@@ -39,7 +37,6 @@ interface ServiceRecordDto {
 
 function toServiceRecord(dto: ServiceRecordDto): ServiceRecord {
   return {
-    Token: (dto.Token ?? dto.token) as string,
     id: (dto.id ?? dto.Id) as string,
     TagId: (dto.TagId ?? dto.tagId) as string,
     EnteredDate: dto.EnteredDate ?? dto.enteredDate ?? null,

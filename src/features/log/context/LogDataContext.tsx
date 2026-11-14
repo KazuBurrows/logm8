@@ -42,7 +42,6 @@ const emptyTag: ServiceTag = {
 
 function normalizeRecord(record: any): ServiceRecord {
   return {
-    Token: record.Token ?? record.token,
     id: record.id ?? record.Id,
     TagId: record.TagId ?? record.tagId ?? "",
     EnteredDate: record.EnteredDate ?? record.enteredDate ?? "",

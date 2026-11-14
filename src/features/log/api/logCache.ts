@@ -1,8 +1,30 @@
 // Per-tag copy of a log's service records, kept in localStorage so it survives the full
 // page load every NFC scan triggers. Later visits only fetch records changed since lastUpdated.
-const INDEX_KEY = "logm8:log:v1"; // tag ids, most recently viewed first
+//
+// v2: v1 entries held each record's creation token (a working service token) and raw user
+// IDs, so they're deleted rather than migrated; the next visit refetches in full.
+const INDEX_KEY = "logm8:log:v2"; // tag ids, most recently viewed first
 const ENTRY_PREFIX = INDEX_KEY + ":";
 const MAX_CACHED_LOGS = 20;
+const OLD_KEY_PREFIX = "logm8:log:v1";
+
+let oldVersionsPurged = false;
+
+/** Deletes caches written by older versions of this module (once per page load). */
+export function purgeOldLogCaches(): void {
+  if (oldVersionsPurged) return;
+  oldVersionsPurged = true;
+  try {
+    const stale: string[] = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && key.startsWith(OLD_KEY_PREFIX)) stale.push(key);
+    }
+    stale.forEach((key) => localStorage.removeItem(key));
+  } catch {
+    // localStorage unavailable; nothing to purge
+  }
+}
 
 export interface LogCache {
   lastUpdated: string; // UTC ISO of the newest LastModified at the last server sync; "" = fetch everything
@@ -64,6 +86,7 @@ function isLogCache(value: any): value is LogCache {
 }
 
 function readIndex(): string[] {
+  purgeOldLogCaches();
   try {
     const index = JSON.parse(localStorage.getItem(INDEX_KEY) ?? "[]");
     return Array.isArray(index) ? index.filter((id) => typeof id === "string") : [];

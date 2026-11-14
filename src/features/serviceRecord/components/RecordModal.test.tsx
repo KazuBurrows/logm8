@@ -33,7 +33,6 @@ const receiptA = "https://files.example/receipts/a.pdf";
 const receiptB = "https://files.example/receipts/b.pdf";
 
 const record: ServiceRecord = {
-  Token: "",
   id: "r1",
   TagId: "t1",
   EnteredDate: null,

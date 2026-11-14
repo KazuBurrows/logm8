@@ -4,7 +4,6 @@ import { act, fireEvent, render, screen } from "@testing-library/react";
 import { RecordDetail } from "./RecordDetail";
 
 const record: ServiceRecord = {
-  Token: "",
   id: "r1",
   TagId: "t1",
   EnteredDate: null,
