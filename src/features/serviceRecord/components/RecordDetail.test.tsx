@@ -1,6 +1,7 @@
 // fireEvent rather than user-event: user-event resolves a second copy of
 // @testing-library/dom whose events aren't wrapped in act().
-import { act, fireEvent, render, screen } from "@testing-library/react";
+import { useState } from "react";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { RecordDetail } from "./RecordDetail";
 
 const record: ServiceRecord = {
@@ -78,6 +79,32 @@ test("Delete asks first, and only deletes once confirmed", async () => {
     fireEvent.click(screen.getByRole("button", { name: "Delete record" }));
   });
   expect(onDelete).toHaveBeenCalledTimes(1);
+});
+
+test("the page scrolls again once a deleted record's panel and confirmation have closed", async () => {
+  // Like the log page: deleting closes the panel while the confirmation closes itself.
+  function DeletingPage() {
+    const [isOpen, setIsOpen] = useState(true);
+    return (
+      <RecordDetail
+        isOpen={isOpen}
+        onClose={() => {}}
+        record={record}
+        categoryPath={[]}
+        canEdit
+        onEdit={() => {}}
+        onDelete={async () => setIsOpen(false)}
+      />
+    );
+  }
+  render(<DeletingPage />);
+  fireEvent.click(await screen.findByRole("button", { name: "Delete" }));
+  await act(async () => {
+    fireEvent.click(await screen.findByRole("button", { name: "Delete record" }));
+  });
+
+  await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
+  expect(document.body.style.overflow).toBe("");
 });
 
 test("Cancel leaves the record alone", async () => {
