@@ -3,6 +3,7 @@ import { Svg } from "../../../shared/components/Svg";
 import { Tile } from "../../../shared/components/Tile";
 import { BottomSheet, sheetRowClass } from "../../../shared/components/BottomSheet";
 import { groupedFuelOptions } from "../../../shared/types/serviceOptions";
+import { UpdateAssetNfcTagRequest } from "../../../shared/types/global";
 
 export interface TagFormValues {
   Make: string;
@@ -15,6 +16,23 @@ export interface TagFormValues {
   Color: string;
   VinNumber: string | null;
   LicencePlate: string | null;
+}
+
+/** The form's values as the API's vehicle-details body (setup and Edit vehicle details). */
+export function vehicleDetailsFrom(form: TagFormValues): UpdateAssetNfcTagRequest {
+  return {
+    Make: form.Make,
+    Model: form.Model,
+    Year: Number(form.Year) || 0,
+    Vehicle: form.Vehicle,
+    Style: "Null",
+    Engine: Number(form.Engine) || 0,
+    Fuel: form.Fuel,
+    Transmission: form.Transmission,
+    Color: form.Color,
+    VinNumber: form.VinNumber,
+    LicencePlate: form.LicencePlate,
+  };
 }
 
 export interface TagFormFieldsProps {

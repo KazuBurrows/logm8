@@ -1,10 +1,11 @@
 import { useCallback } from "react";
 import { useApi } from "../../../api/useApi";
 import { oneLifeTokenHeaders } from "../../../api/oneLifeToken";
+import { UpdateAssetNfcTagRequest } from "../../../shared/types/global";
 import { getCached, setCached, CACHE_TTL_MS } from "../../../shared/utils/sessionCache";
 
 export function useLog() {
-  const { loading, error, get } = useApi();
+  const { loading, error, get, post } = useApi();
 
   // With lastUpdated, the server only returns records with LastModified >= lastUpdated;
   // records are cached per tag by LogDataProvider (see logCache.ts), not here.
@@ -30,25 +31,16 @@ export function useLog() {
     [get]
   );
 
-  // A thrown ApiError means failure; on success the envelope's payload
-  // (a plain message, or an object carrying one) is normalized to a string.
-  const submitTag = useCallback(
-    async (jsonData: string, tagId: string): Promise<string | undefined> => {
-      const result = await get<any>(`SubmitTag?tag=${jsonData}`, { Authorization: tagId, "X-Tag-Id": tagId });
-      return typeof result === "string" ? result : result?.message;
+  // Sets up a new sticker with the setup link's token (from /tag/create?token=...). Resolves to
+  // the new log's URL (the same token, now opening the log); a thrown ApiError means failure.
+  const configureTag = useCallback(
+    async (token: string, details: UpdateAssetNfcTagRequest): Promise<string | undefined> => {
+      const result = await post<any>("ConfigureTag", details, oneLifeTokenHeaders(token));
+      return typeof result === "string" ? undefined : result?.url;
     },
-    [get]
+    [post]
   );
 
-  const getRedirectUrl = useCallback(
-    async (eId: string): Promise<string | undefined> => {
-      const reqString = JSON.stringify({ eId });
-      const result = await get<any>(`OneLifeUrlOneStepNoDecrypt?reqString=${reqString}`);
-      return typeof result === "string" ? result : result?.url;
-    },
-    [get]
-  );
-
-  return { loading, error, getLogData, getServiceRecordHierarchy, submitTag, getRedirectUrl };
+  return { loading, error, getLogData, getServiceRecordHierarchy, configureTag };
 
 }

@@ -1,27 +1,35 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { useLog } from "../api/useLog";
 import { ApiError } from "../../../api/client";
 import { dispatchToast } from "../../../shared/components/Toast/toastService";
-import { TagFormFields, TagFormValues } from "../components/TagFormFields";
+import { TagFormFields, TagFormValues, vehicleDetailsFrom } from "../components/TagFormFields";
 import { AmbientGlow } from "../../../shared/components/AmbientGlow";
 
-function isSafeRedirectUrl(url: string): boolean {
+// Only follow redirects to this site or logm8.com, never wherever a response says.
+export function isSafeRedirectUrl(url: string): boolean {
   try {
     const parsed = new URL(url, window.location.origin);
-    return parsed.protocol === "http:" || parsed.protocol === "https:";
+    if (parsed.protocol !== "https:" && parsed.protocol !== "http:") return false;
+    return (
+      parsed.origin === window.location.origin ||
+      parsed.hostname === "logm8.com" ||
+      parsed.hostname.endsWith(".logm8.com")
+    );
   } catch {
     return false;
   }
 }
 
+// /tag/create?token=<setup link token>: scanning an unconfigured sticker lands here. The token
+// is a service link for that sticker; submitting sets the sticker up and the same link then
+// opens its new log.
 export default function CreateTag() {
-  const { submitTag, getRedirectUrl } = useLog();
+  const { configureTag } = useLog();
   const location = useLocation();
-  const queryParams = new URLSearchParams(location.search);
-  const id = queryParams.get("token") ?? ""; // Extract the 'id' value
+  const token = new URLSearchParams(location.search).get("token") ?? "";
 
-  const [TagId, setTagId] = useState<string>("");
+  const [isSaving, setIsSaving] = useState(false);
   const [form, setForm] = useState<TagFormValues>({
     Make: "",
     Model: "",
@@ -40,47 +48,27 @@ export default function CreateTag() {
     []
   );
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const formData = {
-      TagId,
-      Style: "Null",
-      ...form,
-    };
-    const jsonData = JSON.stringify(formData);
-
-    const redirectUser = async () => {
-      try {
-        const url = await getRedirectUrl(id);
-        if (url && isSafeRedirectUrl(url)) {
-          window.location.href = url;
-        } else {
-          console.error("API returned a missing or unsafe URL:", url);
-        }
-      } catch (err) {
-        console.error("Redirect error:", err);
+    if (isSaving) return;
+    setIsSaving(true);
+    try {
+      const url = await configureTag(token, vehicleDetailsFrom(form));
+      if (url && isSafeRedirectUrl(url)) {
+        window.location.href = url;
+        return;
       }
-    };
-
-    const fetchData = async () => {
-      try {
-        await submitTag(jsonData, id);
-        redirectUser();
-      } catch (err) {
-        // ApiError is surfaced via the toast in the api client, except 404s
-        console.error("Fetch error:", err);
-        if (err instanceof ApiError && err.status === 404) {
-          dispatchToast("Something went wrong while saving the tag. Please try again.", "error");
-        }
+      console.error("Setup returned a missing or unsafe URL:", url);
+      dispatchToast("Your sticker is set up. Scan it again to open its log.", "success");
+    } catch (err) {
+      // The API client toasts every failure except a 404.
+      if (err instanceof ApiError && err.status === 404) {
+        dispatchToast("This sticker couldn't be found. Scan it again to start over.", "error");
       }
-    };
-
-    fetchData();
+    } finally {
+      setIsSaving(false);
+    }
   };
-
-  useEffect(() => {
-    setTagId(id.replace(/ /g, "+"));
-  }, [id]);
 
   return (
     <div className="relative min-h-screen text-fg funnel-display-font bg-canvas">
@@ -99,9 +87,10 @@ export default function CreateTag() {
 
           <button
             type="submit"
-            className="w-full h-14 mt-2 rounded-full bg-accent text-accent-fg text-xl font-medium"
+            disabled={isSaving}
+            className="w-full h-14 mt-2 rounded-full bg-accent text-accent-fg text-xl font-medium disabled:opacity-60"
           >
-            Create NFC
+            {isSaving ? "Setting up…" : "Create NFC"}
           </button>
         </form>
       </div>

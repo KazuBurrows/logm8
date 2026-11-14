@@ -134,7 +134,8 @@ export interface ServiceHierarchyResult {
 }
 
 export interface UpdateAssetNfcTagRequest {
-  TagId: string;
+  // Ignored by the current API (the tag comes from the X-OneLife-Token header).
+  TagId?: string;
   Make: string;
   Model: string;
   Year: number;

@@ -4,7 +4,7 @@ import { useApi } from "../../../api/useApi";
 import { oneLifeTokenHeaders } from "../../../api/oneLifeToken";
 import { Panel } from "../../../shared/components/Panel";
 import { UpdateAssetNfcTagRequest } from "../../../shared/types/global";
-import { TagFormFields, TagFormValues } from "./TagFormFields";
+import { TagFormFields, TagFormValues, vehicleDetailsFrom } from "./TagFormFields";
 // const logmateLogo = require("../assets/logmate-logo.png");
 
 interface ModalProps {
@@ -42,17 +42,7 @@ export default function EditTag({ tag, isOpen, onClose }: ModalProps) {
     const payload: UpdateAssetNfcTagRequest = {
       // Ignored by the current API (the tag comes from the header's token); kept for older ones.
       TagId: token,
-      Make: form.Make,
-      Model: form.Model,
-      Year: Number(form.Year) || 0,
-      Vehicle: form.Vehicle,
-      Style: "Null",
-      Engine: Number(form.Engine) || 0,
-      Fuel: form.Fuel,
-      Transmission: form.Transmission,
-      Color: form.Color,
-      VinNumber: form.VinNumber,
-      LicencePlate: form.LicencePlate,
+      ...vehicleDetailsFrom(form),
     };
 
     try {
