@@ -21,6 +21,9 @@ declare global {
     // CompletedTasks: TaskCompleted[];
     // PendingCompletedTasks: PendingTaskCompleted[] | null;
     Certified?: boolean;
+    // Who owns the record, for comparing with the viewer: the current API sends an opaque
+    // OwnerKey (compare with GetLogData's viewerKey); older ones sent the raw UserId.
+    OwnerKey?: string | null;
     UserId?: string | null;
     canEdit?: boolean;
   }

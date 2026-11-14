@@ -29,6 +29,8 @@ interface ServiceRecordDto {
   comment?: string;
   FileUrls?: string[];
   fileUrls?: string[];
+  OwnerKey?: string | null;
+  ownerKey?: string | null;
   UserId?: string | null;
   userId?: string | null;
   canEdit?: boolean;
@@ -50,6 +52,7 @@ function toServiceRecord(dto: ServiceRecordDto): ServiceRecord {
     Comment: (dto.Comment ?? dto.comment) as string,
     FileUrls: dto.FileUrls ?? dto.fileUrls ?? [],
     Certified: dto.Certified ?? dto.certified ?? undefined,
+    OwnerKey: dto.OwnerKey ?? dto.ownerKey ?? null,
     UserId: dto.UserId ?? dto.userId ?? null,
     canEdit: dto.canEdit ?? dto.CanEdit ?? true,
   };

@@ -11,7 +11,10 @@ import { useLog } from "../api/useLog";
 import {
   applyCanEdit,
   latestLastModified,
+  LogCache,
   mergeRecords,
+  OwnerKeyKind,
+  ownerKeyKind,
   readLastViewedLog,
   readLogCache,
   writeLogCache,
@@ -54,6 +57,7 @@ function normalizeRecord(record: any): ServiceRecord {
     Comment: record.Comment ?? record.comment,
     FileUrls: record.FileUrls ?? record.fileUrls,
     ServiceOption: record.ServiceOption ?? record.serviceOption,
+    OwnerKey: record.OwnerKey ?? record.ownerKey ?? null,
     UserId: record.UserId ?? record.userId ?? null,
     canEdit: record.canEdit ?? record.CanEdit ?? false,
   };
@@ -79,16 +83,24 @@ function toServiceTag(tag: any): ServiceTag {
 
 // The records to show from a GetLogData response. A delta can't say a record was deleted, so
 // any record missing from recordIds (every record the tag has now) is dropped; an older server
-// sends no recordIds, and then nothing is. canEdit is set for the viewer the response names.
+// sends no recordIds, and then nothing is. canEdit is set for the viewer the response names:
+// its opaque viewerKey, or the raw userId an older server sent.
 function shownFor(data: any, records: ServiceRecord[]): ServiceRecord[] {
   if (Array.isArray(data.recordIds)) {
     const live = new Set<string>(data.recordIds);
     records = records.filter((r) => live.has(r.id));
   }
-  return data.userId === undefined
+  const kind = ownerKeyKind(data);
+  const viewer = kind === "owner" ? data.viewerKey : data.userId;
+  return viewer === undefined
     ? records
-    : applyCanEdit(records, data.mode === UserMode.Service, data.userId);
+    : applyCanEdit(records, data.mode === UserMode.Service, viewer, kind);
 }
+
+// A cache written under the other owner-key kind (e.g. before the API switched to opaque keys)
+// can't have canEdit worked out for this viewer, so it's refetched in full instead of merged.
+const cacheUsableFor = (cache: LogCache | null | undefined, kind: OwnerKeyKind) =>
+  !!cache?.lastUpdated && (cache.keyKind ?? "user") === kind;
 
 interface LogDataContextValue {
   isRetrievingData: boolean;
@@ -126,11 +138,14 @@ export function LogDataProvider({ token, onNotFound, children }: LogDataProvider
   // Only a server sync moves lastUpdated; local adds/edits are upserted without it, so a
   // change someone else made after our last sync is still returned by the next delta fetch.
   const syncedLastUpdatedRef = useRef("");
+  // The owner-key kind of the last response, saved with the cache (see cacheUsableFor).
+  const keyKindRef = useRef<OwnerKeyKind>("owner");
 
   useEffect(() => {
     // `data` is a GetLogData response, so the server has already named the tag being shown.
     const showLog = (data: any, records: ServiceRecord[], lastUpdated = latestLastModified(records)) => {
       syncedLastUpdatedRef.current = lastUpdated;
+      keyKindRef.current = ownerKeyKind(data);
       setTag(toServiceTag(data.tag));
       setServiceRecords(shownFor(data, records));
       setViewMode(UserMode[data.mode ?? 1]);
@@ -143,15 +158,17 @@ export function LogDataProvider({ token, onNotFound, children }: LogDataProvider
         const data = await getLogData(token, lastViewed?.lastUpdated || undefined);
         const tagId: string = data.tag.id ?? data.tag.Id;
         const incoming: ServiceRecord[] = (data.records ?? []).map(normalizeRecord);
+        const kind = ownerKeyKind(data);
 
-        if (!lastViewed?.lastUpdated || lastViewed.id === tagId) {
+        if (!lastViewed?.lastUpdated || (lastViewed.id === tagId && cacheUsableFor(lastViewed, kind))) {
           showLog(data, lastViewed?.lastUpdated ? mergeRecords(lastViewed.logHistory, incoming) : incoming);
           return;
         }
 
-        // Those records were filtered by another tag's timestamp, so they're incomplete.
+        // Those records were filtered by another tag's timestamp (or come from a cache that
+        // can't be used for this viewer), so they're incomplete.
         const cached = readLogCache(tagId);
-        if (!cached?.lastUpdated) {
+        if (!cached || !cacheUsableFor(cached, kind)) {
           const full = await getLogData(token);
           showLog(full, (full.records ?? []).map(normalizeRecord));
           return;
@@ -197,7 +214,12 @@ export function LogDataProvider({ token, onNotFound, children }: LogDataProvider
   // Mirror the records into the device cache after each sync and after local adds/edits.
   useEffect(() => {
     if (isRetrievingData || isCheckingForUpdates || !tag.Id) return;
-    writeLogCache({ lastUpdated: syncedLastUpdatedRef.current, id: tag.Id, logHistory: serviceRecords });
+    writeLogCache({
+      lastUpdated: syncedLastUpdatedRef.current,
+      id: tag.Id,
+      logHistory: serviceRecords,
+      keyKind: keyKindRef.current,
+    });
   }, [isRetrievingData, isCheckingForUpdates, tag.Id, serviceRecords]);
 
   const addRecord = useCallback((newRecord: ServiceRecord) => {

@@ -26,10 +26,22 @@ export function purgeOldLogCaches(): void {
   }
 }
 
+/**
+ * How a GetLogData response identifies owners: "owner" = opaque OwnerKey/viewerKey (current
+ * API), "user" = raw UserId/userId (older API). Records cached under one can't be matched
+ * against a viewer from the other, so a change of kind means a full refetch.
+ */
+export type OwnerKeyKind = "owner" | "user";
+
+export function ownerKeyKind(data: any): OwnerKeyKind {
+  return data?.viewerKey !== undefined ? "owner" : "user";
+}
+
 export interface LogCache {
   lastUpdated: string; // UTC ISO of the newest LastModified at the last server sync; "" = fetch everything
   id: string; // Tag.Id
   logHistory: ServiceRecord[];
+  keyKind?: OwnerKeyKind; // absent = "user" (written before owner keys)
 }
 
 // The server stamps LastModified in .NET "o" format (7 fractional digits). JS Date only
@@ -64,15 +76,17 @@ export function mergeRecords(cached: ServiceRecord[], incoming: ServiceRecord[])
 
 // canEdit depends on who is viewing, so a cached value may belong to a previous viewer.
 // Mirrors the server: only a service-mode caller can edit, and only their own records.
+// "viewer" is the response's viewerKey (kind "owner") or userId (kind "user").
 export function applyCanEdit(
   records: ServiceRecord[],
   isServiceMode: boolean,
-  userId: string | null
+  viewer: string | null,
+  kind: OwnerKeyKind = "user"
 ): ServiceRecord[] {
-  return records.map((r) => ({
-    ...r,
-    canEdit: isServiceMode && !!r.UserId && r.UserId === userId,
-  }));
+  return records.map((r) => {
+    const owner = kind === "owner" ? r.OwnerKey : r.UserId;
+    return { ...r, canEdit: isServiceMode && !!owner && owner === viewer };
+  });
 }
 
 function isLogCache(value: any): value is LogCache {

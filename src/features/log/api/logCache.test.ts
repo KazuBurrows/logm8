@@ -154,3 +154,14 @@ test("caches from the old version, which held record tokens, are deleted on firs
   expect(localStorage.getItem("logm8:log:v1:A")).toBeNull();
   expect(localStorage.getItem("unrelated")).toBe("keep");
 });
+
+test("applyCanEdit compares opaque owner keys when the API sends them", () => {
+  const records = [
+    record({ id: "mine", OwnerKey: "k1", UserId: null }),
+    record({ id: "theirs", OwnerKey: "k2", UserId: null }),
+    record({ id: "legacy", OwnerKey: null, UserId: null }),
+  ];
+  expect(applyCanEdit(records, true, "k1", "owner").map((r) => r.canEdit)).toEqual([true, false, false]);
+  expect(applyCanEdit(records, false, "k1", "owner").map((r) => r.canEdit)).toEqual([false, false, false]);
+  expect(applyCanEdit(records, true, null, "owner").map((r) => r.canEdit)).toEqual([false, false, false]);
+});
